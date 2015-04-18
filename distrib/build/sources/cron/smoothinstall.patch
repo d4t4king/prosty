@@ -1,0 +1,53 @@
+--- cron-3.0pl1.orig/database.c-ORIG	2014-11-08 00:40:08.000000000 -0500
++++ cron-3.0pl1.orig/database.c	2014-11-08 00:42:32.000000000 -0500
+@@ -27,6 +27,7 @@
+ #define __USE_GNU /* For O_NOFOLLOW */
+ #include <fcntl.h>
+ #undef __USE_GNU
++#include <glob.h>
+ #include <sys/stat.h>
+ #include <sys/file.h>
+ 
+@@ -173,8 +174,21 @@
+ 
+ #ifdef DEBIAN
+ 	/* Read all the package crontabs. */
+-	if (!(dir = opendir(SYSCRONDIR))) {
+-		log_it("CRON", getpid(), "OPENDIR FAILED", SYSCRONDIR);
++	/* Smoothwall additions adapted from Steve McNeill's SmoothInstall work. */
++
++	int i;
++	glob_t cronDotD;
++
++	/* First get /etc/cron.d/ */
++	glob(SYSCRONDIR, GLOB_ONLYDIR|GLOB_NOMAGIC, NULL, &cronDotD);
++	/* Now get all the mods' cron.d/ dirs */
++	glob("/var/smoothwall/mods/*/etc/cron.d", GLOB_ONLYDIR|GLOB_APPEND, NULL, &cronDotD);
++		
++	for (i=0; i<cronDotD.gl_pathc; i++) {
++                log_it( "CRON", getpid(), "Processing ", cronDotD.gl_pathv[i]);
++
++		if (!(dir = opendir(cronDotD.gl_pathv[i]))) {
++			log_it("CRON", getpid(), "OPENDIR FAILED", cronDotD.gl_pathv[i]);
+ 		(void) exit(ERROR_EXIT);
+ 	}
+ 
+@@ -200,7 +214,7 @@
+ 		/* Generate the "fname" */
+ 		(void) strcpy(fname,"*system*");
+ 		(void) strcat(fname, dp->d_name);
+-		sprintf(tabname,"%s/%s", SYSCRONDIR, dp->d_name);
++			sprintf(tabname,"%s/%s", cronDotD.gl_pathv[i], dp->d_name);
+ 
+ 		/* statbuf is used as working storage by process_crontab() --
+ 		   current contents are irrelevant */
+@@ -209,6 +223,9 @@
+ 
+ 	}
+ 	closedir(dir);
++        }
++        globfree(&cronDotD);
++
+ #endif
+ 
+ 	/* we used to keep this dir open all the time, for the sake of

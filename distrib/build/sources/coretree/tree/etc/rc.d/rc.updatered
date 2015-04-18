@@ -1,0 +1,195 @@
+#!/bin/bash
+
+# Like nearly everything in SWE, the file is covered by the project's
+#   umbrella GPL license.
+
+# Tweaks to handle DHCP changes by Neal Murphy and Stan Prescott, 4/2013
+# Re-arranged a little and ip-up merged in; Neal Murphy, 7/2013
+
+# crEcho: print stuff with <CR><NL> at EOL
+function crEcho {
+	if [ "$1" == "-n" ]; then
+		crOpts="-e -n"
+		shift
+	else
+		crOpts="-e"
+	fi
+	echo $crOpts "$*\r"
+}
+
+# readRED: read the data files in .../red/*
+function readRED {
+	case $RED_TYPE in
+	  DHCP)
+	    RED_ADDRESS=`cat $redDIR/local-ipaddress`
+	    RED_GATEWAY=`cat $redDIR/remote-ipaddress`
+	    RED_NETMASK=`cat $redDIR/dhcp-netmask`
+	    RED_DNS1=`cat $redDIR/dns1`
+	    RED_DNS2=`cat $redDIR/dns2`
+	    ;;
+	  *)
+	    logger -t updatered "readRED called for invalid red type '$RED_TYPE'"
+	    exit 1
+	    ;;
+	esac
+}
+
+# writeRED: write the data files in .../red/*
+function writeRED {
+	echo -n $1 >$redDIR/iface
+	echo -n $2 >$redDIR/local-ipaddress
+	echo -n $3 >$redDIR/remote-ipaddress
+	echo -n $4 >$redDIR/dhcp-netmask
+	echo -n $5 >$redDIR/dns1
+	echo -n $6 >$redDIR/dns2
+	> $redDIR/active
+	chown nobody:nobody $redDIR/*
+}
+
+# A bit of shorthand
+ethDIR="/var/smoothwall/ethernet"
+pppDIR="/var/smoothwall/ppp"
+redDIR="/var/smoothwall/red"
+
+dns1ENV=$DNS1
+dns2ENV=$DNS2
+. ${ethDIR}/settings
+
+# Drop a trace
+logger -t updatered "Updating RED"
+
+
+if [ "$RED_TYPE" == "DHCP" ]; then
+	# First up; when RED is DHCP
+	#
+	DNSMASQ_DNS1=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 1`
+	DNSMASQ_DNS2=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 2`
+	. /var/lib/dhcpcd/dhcpcd-${RED_DEV}.info
+	readRED DHCP
+
+	# Can't use if-else here; 'up' appears in first and default
+
+	# UP without changes
+	if [ "$2" == "up" -a \
+	     "$IPADDR" == "$RED_ADDRESS" -a \
+	     "$NETMASK" == "$RED_NETMASK" -a \
+	     "$GATEWAYS" == "$RED_GATEWAY" -a \
+	     "$DNSMASQ_DNS1" == "$RED_DNS1" -a \
+	     "$DNSMASQ_DNS2" == "$RED_DNS2" ]; then
+	  # Nothing changed, nothing to do
+	  logger -t updatered "DHCP lease renewed; no changes"
+	  exit 0
+	fi
+
+	# DOWN
+	if [ "$2" == "down" ]; then
+		# Nothing to do; either the system is going down or networking is
+		#   being stopped for restart. *Technically*, it might be more correct
+		#   to stop the various services; but since they are re-started soon
+		#   enough or the system halts, it might not matter.
+
+		logger -t updatered "DHCP lease lost; clearing RED info"
+		writeRED
+		rm -f $redDIR/active
+
+		# This might could get annoying if the lease changes often
+		/usr/bin/sounds/offlinesound
+
+		exit 0
+	fi
+
+	# NEW, or UP with changes
+	logger -t updatered "DHCP lease changed; updating RED info"
+	rm -f ${ethDIR}/bootUP
+
+	writeRED $INTERFACE $IPADDR "$GATEWAYS" \
+	         $NETMASK $DNSMASQ_DNS1 $DNSMASQ_DNS2
+
+	# This might could get annoying if the lease changes often
+	/usr/bin/sounds/onlinesound
+
+
+elif [ "$RED_TYPE" == "STATIC" ]; then
+	# Second up; when RED is static
+	#
+	logger -t updatered "Setting RED's static IP info"
+	if [ "$DNS1_OVERRIDE" != "" -o "$DNS2_OVERRIDE" != "" ]; then
+		DNSMASQ_DNS1=$DNS1_OVERRIDE
+		DNSMASQ_DNS2=$DNS2_OVERRIDE
+	else
+		DNSMASQ_DNS1=$DNS1
+		DNSMASQ_DNS2=$DNS2
+	fi
+	writeRED $RED_DEV $RED_ADDRESS $DEFAULT_GATEWAY \
+	         $RED_NETMASK $DNSMASQ_DNS1 $DNSMASQ_DNS2
+
+	/usr/bin/sounds/onlinesound
+
+
+else
+	# Last: everything else is PPP
+	#
+	logger -t updatered "PPP is active on $1; updating RED info"
+
+	# Do nothing if it's already active
+	[ -e $redDIR/active ] && exit
+
+	# Otherwise prepare and write the RED info
+	. ${pppDIR}/settings
+
+	if [ "$DNS" == "Automatic" ]; then
+		# Use the addrs we got from the peer ppp daemon
+		DNSMASQ_DNS1=$dns1ENV
+		DNSMASQ_DNS2=$dns2ENV
+	else
+		# Use the addrs we got from our PPP settings file
+		DNSMASQ_DNS1=$DNS1
+		DNSMASQ_DNS2=$DNS2
+	fi
+
+	writeRED $1 $4 $5 "255.255.255.255" $DNSMASQ_DNS1 $DNSMASQ_DNS2
+
+	/usr/bin/sounds/onlinesound
+fi
+
+# Restart/reset everything that depends on RED
+#
+crEcho "..DNSMasq"
+/usr/bin/smoothcom dnsproxyrestart $DNSMASQ_DNS1 $DNSMASQ_DNS2
+
+crEcho "..RED filtering"
+/usr/bin/smoothcom setincoming
+
+/usr/bin/smoothcom setoutgoing
+# Part of Roadster's integrated TOFC
+#if [ -f /var/smoothwall/outgoing/configErrors.log ]; then
+#  tput smso;
+#  sed -e 's/^/..  /' /var/smoothwall/outgoing/configErrors.log
+#  tput rmso
+#fi
+
+crEcho "..external access rules"
+/usr/bin/smoothcom setxtaccess
+
+crEcho "..snort, squid, upnpd, TC, DDNS, VPN (as enabled)"
+/usr/bin/smoothcom snortrestart
+/usr/bin/smoothcom squidrestart
+/usr/bin/smoothcom upnpdrestart
+/usr/bin/smoothcom trafficrestart
+
+/usr/bin/smoothwall/setddns.pl
+
+/etc/rc.d/rc.vpn.up
+
+# Adapted from Steve McNeill's ModInstall
+crEcho "..running mods' 'on RED up' scripts"
+# if any; limited to .../mods/*/etc/rc.d
+shopt -s nullglob
+for i in /var/smoothwall/mods/*/etc/rc.d/00rc.updatered; do
+  $i
+done
+shopt -u nullglob
+
+crEcho "..look for system updates; register system."
+/usr/bin/smoothwall/updatelists.pl
+/etc/rc.d/rc.machineregister

@@ -1,0 +1,81 @@
+# If any files need to be moved or should be removed to avoid clobbering
+#   customized files, create bash script 'pre-tar-setup' in the update
+#   dir to perform the work. If it exists, it will be executed just before
+#   the distrib tree is stripped and tarred.
+
+include ../../Makefile
+
+include ../../Makefile.conf
+
+include ../../Makefile.flags-arch
+
+TARGET_DIR = ../../../target
+
+OUTPUT_FILENAME = $(BASENAME)-$(UPDATE_NAME)-$(mARCH).tar.gz
+
+all: clean $(OUTPUT_FILENAME) updateinfo
+
+patch.tar.gz: ../../../crumbs/Final.built
+	# Prep the tree
+	mkdir distrib review
+	(for I in \
+		$(UPDATE_PACKAGES) \
+	; do \
+ 		echo "Unpacking $$I ..."; \
+		if [ -f "$$I.list" ]; then \
+			Toption=" -T $$I.list"; \
+		else \
+			Toption=""; \
+		fi; \
+		tar xf $(TARGET_DIR)/smoothwall-$$I.tar.gz -C distrib$$Toption; \
+		mkdir review/$$I; \
+		tar xf $(TARGET_DIR)/smoothwall-$$I.tar.gz -C review/$$I$$Toption; \
+		( find review/$$I -name \*.la -print; \
+		  find review/$$I -name \*.a -print; \
+		  find review/$$I -name include -print ; \
+		  find review/$$I -name doc -print ; \
+		  find review/$$I -name man -print ; \
+		  find review/$$I -name info -exec rm -rf {} \;) | while read filnam; do \
+		    rm -rf $$filnam; done; \
+		tar cfz review/$$I-$(mARCH).tar.gz -C review/$$I .; \
+		rm -rf review/$$I; \
+	done; \
+	);
+	# Bump kernel version as needed
+	if [ "$(KERNEL)" != "" ]; then \
+		tar -xf /$(TARGET_DIR)/smoothwall-coretree.tar.gz -C distrib ./var/smoothwall/main/kernel; \
+	fi;
+	# Clear ClamAV files as needed
+	if [ "$(CLAMAV)" != "" ]; then \
+		rm -f distrib/var/clamav/*; \
+	fi;
+	# Move files as needed; delete files that shouldn't be clobbered
+	@echo "Special file handling, if needed ..."
+	@if [ -e pre-tar-setup ]; then . ./pre-tar-setup; fi
+	# Strip most binaries
+	@echo "Cleaning tree ..."
+	../../../toolcrib/striptree distrib/$(UPDATE_DIR)
+	# Build the patchball
+	@echo "Building patch.tar.gz, stand by ..."
+	tar cfz patch.tar.gz -C distrib .
+	# ----
+	tar cfz inspection-$(mARCH).tar.gz setup patch.tar.gz review
+
+updateinfo:
+	@echo "Building update information file ..."	
+	@echo "$(UPDATE_ID)|$(UPDATE_NAME)-$(mARCH)" >information
+	# ----
+
+$(OUTPUT_FILENAME): patch.tar.gz updateinfo
+	@echo "Making update file ..."
+	tar cfz $(OUTPUT_FILENAME) patch.tar.gz setup information $(EXTRA_UPDATE_FILES)
+
+clean:
+	@rm -rf distrib review
+	@rm -f patch.tar.gz inspection-$(mARCH).tar.gz
+	@rm -f $(OUTPUT_FILENAME)
+	@rm -f updateinfo
+	@rm -f information
+
+download:
+	@true

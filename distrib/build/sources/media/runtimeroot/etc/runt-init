@@ -1,0 +1,66 @@
+#!/bin/bash
+
+CLS="\033[0;0f\033[2J"
+BO="\033[1m"
+UL="\033[4m"
+BOUL="\033[1;4m"
+NO="\033[0m"
+
+/sbin/depmod -a
+
+echo "Loading, please wait..."
+
+[ -d /dev ] || mkdir -m 0755 /dev
+[ -d /root ] || mkdir -m 0700 /root
+[ -d /sys ] || mkdir /sys
+[ -d /proc ] || mkdir /proc
+[ -d /tmp ] || mkdir -m 0777 /tmp
+[ -d /run ] || mkdir -m 0755 /run
+[ -d /var/lock ] || mkdir -p -m 755 /var/lock
+
+# Mount proc, sys, dev
+echo "Mounting /proc, /sys"
+/bin/mount -t proc proc /proc
+/bin/mount -t sysfs sysfs /sys
+
+echo "Mounting devtmpfs"
+/bin/mount -t devtmpfs devtmpfs /dev
+/bin/mkdir -p /dev/pts
+/bin/mount -t devpts -o gid=5,mode=620 devpts /dev/pts
+
+
+# Populating dev
+echo "If you added one or more NICs to an existing system, startup may"
+echo "  hang here for a minute waiting for udev. Please be patient."
+/sbin/udevd --daemon
+/sbin/udevadm trigger
+/sbin/udevadm settle
+
+# Load any modules explicitly required
+test -e /etc/modules && egrep -v "^$|^#" /etc/modules | while read a; do modprobe $a; done
+
+# Switch to hard drive and start the system
+/bin/mount /harddisk -o ro
+
+# Stop udevd; missed events will be caught later
+udevadm control --exit
+
+echo "1 4 1 7" >/proc/sys/kernel/printk
+
+/bin/umount /dev/pts
+/bin/mount -n -o move /dev /harddisk/dev
+/bin/mkdir -p /harddisk/dev/pts
+/bin/mount -t devpts -o gid=5,mode=620 devpts /harddisk/dev/pts
+
+PNR="/etc/udev/rules.d/70-persistent-net.rules"
+if [ -f "$PNR" ]; then
+  cp "$PNR" /harddisk/dev
+fi
+
+/usr/lib/klibc/bin/nuke /dev
+/bin/ln -s /harddisk/dev /dev
+
+/bin/mount -n -o move /sys /harddisk/sys
+/bin/mount -n -o move /proc /harddisk/proc
+
+exec /usr/lib/klibc/bin/run-init /harddisk /sbin/init </harddisk/dev/console >/harddisk/dev/console 2>&1

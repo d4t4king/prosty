@@ -1,0 +1,15 @@
+--- gcc-3.3.2/gcc/configure	2003-10-01 22:56:37.000000000 +0100
++++ gcc-3.3.2.new/gcc/configure	2006-12-28 19:23:29.405871696 +0000
+@@ -8008,12 +8008,7 @@
+   fi
+   rm -f conftest.* conftest[123].*
+ fi
+-if test x$gcc_cv_ld_ro_rw_mix = xread-write; then
+-	cat >> confdefs.h <<\EOF
+-#define HAVE_LD_RO_RW_SECTION_MIXING 1
+-EOF
+ 
+-fi
+ echo "$ac_t""$gcc_cv_ld_ro_rw_mix" 1>&6
+ 
+ echo $ac_n "checking linker PT_GNU_EH_FRAME support""... $ac_c" 1>&6
