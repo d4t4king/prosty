@@ -5,19 +5,44 @@ Smoothwall Express 3.1.....plus some.
 Added so far:
 * htop
 * Perl Modules
+	* App::Control *
+	* Authen::NTLM *
+	* Authen::SASL *
 	* Bit::Vector
 	* Carp::Clan
+	* Config::Patch *
+	* Date::Calc *
 	* Digest::HMAC
+	* GD *
+	* GDGraph *
+	* GDTextUtil *
 	* Geo::IP::PurePerl
+	* HTML-Parser *
+	* HTML-Tagset *
+	* IO-Socket-SSL *
+	* libnet *
+	* libwww-perl *
+	* local-lib *
+	* Log::Log4perl *
+	* NetAddr::IP *
+	* Net::CIDR *
 	* Net::DNS
-	* Net::Nslookup
 	* Net::IPv4Addr
+	* Net::Netmask *
+	* Net::Nslookup
+	* Net::SSLeay *
+	* RRD::Simple *
+	* Set::IntSpan *
 	* Sub::Uplevel
 	* Test::Exception
+	* URI *
+
+\* Included in SWE3.1u3
 
 Version bumps:
-* ntp -> 4.2.8
+* ntp -> 4.2.8p2
 
 Configuratin changes:
 * Added security HTTP headers to httpd.conf
-* Added ~encode_entities~ to header.pm
+* Added `encode_entities` to header.pm
+* Tweaked SSL configuration based on pull request.  (This requires further attention.)
