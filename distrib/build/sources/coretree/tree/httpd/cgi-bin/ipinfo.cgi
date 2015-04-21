@@ -21,7 +21,28 @@ my $hostname;
 
 &showhttpheaders();
 
-@addrs = split(/,/, $cgiparams{'IP'});
+if ($ENV{'QUERY_STRING'} && $cgiparams{'ACTION'} eq '')
+{
+	@vars = split(/\&/, $ENV{'QUERY_STRING'});
+	$cgiparams{'IP'} = '';
+	foreach $_ (@vars)
+	{
+		($var, $addr) = split(/\=/);
+		if ($var eq 'ip')
+		{
+			$cgiparams{'IP'} .= "$addr,";
+			push(@addrs, $addr);
+		} elsif ( $var eq "MODE" ){
+			$cgiparams{'MODE'} = $addr;
+		}
+	}
+	$cgiparams{'ACTION'} = 'Run';
+}
+else
+{
+	@addrs = split(/,/, $cgiparams{'IP'});
+}
+
 foreach $addr (@addrs)
 {
 	if (!&validipormask($addr) and !&validhostname($addr))
@@ -31,17 +52,30 @@ foreach $addr (@addrs)
 	}
 }
 
-&openpage($tr{'ip info'}, 1, '', 'tools');
+# Removed due to conflict with SWE source
+#&openpage($tr{'ip info'}, 1, '', 'tools');
+#
+#&openbigbox('100%', 'left');
+#
+#&alertbox($errormessage);
+#
+#print "<form method='post'>\n";
+#
+#&openbox($tr{'whois lookupc'});
 
-&openbigbox('100%', 'left');
+if ( $cgiparams{'MODE'} ne "quick" )
+{
+	&openpage($tr{'ip info'}, 1, '', 'tools');
 
-&alertbox($errormessage);
+	&openbigbox('100%', 'left');
 
-print "<form method='post'>\n";
+	&alertbox($errormessage);
 
-&openbox($tr{'whois lookupc'});
+	print "<form method='post'>\n";
 
-print <<END;
+	&openbox($tr{'whois lookupc'});
+
+	print <<END;
 <table width='100%'>
   <tr>
     <td width='20%' class='base'>$tr{'ip addresses or domain names'}</td>
@@ -51,29 +85,46 @@ print <<END;
 </table>
 END
 
-&closebox();
+	&closebox();
 
-if ($cgiparams{'ACTION'} eq $tr{'run'})
+	if ($cgiparams{'ACTION'} eq $tr{'run'})
+	{
+		unless ($errormessage)
+		{
+			foreach $addr (@addrs)
+			{
+	        		$hostname = gethostbyaddr(inet_aton($addr), AF_INET);
+	       			if (!$hostname) { $hostname = $tr{'lookup failed'}; }
+				&openbox("$addr ($hostname)");
+				print "<pre style='max-width:500px'>\n";
+				system('/usr/bin/whois', '--nocgi', '-s', $addr);
+				print "</pre>\n";
+				&closebox();
+			}
+		}	
+	}
+
+	print "</form>\n";
+
+	&alertbox('add','add');
+
+	&closebigbox();
+
+	&closepage();
+}
+else
 {
 	unless ($errormessage)
 	{
 		foreach $addr (@addrs)
 		{
-        		$hostname = gethostbyaddr(inet_aton($addr), AF_INET);
-       			if (!$hostname) { $hostname = $tr{'lookup failed'}; }
+			$hostname = gethostbyaddr(inet_aton($addr), AF_INET);
+			if (!$hostname) { $hostname = $tr{'lookup failed'}; }
 			&openbox("$addr ($hostname)");
-			print "<pre style='max-width:500px'>\n";
-			system('/usr/bin/whois', '--nocgi', '-s', $addr);
-			print "</pre>\n";
+			print "<div style='height: 140px; width: 400px; overflow: auto;'><pre style='font-size: 9px;'>";
+			system('/usr/bin/whois', '--nocgi', $addr);
+			print "</pre></div>";
 			&closebox();
 		}
 	}	
 }
-
-print "</form>\n";
-
-&alertbox('add','add');
-
-&closebigbox();
-
-&closepage();
