@@ -316,6 +316,8 @@ fi
       build eciadsl-synch_bin
       build eciadsl-usermode
       #build cnxadsl
+
+	  build curl
       touch crumbs/Final.grp5.compiled
     fi
 
