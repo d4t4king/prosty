@@ -3,6 +3,7 @@ off-the-wall
 Smoothwall Express 3.1.....plus some.
 
 Added so far:
+* curl
 * htop
 * Perl Modules
 	* App::Control *
@@ -46,3 +47,5 @@ Configuratin changes:
 * Added security HTTP headers to httpd.conf
 * Added `encode_entities` to header.pm
 * Tweaked SSL configuration based on pull request.  (This requires further attention.)
+* git now works with libcurl to allow for git communications over http/s
+NOTE: That git doesn't know where to access the certificate information in smoothwall, so you must tell it (`/usr/lib/ssl/certs/ca-certificates.crt`) or disable `sslVerify` in your git config.
