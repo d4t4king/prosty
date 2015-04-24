@@ -3,6 +3,7 @@ off-the-wall
 Smoothwall Express 3.1.....plus some.
 
 Added so far:
+* iptraf-ng
 * curl
 * htop
 * Perl Modules
@@ -49,3 +50,4 @@ Configuratin changes:
 * Tweaked SSL configuration based on pull request.  (This requires further attention.)
 * git now works with libcurl to allow for git communications over http/s
 NOTE: That git doesn't know where to access the certificate information in smoothwall, so you must tell it (`/usr/lib/ssl/certs/ca-certificates.crt`) or disable `sslVerify` in your git config.
+* advstatus.cgi now has friendlier, human readable memory stats.
