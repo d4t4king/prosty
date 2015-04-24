@@ -8,10 +8,10 @@ PRODUCT_NAME = Express
 PRODUCT_VERSION = 3.1
 UI_VERSION = 3.1
 
-PRODUCT_EXTRA = -SP1-otw
+PRODUCT_EXTRA = -SP1-otw-0.0.1
 
 BASENAME = $(PRODUCT_NAME)-$(PRODUCT_VERSION)
-REVISION = otw
+REVISION = otw-0.0.1
 
 
 # - NAME, VERSION and UI_VERSION: meaning should be fairly obvious

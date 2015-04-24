@@ -372,6 +372,7 @@ fi
       build apcupsd
       build setkerneltz
 	  build htop
+	  build iptraf-ng
 
       touch crumbs/Final.grp6.compiled
     fi
