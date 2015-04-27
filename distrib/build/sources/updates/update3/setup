@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "Update 3 installing."
+
+tar xvf patch.tar.gz -C /
+
+echo "Remove unused file 'acl'"
+rm -f /var/smoothwall/proxy/acl
