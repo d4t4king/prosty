@@ -11,35 +11,26 @@ VERSION = $(KERNEL_VERSION)
 export KERNEL_DIR = $(SOURCES_DIR)/linux$(KERNEL_TYPE)/linux
 export DRIVER_DIR = $(SOURCES_DIR)/${PACKAGE}
 
-#PULSAR_VER = 4.0.24
-#TG3_VER = 3.92n
-#BNX2_VER = 1.5.10c
-#E1000_VER = 8.0.35
-IGB_VER = 5.2.9.4
-IXGBE_VER = 3.22.3
+IGB_VER = 5.2.18
+IXGBE_VER = 4.0.3
 E1000E_VER = 3.1.0.2
-IGBVF_VER = 2.3.5
-IXGBEVF_VER = 2.15.3
-I40EVF_VER = 1.0.5
-I40E_VER = 1.0.15
-R8168_VER = 8.038.00
+IGBVF_VER = 2.3.7.1
+IXGBEVF_VER = 2.16.1
+I40EVF_VER = 1.2.25
+I40E_VER = 1.2.38
+R8168_VER = 8.039.00
+NCT6775_VER = v1.1
 
-PACKAGES = package-igb package-igbvf package-ixgbe package-ixgbevf package-e1000e package-i40evf package-i40e
+
+PACKAGES = package-r8168 package-nct6775 package-igb package-igbvf \
+	   package-ixgbe package-ixgbevf package-i40evf package-i40e \
+	   package-e1000e
 BROKEN_PKGS = package-e1000
 
-#ifeq ($(mARCH), $(ARCH32))
-#PACKAGES += package-pulsar
-#endif
 
-#ifeq ($(mARCH), $(ARCH64))
-#export CFLAGS =
-#endif
-
+# The download section
 download:
-#	$(DL_CMD) http://heanet.dl.sourceforge.net/sourceforge/openadsl/pulsar-$(PULSAR_VER).tar.gz
-#	$(DL_CMD) http://sotonfs/tg3-$(TG3_VER).tar.gz
-#	$(DL_CMD) http://sotonfs/bnx2-$(BNX2_VER).tar.gz
-#	$(DL_CMD) http://kent.dl.sourceforge.net/sourceforge/e1000/e1000-$(E1000_VER).tar.gz
+	@$(DL_CMD) https://github.com/groeck/nct6775/archive/nct6775-$(NCT6775_VER).tar.gz
 	@$(DL_CMD) http://dfn.dl.sourceforge.net/sourceforge/e1000/igb-$(IGB_VER).tar.gz
 	@$(DL_CMD) http://dfn.dl.sourceforge.net/sourceforge/e1000/igbvf-$(IGBVF_VER).tar.gz
 	@$(DL_CMD) http://dfn.dl.sourceforge.net/sourceforge/e1000/ixgbe-$(IXGBE_VER).tar.gz
@@ -49,11 +40,14 @@ download:
 	@$(DL_CMD) http://dfn.dl.sourceforge.net/sourceforge/e1000/i40e-$(I40E_VER).tar.gz
 	@$(DL_CMD) http://r8168dl.appspot.com/files/r8168-$(R8168_VER).tar.bz2
 
+
+# The preparation section: unpack and patch
 prepare: download
-#	tar -xvf $(DOWNLOADS_DIR)/pulsar-$(PULSAR_VER).tar.gz
-#	tar -xvf $(DOWNLOADS_DIR)/tg3-$(TG3_VER).tar.gz
-#	tar -xvf $(DOWNLOADS_DIR)/bnx2-$(BNX2_VER).tar.gz
-#	tar -xvf $(DOWNLOADS_DIR)/e1000-$(E1000_VER).tar.gz
+	tar -xvf $(DOWNLOADS_DIR)/nct6775-$(NCT6775_VER).tar.gz
+	mv nct6775-nct6775-$(NCT6775_VER) nct6775-$(NCT6775_VER)
+	cd nct6775-$(NCT6775_VER); patch -p1 < ../nct6775-makefile.patch
+	tar -xvf $(DOWNLOADS_DIR)/r8168-$(R8168_VER).tar.bz2
+	cd r8168-$(R8168_VER); patch -p1 < ../r8168-build.patch
 	tar -xvf $(DOWNLOADS_DIR)/igb-$(IGB_VER).tar.gz
 	tar -xvf $(DOWNLOADS_DIR)/igbvf-$(IGBVF_VER).tar.gz
 	tar -xvf $(DOWNLOADS_DIR)/ixgbe-$(IXGBE_VER).tar.gz
@@ -61,14 +55,9 @@ prepare: download
 	tar -xvf $(DOWNLOADS_DIR)/e1000e-$(E1000E_VER).tar.gz
 	tar -xvf $(DOWNLOADS_DIR)/i40evf-$(I40EVF_VER).tar.gz
 	tar -xvf $(DOWNLOADS_DIR)/i40e-$(I40E_VER).tar.gz
-	tar -xvf $(DOWNLOADS_DIR)/r8168-$(R8168_VER).tar.bz2
 
-#compile-pulsar:
-#	$(MAKE) $(JOBS) V=1 -C pulsar-$(PULSAR_VER) KDIR=$(KERNEL_DIR)
 
-#compile-e1000:
-#	$(MAKE) $(JOBS) V=1 -C e1000-$(E1000_VER)/src -j $(PARA_JOBS) CFLAGS="$(CFLAGS)" KSRC=$(KERNEL_DIR) K_VERSION=3.4
-
+# The compile section
 compile-igb:
 	$(MAKE) $(JOBS) V=1 -C igb-$(IGB_VER)/src -j $(PARA_JOBS) CFLAGS="$(CFLAGS)" KSRC=$(KERNEL_DIR) K_VERSION=3.4
 
@@ -90,23 +79,14 @@ compile-i40evf:
 compile-i40e:
 	$(MAKE) $(JOBS) V=1 -C i40e-$(I40E_VER)/src -j $(PARA_JOBS) CFLAGS="$(CFLAGS)" KSRC=$(KERNEL_DIR) K_VERSION=3.4
 
+compile-r8168:
+	$(MAKE) $(JOBS) V=1 -C r8168-$(R8168_VER)/src -j $(PARA_JOBS) CFLAGS="$(CFLAGS)" modules
 
-#package-pulsar: compile-pulsar
-#	install -D $(DRIVER_DIR)/pulsar-$(PULSAR_VER)/pulsar_atm.ko \
-		$(PKG_ROOT)/lib/modules/$(K_SWE_VERSION)/kernel/drivers/misc/pulsar_atm.ko
+compile-nct6775:
+	$(MAKE) $(JOBS) V=1 -C nct6775-$(NCT6775_VER)/ -j $(PARA_JOBS) CFLAGS="$(CFLAGS)" KSRC=$(KERNEL_DIR) K_VERSION=3.4
 
-#package-tg3: compile-tg3
-#	install -D $(DRIVER_DIR)/tg3-$(TG3_VER)/tg3.ko \
-#		$(PKG_ROOT)/lib/modules/$(K_SWE_VERSION)/kernel/drivers/net/tg3.ko
 
-#package-bnx2: compile-bnx2
-#	install -D $(DRIVER_DIR)/bnx2-$(BNX2_VER)/src/bnx2.ko \
-#		$(PKG_ROOT)/lib/modules/$(K_SWE_VERSION)/kernel/drivers/net/bnx2.ko
-
-#package-e1000: compile-e1000
-#	install -D $(DRIVER_DIR)/e1000-$(E1000_VER)/src/e1000.ko \
-#		$(PKG_ROOT)/lib/modules/$(K_SWE_VERSION)/kernel/drivers/net/ethernet/intel/e1000/e1000.ko
-
+# The package section: install in buildroot
 package-igb: compile-igb
 	install -D $(DRIVER_DIR)/igb-$(IGB_VER)/src/igb.ko \
 		$(PKG_ROOT)/lib/modules/$(K_SWE_VERSION)/kernel/drivers/net/ethernet/intel/igb/igb.ko
@@ -135,6 +115,16 @@ package-i40e: compile-i40e
 	install -D $(DRIVER_DIR)/i40e-$(I40E_VER)/src/i40e.ko \
 		$(PKG_ROOT)/lib/modules/$(K_SWE_VERSION)/kernel/drivers/net/ethernet/intel/i40e/i40e.ko
 
+package-r8168: compile-r8168
+	install -D $(DRIVER_DIR)/r8168-$(R8168_VER)/src/r8168.ko \
+		$(PKG_ROOT)/lib/modules/$(K_SWE_VERSION)/kernel/drivers/net/ethernet/realtek//r8168.ko
+
+package-nct6775: compile-nct6775
+	install -D $(DRIVER_DIR)/nct6775-$(NCT6775_VER)/nct6775.ko \
+		$(PKG_ROOT)/lib/modules/$(K_SWE_VERSION)/kernel/drivers/hwmon/nct6775.ko
+
+
+# The tarball section
 $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz: prepare $(PACKAGES)
 	@( \
 	  cd $(PKG_ROOT); \
@@ -145,8 +135,6 @@ $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz: prepare $(PACKAGES)
 clean:
 	@echo -n " $(PACKAGE)"
 	@rm -rf pulsar-$(PULSAR_VER)
-#	@rm -rf tg3-$(TG3_VER)
-#	@rm -rf bnx2-$(BNX2_VER)
 	@rm -rf e1000-$(E1000_VER)
 	@rm -rf igb-$(IGB_VER)
 	@rm -rf igbvf-$(IGBVF_VER)
@@ -156,23 +144,10 @@ clean:
 	@rm -rf i40evf-$(I40EVF_VER)
 	@rm -rf i40e-$(I40E_VER)
 	@rm -rf r8168-$(R8168_VER)
+	@rm -rf nct6775-$(NCT6775_VER)
 	@rm -rf $(PKG_ROOT)
 
 all: $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 
 packageinfo.html:
 	echo "<li><span style='font-size:large;'>$(PACKAGE) $(KERNEL_VER)</span><br>" >>/tmp/packageinfo.html
-#	echo "Pulsar ADSL download: <a href='http://heanet.dl.sourceforge.net/sourceforge/openadsl/pulsar-$(PULSAR_VER).tar.gz'>http://heanet.dl.sourceforge.net/sourceforge/openadsl/pulsar-$(PULSAR_VER).tar.gz</a><br> " >> /tmp/packageinfo.html
-#	cp -avR $(DOWNLOADS_DIR)/tg3-$(TG3_VER).tar.gz /tmp/downloads
-#	echo "TG3 local mirror: <a href='downloads/tg3-$(TG3_VER).tar.gz'>tg3-$(TG3_VER).tar.gz</a><br> " >>/tmp/packageinfo.html
-#	cp -avR $(DOWNLOADS_DIR)/bnx2-$(BNX2_VER).tar.gz /tmp/downloads
-#	echo "BNX2 local mirror: <a href='downloads/bnx2-$(BNX2_VER).tar.gz'>bnx2-$(BNX2_VER).tar.gz</a><br> " >> /tmp/packageinfo.html
-	echo "E1000 download: <a href='http://kent.dl.sourceforge.net/sourceforge/e1000/e1000-$(E1000_VER).tar.gz'>http://kent.dl.sourceforge.net/sourceforge/e1000/e1000-$(E1000_VER).tar.gz</a><br> " >> /tmp/packageinfo.html
-	
-#	echo "Patches:<br>" >>/tmp/packageinfo.html
-#	echo "<ul>" >>/tmp/packageinfo.html
-#	(for PATCH in linux-2.6.16-imq2.diff route_fwmark_mask.patch patch-2.6.16-nath323-1.3 openswan-procpermsfix.diff strongswan-interfaces.diff unicorn.patch eagle-2.6-fix.patch eagle-stats.patch patch-o-matic-mod-addition.patch; do \
-#		echo "<li><a href='downloads/$$PATCH'>$$PATCH</a><br>" >>/tmp/packageinfo.html; \
-#		cp -avR ../kernel-patches/$$PATCH /tmp/downloads; \
-#	done) 
-#	echo "</ul>" >>/tmp/packageinfo.html
