@@ -1,0 +1,1 @@
+cmd_/build/sources/kernel-drivers/ixgbevf-2.15.3/src/ixgbevf.ko := ld -r -m elf_x86_64 -T /build/sources/linux/linux-3.4.104/scripts/module-common.lds --build-id  -o /build/sources/kernel-drivers/ixgbevf-2.15.3/src/ixgbevf.ko /build/sources/kernel-drivers/ixgbevf-2.15.3/src/ixgbevf.o /build/sources/kernel-drivers/ixgbevf-2.15.3/src/ixgbevf.mod.o

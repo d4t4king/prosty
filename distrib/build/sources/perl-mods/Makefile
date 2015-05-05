@@ -24,6 +24,8 @@ export PERL_MODS = \
 		Bit-Vector \
 		Carp-Clan \
 	    Config-Patch \
+		DBI \
+		DBD-SQLite \
 		Digest-HMAC \
 		Sub-Uplevel \
 		Test-Exception \

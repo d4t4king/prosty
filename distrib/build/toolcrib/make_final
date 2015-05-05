@@ -269,6 +269,9 @@ fi
       build tcpdump
       build dosfstools
 
+	  # sqlite should probably be built before DBD-SQLite in perl-mods
+      build sqlite
+
       build rrdtool
 
       # As more of the internet changes to SSL, openssl, perl-mods and
@@ -281,7 +284,6 @@ fi
 
       # daq (and snort) version check depend on cacert-bundle
       build daq
-      build sqlite
       build httpd
       build cron
       JOBS=$JOBS_UP

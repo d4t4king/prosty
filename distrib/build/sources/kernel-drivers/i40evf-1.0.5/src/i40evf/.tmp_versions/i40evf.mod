@@ -1,0 +1,2 @@
+/build/sources/kernel-drivers/i40evf-1.0.5/src/i40evf/i40evf.ko
+/build/sources/kernel-drivers/i40evf-1.0.5/src/i40evf/i40evf_main.o /build/sources/kernel-drivers/i40evf-1.0.5/src/i40evf/i40evf_ethtool.o /build/sources/kernel-drivers/i40evf-1.0.5/src/i40evf/i40evf_virtchnl.o /build/sources/kernel-drivers/i40evf-1.0.5/src/i40evf/i40e_txrx.o /build/sources/kernel-drivers/i40evf-1.0.5/src/i40evf/i40e_common.o /build/sources/kernel-drivers/i40evf-1.0.5/src/i40evf/i40e_adminq.o /build/sources/kernel-drivers/i40evf-1.0.5/src/i40evf/kcompat.o
