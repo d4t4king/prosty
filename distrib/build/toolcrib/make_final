@@ -185,6 +185,7 @@ fi
       build dialog
       build newt
       build gd
+	  build DBI
       touch crumbs/Final.grp2.compiled
     fi
 

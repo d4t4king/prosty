@@ -4,7 +4,7 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
-include ../../../Makefile.conf
+include ../Makefile.conf
 
 PACKAGE = DBI
 VERSION = 1.633
@@ -22,4 +22,4 @@ clean:
 	@rm -rf $(DIR)
 	@rm -rf $(COMPILE_DIR)
 
-include ../../../Makefile.rules
+include ../Makefile.rules

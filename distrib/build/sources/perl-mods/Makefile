@@ -24,8 +24,6 @@ export PERL_MODS = \
 		Bit-Vector \
 		Carp-Clan \
 	    Config-Patch \
-		DBI \
-		DBD-SQLite \
 		Digest-HMAC \
 		Sub-Uplevel \
 		Test-Exception \
@@ -50,6 +48,7 @@ export PERL_MODS = \
 	    libwww-perl \
 	    local-lib \
 	    Net-SSLeay \
+		DBD-SQLite \
 	    IO-Socket-SSL
 
 DOWNLOAD = yes
