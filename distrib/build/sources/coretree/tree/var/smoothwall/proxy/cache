@@ -12,7 +12,7 @@ maximum_object_size_in_memory 32 KB
 cache_replacement_policy heap GDSF
 memory_replacement_policy heap GDSF
 
-cache_access_log /var/log/squid/access.log
+cache_access_log stdio:/var/log/squid/access.log
 cache_log /var/log/squid/cache.log
 cache_store_log none
 error_directory /usr/share/errors/en-us
