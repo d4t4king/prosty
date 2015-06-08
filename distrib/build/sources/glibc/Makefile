@@ -7,7 +7,8 @@
 include ../Makefile.conf
 
 PACKAGE = glibc
-VERSION = 2.18
+#VERSION = 2.18
+VERSION = 2.21
 
 EXTENSION = .tar.bz2
 
@@ -103,9 +104,7 @@ $(DIR)/: download
 	cd $(DIR); \
 	  sed -i 's|@BASH@|/bin/bash|' elf/ldd.bash.in; \
 	  sed -i -e 's/"db1"/& \&\& $$name ne "nss_test1"/' \
-	    scripts/test-installation.pl; \
-	  sed -i '195,213 s/PRIVATE_FUTEX/FUTEX_CLOCK_REALTIME/' \
-	    nptl/sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_timed{rd,wr}lock.S
+	    scripts/test-installation.pl; 
 	mkdir -p $(COMPILE_DIR)
 ifeq ($(mARCH),$(ARCH32))
 ifeq ($(mARCH),i386)

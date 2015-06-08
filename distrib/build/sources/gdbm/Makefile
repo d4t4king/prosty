@@ -11,4 +11,12 @@ VERSION = 1.10
 
 BASE_URL = ftp://ftp.gnu.org/gnu/gdbm/
 
+ifeq ($(BUILD_PHASE), Stage_3)
+CONFIG_OPTS = --prefix=/tools --enable-libgdbm-compat
+
+CONFIGURE = yes
+configure: patch
+	@cd $(COMPILE_DIR); ./configure $(CONFIG_OPTS)
+endif
+
 include ../Makefile.rules

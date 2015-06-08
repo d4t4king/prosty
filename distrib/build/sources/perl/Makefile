@@ -21,6 +21,7 @@ CONFIG_OPTS = -des -Dprefix=/tools -Dcc=gcc -A ccflags="$${CFLAGS/486/586}"
 
 CONFIGURE = yes
 configure: patch
+	@echo $(CONFIG_OPTS)
 	@cd $(COMPILE_DIR); sed -i -e 's/gdbm dbm db/dbm/' Configure
 	@cd $(COMPILE_DIR); sh Configure $(CONFIG_OPTS)
 
@@ -31,7 +32,7 @@ compile: configure
 INSTALL = yes
 install: compile
 	cd $(COMPILE_DIR); \
-	  cp -v perl pod/pod2man $(TOOLS_DIR)/bin; \
+	  cp -v perl cpan/podlators/pod2man $(TOOLS_DIR)/bin; \
 	  mkdir -pv $(TOOLS_DIR)/lib/perl5/$(VERSION); \
 	  cp -Rv lib/* $(TOOLS_DIR)/lib/perl5/$(VERSION)
 endif
