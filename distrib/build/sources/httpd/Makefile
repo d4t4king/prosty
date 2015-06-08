@@ -7,7 +7,7 @@
 include ../Makefile.conf
 
 PACKAGE = httpd
-VERSION = 2.2.27
+VERSION = 2.2.29
 
 LICENCE_FILE = $(DIR)/COPYING
 
