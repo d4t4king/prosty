@@ -140,9 +140,9 @@ endif
 
 	touch $(PKG_ROOT)/etc/ld.so.conf
 	$(MAKE) $(JOBS) -C $(COMPILE_DIR) install_root=$(PKG_ROOT) install
-	cd $(COMPILE_DIR); cp -v ../glibc-2.18/sunrpc/rpc/*.h $(PKG_ROOT)/usr/include/rpc
-	cd $(COMPILE_DIR); cp -v ../glibc-2.18/sunrpc/rpcsvc/*.h $(PKG_ROOT)/usr/include/rpcsvc
-	cd $(COMPILE_DIR); cp -v ../glibc-2.18/nis/rpcsvc/*.h $(PKG_ROOT)/usr/include/rpcsvc
+	cd $(COMPILE_DIR); cp -v ../glibc-$(VERSION)/sunrpc/rpc/*.h $(PKG_ROOT)/usr/include/rpc
+	cd $(COMPILE_DIR); cp -v ../glibc-$(VERSION)/sunrpc/rpcsvc/*.h $(PKG_ROOT)/usr/include/rpcsvc
+	cd $(COMPILE_DIR); cp -v ../glibc-$(VERSION)/nis/rpcsvc/*.h $(PKG_ROOT)/usr/include/rpcsvc
 	$(MAKE) $(JOBS) -C $(COMPILE_DIR) localedata/install-locales
 	( \
 	  cd $(COMPILE_DIR); \
