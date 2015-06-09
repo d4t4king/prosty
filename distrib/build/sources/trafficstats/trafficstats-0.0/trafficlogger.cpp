@@ -35,7 +35,7 @@
 // and FULL_SAMPLE_DELAY is how often a complete sample of all the rule chains 
 // is taken
 #define FULL_SAMPLE_DELAY 60
-#define SAVE_SCALE_FACTOR 1024ull
+#define SAVE_SCALE_FACTOR 1000ull
 #endif
 
 // handle signals cleanly

@@ -373,12 +373,12 @@ sub showstats
 			my $number = $_[0];
 			my $ret;
 			
-			if ( $number > (1024*1024*1024) ){
-				$ret = sprintf( "%0.1f TB", $number/(1024*1024*1024) );	
-			} elsif ( $number > (1024*1024) ){
-				$ret = sprintf( "%0.1f GB", $number/(1024*1024) );	
-			} elsif ( $number > (1024) ){
-				$ret = sprintf( "%0.1f MB", $number/(1024) );	
+			if ( $number > (1000*1000*1000) ){
+				$ret = sprintf( "%0.1f TB", $number/(1000*1000*1000) );	
+			} elsif ( $number > (1000*1000) ){
+				$ret = sprintf( "%0.1f GB", $number/(1000*1000) );	
+			} elsif ( $number > (1000) ){
+				$ret = sprintf( "%0.1f MB", $number/(1000) );	
 			} else {
 				$ret = sprintf( "%0.1f KB", $number );	
 			}
@@ -390,11 +390,11 @@ sub showstats
 			my $ret;
 			
 			if ( $number > (1000*1000*1000) ){
-				$ret = sprintf( "%0.1f Gbit/s", $number/(1024*1024*1024) );	
+				$ret = sprintf( "%0.1f Gbit/s", $number/(1000*1000*1000) );	
 			} elsif ( $number > (1000*1000) ){
-				$ret = sprintf( "%0.1f Mbit/s", $number/(1024*1024) );	
+				$ret = sprintf( "%0.1f Mbit/s", $number/(1000*1000) );	
 			} elsif ( $number > (1000) ){
-				$ret = sprintf( "%0.1f Kbit/s", $number/(1024) );	
+				$ret = sprintf( "%0.1f Kbit/s", $number/(1000) );	
 			} else {
 				$ret = sprintf( "%0.1f bit/s", $number );	
 			}
