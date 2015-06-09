@@ -1014,16 +1014,16 @@ std::string format_rate(double tmp) {
 	char floatbuf[20];
 	
 	if(rint(tmp) != 0) {
-		if(tmp >= 1024 * 1024 * 1023) {
-			sprintf(floatbuf, "%*.1f", 7,tmp/(1024*1024*1024));
+		if(tmp >= 1000 * 1000 * 1000) {
+			sprintf(floatbuf, "%*.1f", 7,tmp/(1000*1000*1000));
 			out << floatbuf << " Gbit"; 
 		}
-		else if(tmp >= 1024 * 1023) {
-			sprintf(floatbuf, "%*.1f", 7,tmp/(1024*1024));
+		else if(tmp >= 1000 * 1000) {
+			sprintf(floatbuf, "%*.1f", 7,tmp/(1000*1000));
 			out << floatbuf << " Mbit"; 
 		}
-		else if(tmp >= 1024){
-			sprintf(floatbuf, "%*.1f", 7,tmp/(1024));
+		else if(tmp >= 1000){
+			sprintf(floatbuf, "%*.1f", 7,tmp/(1000));
 			out << floatbuf << " Kbit";
 		}
 	else {
@@ -1035,16 +1035,16 @@ std::string format_rate(double tmp) {
 		tmp /= 8;
 		out << ' ';
 		if(rint(tmp) != 0) {
-			if(tmp >= 1024 * 1024 * 1023) {
-				sprintf(floatbuf, "%*.2f", 7,tmp/(1024*1024*1024));
+			if(tmp >= 1000 * 1000 * 1000) {
+				sprintf(floatbuf, "%*.2f", 7,tmp/(1000*1000*1000));
 				out << floatbuf << " GB"; 
 			}
-			else if(tmp >= 1024 * 1023) {
-				sprintf(floatbuf, "%*.2f", 7,tmp/(1024*1024));
+			else if(tmp >= 1000 * 1000) {
+				sprintf(floatbuf, "%*.2f", 7,tmp/(1000*1000));
 				out << floatbuf << " MB"; 
 			}
 			else {
-				sprintf(floatbuf, "%*.2f", 7,tmp/(1024));
+				sprintf(floatbuf, "%*.2f", 7,tmp/(1000));
 				out << floatbuf << " KB";
 			}
 		}

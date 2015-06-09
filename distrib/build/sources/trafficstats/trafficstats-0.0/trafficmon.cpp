@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
 	char *quietfile = NULL;
 	int runtime = 0;
 	int delay = 250000; // 1/4 of a sec
-	double divfactor = 1024.0; 
+	double divfactor = 1000.0; 
 	double bitrate = 0;
 	double nowrate = 0;
 	double maxrate = 1; // set to biggest rate ever seen by this run, start at 1 to avoid / by 0 err

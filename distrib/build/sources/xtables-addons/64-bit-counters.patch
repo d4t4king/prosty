@@ -1,0 +1,150 @@
+--- xtables-addons-1.45_ORIG/extensions/ACCOUNT/iptaccount.c	2012-07-15 23:39:32.000000000 -0400
++++ xtables-addons-1.45-build/extensions/ACCOUNT/iptaccount.c	2015-06-07 01:04:55.000000000 -0400
+@@ -200,13 +200,19 @@
+ 			while ((entry = ipt_ACCOUNT_get_next_entry(&ctx)) != NULL)
+ 			{
+ 				if (doCSV)
+-					printf("%s;%u;%u;%u;%u\n",
+-					       addr_to_dotted(entry->ip), entry->src_packets, entry->src_bytes,
+-					       entry->dst_packets, entry->dst_bytes);
++					printf("%s;%llu;%llu;%llu;%llu\n",
++					       addr_to_dotted(entry->ip),
++					       (unsigned long long) entry->src_packets,
++					       (unsigned long long) entry->src_bytes,
++					       (unsigned long long) entry->dst_packets,
++					       (unsigned long long) entry->dst_bytes);
+ 				else
+-					printf("IP: %s SRC packets: %u bytes: %u DST packets: %u bytes: %u\n",
+-					       addr_to_dotted(entry->ip), entry->src_packets, entry->src_bytes,
+-					       entry->dst_packets, entry->dst_bytes);
++					printf("IP: %s SRC packets: %llu bytes: %llu DST packets: %llu bytes: %llu\n",
++					       addr_to_dotted(entry->ip),
++					       (unsigned long long) entry->src_packets,
++					       (unsigned long long) entry->src_bytes,
++					       (unsigned long long) entry->dst_packets,
++					       (unsigned long long) entry->dst_bytes);
+ 			}
+ 
+ 			if (doContinue)
+--- xtables-addons-1.45_ORIG/extensions/ACCOUNT/xt_ACCOUNT.c	2012-07-15 23:39:32.000000000 -0400
++++ xtables-addons-1.45-build/extensions/ACCOUNT/xt_ACCOUNT.c	2015-05-29 22:46:09.000000000 -0400
+@@ -77,13 +77,13 @@
+ };
+ 
+ /* Used for every IP entry
+-   Size is 16 bytes so that 256 (class C network) * 16
+-   fits in one kernel (zero) page */
++   Size is 32 bytes so that 256 (class C network) * 16
++   fits in a double kernel (zero) page (two consecutive kernel pages)*/
+ struct ipt_acc_ip {
+-	uint32_t src_packets;
+-	uint32_t src_bytes;
+-	uint32_t dst_packets;
+-	uint32_t dst_bytes;
++	uint64_t src_packets;
++	uint64_t src_bytes;
++	uint64_t dst_packets;
++	uint64_t dst_bytes;
+ };
+ 
+ /*
+@@ -113,14 +113,14 @@
+ /* Mutex (semaphore) used for manipulating userspace handles/snapshot data */
+ static struct semaphore ipt_acc_userspace_mutex;
+ 
+-/* Allocates a page and clears it */
++/* Allocates a page pair and clears it */
+ static void *ipt_acc_zalloc_page(void)
+ {
+ 	// Don't use get_zeroed_page until it's fixed in the kernel.
+ 	// get_zeroed_page(GFP_ATOMIC)
+-	void *mem = (void *)__get_free_page(GFP_ATOMIC);
++	void *mem = (void *)__get_free_pages(GFP_ATOMIC, 2);
+ 	if (mem) {
+-		memset (mem, 0, PAGE_SIZE);
++		memset (mem, 0, 2*PAGE_SIZE);
+ 	}
+ 
+ 	return mem;
+@@ -135,7 +135,7 @@
+ 
+ 	/* Free for 8 bit network */
+ 	if (depth == 0) {
+-		free_page((unsigned long)data);
++		free_pages((unsigned long)data, 2);
+ 		return;
+ 	}
+ 
+@@ -148,7 +148,7 @@
+ 				free_page((unsigned long)mask_16->mask_24[b]);
+ 			}
+ 		}
+-		free_page((unsigned long)data);
++		free_pages((unsigned long)data, 2);
+ 		return;
+ 	}
+ 
+@@ -168,7 +168,7 @@
+ 				free_page((unsigned long)mask_16);
+ 			}
+ 		}
+-		free_page((unsigned long)data);
++		free_pages((unsigned long)data, 2);
+ 		return;
+ 	}
+ 
+@@ -541,7 +541,7 @@
+ 
+ /*
+ 	Functions dealing with "handles":
+-	Handles are snapshots of a accounting state.
++	Handles are snapshots of an accounting state.
+ 
+ 	read snapshots are only for debugging the code
+ 	and are very expensive concerning speed/memory
+@@ -1123,7 +1123,7 @@
+ 		ACCOUNT_MAX_HANDLES * sizeof(struct ipt_acc_handle));
+ 
+ 	/* Allocate one page as temporary storage */
+-	if ((ipt_acc_tmpbuf = (void*)__get_free_page(GFP_KERNEL)) == NULL) {
++	if ((ipt_acc_tmpbuf = (void*)__get_free_pages(GFP_KERNEL, 2)) == NULL) {
+ 		printk("ACCOUNT: Out of memory for temporary buffer page\n");
+ 		goto error_cleanup;
+ 	}
+@@ -1145,7 +1145,7 @@
+ 	if (ipt_acc_handles)
+ 		kfree(ipt_acc_handles);
+ 	if (ipt_acc_tmpbuf)
+-		free_page((unsigned long)ipt_acc_tmpbuf);
++		free_pages((unsigned long)ipt_acc_tmpbuf, 2);
+ 
+ 	return -EINVAL;
+ }
+@@ -1158,7 +1158,7 @@
+ 
+ 	kfree(ipt_acc_tables);
+ 	kfree(ipt_acc_handles);
+-	free_page((unsigned long)ipt_acc_tmpbuf);
++	free_pages((unsigned long)ipt_acc_tmpbuf, 2);
+ }
+ 
+ module_init(account_tg_init);
+--- xtables-addons-1.45_ORIG/extensions/ACCOUNT/xt_ACCOUNT.h	2012-07-15 23:39:32.000000000 -0400
++++ xtables-addons-1.45-build/extensions/ACCOUNT/xt_ACCOUNT.h	2015-06-07 01:08:15.000000000 -0400
+@@ -59,11 +59,11 @@
+ 	Used for every IP when returning data
+ */
+ struct ipt_acc_handle_ip {
+-	__be32 ip;
+-	uint32_t src_packets;
+-	uint32_t src_bytes;
+-	uint32_t dst_packets;
+-	uint32_t dst_bytes;
++	__be32 ip, __dummy;
++	uint64_t src_packets;
++	uint64_t src_bytes;
++	uint64_t dst_packets;
++	uint64_t dst_bytes;
+ };
+ 
+ #endif /* _IPT_ACCOUNT_H */

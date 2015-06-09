@@ -21,6 +21,12 @@ if [ "x$STARTSTOP" != "x" ]; then
         u32 match ip sport 67 0xffff match ip dport 68 0xffff \
         flowid :1
 
+      # Allow inbound DNS traffic to pass
+      /usr/sbin/tc filter add dev $i parent ffff: \
+        protocol ip prio 40 \
+        u32 match ip sport 53 0xffff \
+        flowid :1
+
       # Block all other traffic
       /usr/sbin/tc filter add dev $i parent ffff: \
         protocol ip prio 50 \

@@ -34,13 +34,13 @@ double to_bits(const char *in) {
         if(isdigit(c))
             numbit[i] = c;
         if(c == 'k')
-            multiplier = 1024; 
+            multiplier = 1000; 
         
         if(c == 'm')
-            multiplier = 1024*1024; 
+            multiplier = 1000*1000; 
         
         if(c == 'g')
-            multiplier = 1024*1024*1024; 
+            multiplier = 1000*1000*1000; 
         
         if(c == 'p') {
             multiplier *= 8; // seen bps bytes per sec -> bits

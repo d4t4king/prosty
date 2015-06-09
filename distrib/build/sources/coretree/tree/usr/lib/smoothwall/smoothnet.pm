@@ -5,6 +5,8 @@ use lib "/usr/lib/smoothwall";
 use header qw(:standard);
 require Exporter;
 use File::Copy;
+use Time::HiRes "usleep";
+use POSIX "WNOHANG";
 @ISA = qw(Exporter);
 
 # define the Exportlists.
@@ -66,20 +68,21 @@ sub download
 	my $log   = "$progress_store$file.log";
 	my $pid   = "$progress_store$file.pid";
 
-	my @commands = ( "/usr/bin/wget", @proxy_opt, "-o", "$log", "-b", "--progress=bar", "-O", "$final", "$base$file" );
+	my @commands = ( "/usr/bin/wget", @proxy_opt, "-o", "$log", "--progress=bar", "-O", "$final", "$base$file" );
 	print STDERR join(" ", @commands), "\n";
 
 	my ( $status, $pid_out );
-	open(PIPE, '-|') || exec( @commands );
-        while (<PIPE>) { 
-		$status .= $_; 
-	}
-	close(PIPE);
 
-	# determine PID information (which was told to us by wget
-	my ( $pid_number ) = ( $status =~ /.*pid\s+(\d+)\..*/m );
-	
-	print STDERR "wget returned $status\n";
+	$pid_number = fork();
+
+        if ($pid_number == 0)
+	{
+		# This is the child of the explicit fork()
+		exec( @commands );
+		exit -1;
+	}
+
+	print STDERR "wget PID=$pid_number\n";
 
 	unless ( open ( $pid_out, ">$pid" ) ){
 		print STDERR "Unable to allocate PID $pid\n";
@@ -90,9 +93,8 @@ sub download
 	print $pid_out "$pid_number";
 	close $pid_out;
 
-	sleep( 3 ); # give things a chance to start
+	usleep( 500000 ); # give things a chance to start
 
-	print STDERR "Got the reply from wget as $status\n";
 	print STDERR "Going to $final and $log $pid ($pid_number)\n";
 
 }
@@ -102,12 +104,12 @@ sub progress
 	my ( $file ) = @_;
 
 	# check on the status of the download of $file
-	my ( $status_file, $status, $pid_file, $pidnumber );
+	my ( $status, $pidnumber );
 
 	my $log   = "$progress_store$file.log";
 	my $pid   = "$progress_store$file.pid";
 
-	unless( open ( $pid_file, "<$pid" ) ){
+	unless( open ( PID, "<$pid" ) ){
 		if ( -e "$download_store$file" ){
 			# download is completed ...
 			print STDERR "Download is complete...\n";
@@ -118,7 +120,7 @@ sub progress
 		return "error";
 	}
 
-	unless( open ( $status_file, "<$log" ) ){
+	unless( open ( STATUS, "<$log" ) ){
 		if ( -e "$download_store$file" ){
 			# download is completed ...
 			return ( "", "100%", "-", "$download_store$file" );
@@ -129,17 +131,17 @@ sub progress
 	}
 
 
-	my ( $down, $percent, $speed, $complete ) = ( 0, "0px", 0, "" );
+	my ( $down, $percent, $speed, $timeleft, $complete ) = ( 0, "0%", 0, "" );
 
-	while ( $status = <$status_file> ) { 
+	while ( $status = <STATUS> ) { 
 		chomp $status;
-		my ( $ddown, $dpercent, $dspeed ) = ( $status =~ /(\d+K|M)[^0-9]+(\d+%)\s+(\d*\.*\d*[KMG][ =]+\d*\.*\d*s)/ );
+		my ( $ddown, $dpercent, $dspeed, $dtimeleft ) = ( $status =~ /(\d+K|M)[^0-9]+(\d+%)\s+(\d*\.*\d*[KMG])[ =]+(\d*\d*[m.]?\d*\d*s)/ );
 		if ( defined $ddown ){
 			$down = $ddown;
 			$percent = $dpercent;
 			$speed = $dspeed;
+			$timeleft = $dtimeleft;
 		}
-                #print STDERR "down/speed/percent: $down/$speed/$percent\n";
 		if ( $percent eq "100%" ){
 			if ( $status =~ /'([^']*)'/ ){
 				#print STDERR "Verify completion: ($status)\n";
@@ -152,8 +154,9 @@ sub progress
 			#print STDERR "      progstorfile: '$progress_store$file'\n";
 		}	
 	};
+	close STATUS;
 
-	# status should now be the last line of the log file ...
+	# status should now be the second last line of the log file ...
 
 	if ( $complete eq "$progress_store$file" ){
 		# download is complete, move the file to the download cache
@@ -161,20 +164,23 @@ sub progress
 		my $final = "$download_store$file";
 		&move( "$progress_store$file", $final );
 		&downloadtidy( $file );
-		return ( $down, $percent, $speed, $final );
+		return ( $down, $percent, $timeleft, $final );
 	}
 
 	# get the PID and check it.
-	$pidnumber = <$pid_file>;
+	$pidnumber = <PID>;
+	close PID;
+	chomp $pidnumber;
 
 	$status = &checkstatus( $pidnumber );
 
 	if ( $status != 1 ){
-		print STDERR "unable to get associated Process for $pidnumber $status\n";
+		print STDERR "wget (PID $pidnumber) perished unexpectedly\n";
+		print STDERR "down/timeleft/percent: $down/$timeleft/$percent\n";
 		return "error";
 	}
 
-	return ( $down, $percent, $speed );
+	return ( $down, $percent, $timeleft );
 }
 
 sub cancel 
@@ -185,14 +191,13 @@ sub cancel
 
 	#retrieve the process ID
 	my $pid   = "$progress_store$file.pid";
-	my $pid_in;
 
-	unless ( open ( $pid_in, "<$pid" ) ){
+	unless ( open ( PIDFILE, "<$pid" ) ){
 		return "cannot get pid";
 	}
 	
-	my $pid_number = <$pid_in>;
-	close $pid_in;
+	my $pid_number = <PIDFILE>;
+	close PIDFILE;
 
 	my $status = checkstatus( $pid_number );
 
@@ -200,7 +205,7 @@ sub cancel
 		kill 15, $pid_number;
 	}
 
-	downloadtidy( $file );
+	&downloadtidy( $file );
 }
 
 
@@ -209,26 +214,17 @@ sub checkstatus
 	my $pid_number = $_[0];
 	# check that this PID is a) running and b) belongs to wget...
 
-	if (open(FILE, "/proc/${pid_number}/status"))
+	$retval = waitpid ($pid_number, WNOHANG);
+	if ($retval == 0)
 	{
-		while (<FILE>)
-		{
-			if (/^Name:\W+(.*)/) {
-				$testcmd = $1; }
-		}
-		close FILE;
-		if ($testcmd =~ /wget/)
-		{
-			print STDERR "W000T found the process for $pid (it's running too)\n";
-			return 1;
-		} else {
-			print STDERR "This is not the process you're looking for\n";
-			return 0;
-		}
-	} else {
-		print STDERR "No process to kill, guess it's not there\n";
+		# wget is still running
+		return 1;
+	}
+	else
+	{
+		# wget ended; report $? and errno
 		return 0;
-	}	
+	}
 }
 
 sub downloadtidy
@@ -264,7 +260,7 @@ END
 
 	# get the intial status and render controls accordingly.
 
-	my ( $down, $percent, $speed, $complete ) = &progress( $file );
+	my ( $down, $percent, $timeleft, $complete ) = &progress( $file );
 
 	if ( $percent eq "100%" ){
 		# download is complete... hmm
@@ -310,7 +306,7 @@ sub update_bar
 {
 	my ( $file ) = @_;
 
-	my ( $down, $percent, $speed, $complete ) = &progress( $file );
+	my ( $down, $percent, $timeleft, $complete ) = &progress( $file );
 
 	print <<END
 <script>
