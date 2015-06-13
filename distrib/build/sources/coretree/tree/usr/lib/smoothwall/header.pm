@@ -25,8 +25,8 @@ our @_validation_items;
                     basename connectedstate %tr @_validation_items getsystemid
                     outputfile getLinkSpeed);
 %EXPORT_TAGS  = (
-		standard   => [@EXPORT_OK],
-		);
+      standard   => [@EXPORT_OK],
+      );
 
 
 # Conditional require
@@ -46,7 +46,7 @@ sub requireConditional
 }
 
 
-$|=1; # line buffering
+$| = 1; # line buffering
 
 # Work out some various details from the various system files.
 # such as fixes number etc.
@@ -202,126 +202,127 @@ if (${language} ne "en" && $uisettings{'ALWAYS_ENGLISH'} eq 'off')
 
 sub showhttpheaders
 {
-	print "Pragma: no-cache\n";
-	print "Cache-control: no-cache\n";
-	print "Connection: close\n";
-	print "Content-type: text/html\n\n";
+   print "Pragma: no-cache\n";
+   print "Cache-control: no-cache\n";
+   print "Connection: close\n";
+   print "Content-type: text/html\n\n";
 }
 
 # Show the top section menu, this has the side effect of populating
 # the @menu variable (which is ordered accordingly) with the pages
 # or subsections for the section we are looking for.
 
+
 sub showmenu
 {
-	$scriptname = $_[0];
+   $scriptname = $_[0];
 
-	# load the list of sections from the relevant locations.
-	my @rawsections = <"/var/smoothwall/mods/*/usr/lib/smoothwall/menu/*" "/usr/lib/smoothwall/menu/*">;
+   # load the list of sections from the relevant locations.
+   my @rawsections = <"/var/smoothwall/mods/*/usr/lib/smoothwall/menu/*" "/usr/lib/smoothwall/menu/*">;
 
-	# Strip the path off to get the section name; use that as a hash key to store unique sections
-	foreach my $rawsection (@rawsections) {
-		my $idx = $rawsection;
-		chomp $idx;
-		$idx =~ s=.*/==;
-		$sections{$idx} = 1;
-	}
+   # Strip the path off to get the section name; use that as a hash key to store unique sections
+   foreach my $rawsection (@rawsections) {
+      my $idx = $rawsection;
+      chomp $idx;
+      $idx =~ s=.*/==;
+      $sections{$idx} = 1;
+   }
 
-	my $first = "";
+   my $first = "";
 
-	my $menu_html;
-	my @clear_sections;
-	my $file;
+   my $menu_html;
+   my @clear_sections;
+   my $file;
 
-        # For each unique section
-	foreach my $sectionkey ( sort(keys(%sections)) )
-	{
-		my %pages;
-		my @tempmenu;
-		my $section = "no";
+   # For each unique section
+   foreach my $sectionkey ( sort(keys(%sections)) )
+   {
+      my %pages;
+      my @tempmenu;
+      my $section = "no";
 
-		# Get all .list files in them
-                my @lists = </usr/lib/smoothwall/menu/$sectionkey/*.list>;
-		@lists = (@lists, </var/smoothwall/mods/*/usr/lib/smoothwall/menu/$sectionkey/*.list>);
+      # Get all .list files in them
+      my @lists = </usr/lib/smoothwall/menu/$sectionkey/*.list>;
+      @lists = (@lists, </var/smoothwall/mods/*/usr/lib/smoothwall/menu/$sectionkey/*.list>);
 
-		# Store the full paths by .list filename in assoc. array.
-		foreach my $list (@lists)
-		{
-			my $idx = basename($list);
-			$pages{$idx} = dirname($list);
-		}
-			
-		# Traverse through the UI pages (*.list)
-		foreach my $page ( sort(keys(%pages)))
-		{
-			# Set $menuprefix and $file (used to be set differently in SWE3.0)
-			my $menuprefix = dirname($pages{$page});
-			my $urlPath = $menuprefix;
-			if ( $urlPath =~ /^\/var\/smoothwall\/mods/ )
-			{
-				$urlPath =~ s=/var/smoothwall/mods/==;
-				$urlPath =~ s=/.*==;
-				$urlPath = "/mods/".$urlPath."/cgi-bin/";
-			}
-			else
-			{
-				$urlPath = "/cgi-bin/";
-			}
-			$file = basename($pages{$page});
-			open DETAIL, "<$menuprefix/$file/$page" or next;
-			my $listLine = <DETAIL>;
-			close DETAIL;
-			chomp $listLine;
-			# next if the file is empty or conains a bare ':', or contains '#erase stock'
-			next if ($listLine eq "" or $listLine eq ":" or $listLine eq "#erase stock");
-			my ( $title, $link ) = split(/:/, $listLine);
-			my ( $menu, $pos ) = ( $file =~ /(\d{2})(\d{2}).*/ );
-			my $active = "";
-			#my ( $link2 ) = ( $link =~/([^\/]*)$/ );
-			if ( $urlPath.$link eq $ENV{'SCRIPT_NAME'} )
-			{
-				$section = "yes";
-				$active = "true";
-				$helpPath = $urlPath;
-				if ($helpPath =~ m=.*/mods/.*=)
-				{
-					#$helpPath =~ s=/cgi-bin/==;
-					$helpPath = "";
-				}
-				else
-				{
-					$helpPath = "";
-				}
-			}
-			push @tempmenu, { 'title' => $title, 'href' => $link, 'active' => $active, 'urlPath' => $urlPath };
-		}
+      # Store the full paths by .list filename in assoc. array.
+      foreach my $list (@lists)
+      {
+         my $idx = basename($list);
+         $pages{$idx} = dirname($list);
+      }
+         
+      # Traverse through the UI pages (*.list)
+      foreach my $page ( sort(keys(%pages)))
+      {
+         # Set $menuprefix and $file (used to be set differently in SWE3.0)
+         my $menuprefix = dirname($pages{$page});
+         my $urlPath = $menuprefix;
+         if ( $urlPath =~ /^\/var\/smoothwall\/mods/ )
+         {
+            $urlPath =~ s=/var/smoothwall/mods/==;
+            $urlPath =~ s=/.*==;
+            $urlPath = "/mods/".$urlPath."/cgi-bin/";
+         }
+         else
+         {
+            $urlPath = "/cgi-bin/";
+         }
+         $file = basename($pages{$page});
+         open DETAIL, "<$menuprefix/$file/$page" or next;
+         my $listLine = <DETAIL>;
+         close DETAIL;
+         chomp $listLine;
+         # next if the file is empty or conains a bare ':', or contains '#erase stock'
+         next if ($listLine eq "" or $listLine eq ":" or $listLine eq "#erase stock");
+         my ( $title, $link ) = split(/:/, $listLine);
+         my ( $menu, $pos ) = ( $file =~ /(\d{2})(\d{2}).*/ );
+         my $active = "";
+         #my ( $link2 ) = ( $link =~/([^\/]*)$/ );
+         if ( $urlPath.$link eq $ENV{'SCRIPT_NAME'} )
+         {
+            $section = "yes";
+            $active = "true";
+            $helpPath = $urlPath;
+            if ($helpPath =~ m=.*/mods/.*=)
+            {
+               #$helpPath =~ s=/cgi-bin/==;
+               $helpPath = "";
+            }
+            else
+            {
+               $helpPath = "";
+            }
+         }
+         push @tempmenu, { 'title' => $title, 'href' => $link, 'active' => $active, 'urlPath' => $urlPath };
+      }
 
-		if ( scalar(@tempmenu) > 0 )
-		{
-			my ( $section_title ) = ( $file =~/\d{4}_(.*)/ );
+      if ( scalar(@tempmenu) > 0 )
+      {
+         my ( $section_title ) = ( $file =~/\d{4}_(.*)/ );
 
-			if ( $section eq "yes" )
-			{
-				@menu = @tempmenu;
-				$menu_html .= "<td>$first<a class='activemenu' href='$menu[ 0 ]->{'urlPath'}$menu[ 0 ]->{'href'}'>$section_title</a></td>";
-			} else {
-				unless ( defined $uisettings{'MENU'} and $uisettings{'MENU'} eq "off")
-				{
-					$menu_html .= qq |
+         if ( $section eq "yes" )
+         {
+            @menu = @tempmenu;
+            $menu_html .= "<td>$first<a class='activemenu' href='$menu[ 0 ]->{'urlPath'}$menu[ 0 ]->{'href'}'>$section_title</a></td>";
+         } else {
+            unless ( defined $uisettings{'MENU'} and $uisettings{'MENU'} eq "off")
+            {
+               $menu_html .= qq |
     <td>
       <div class='menushaddow' id='${section_title}shadow'>
 |;
-					$menu_html .= &showhovermenu( @tempmenu );
-					$menu_html .= qq |
+               $menu_html .= &showhovermenu( @tempmenu );
+               $menu_html .= qq |
       </div>
 |;
-					$menu_html .= qq |
+               $menu_html .= qq |
       <div class='menu' id='$section_title'
            onMouseOver="menu_show('$section_title')"
            onMouseOut="menu_clear();">
 |;
-					$menu_html .= &showhovermenu( @tempmenu );
-					$menu_html .= qq |
+               $menu_html .= &showhovermenu( @tempmenu );
+               $menu_html .= qq |
       </div>
     </td>
     <td onMouseOver="menu_show('$section_title');"
@@ -329,271 +330,416 @@ sub showmenu
       $first<a class='menu' href="$tempmenu[ 0 ]->{'urlPath'}$tempmenu[ 0 ]->{'href'}">$section_title</a>
     </td>
 |;
-				} else {
-					$menu_html .= qq |
+            } else {
+               $menu_html .= qq |
     <td>
       $first<a class='menu' href="$tempmenu[ 0 ]->{'urlPath'}$tempmenu[ 0 ]->{'href'}">$section_title</a>
     </td>
 |;
-				}
-				push @clear_sections, $section_title;
-			}
-			# Set the displayed separator between items
-			$first = " | ";
-		}
-	}
+            }
+            push @clear_sections, $section_title;
+         }
+         # Set the displayed separator between items
+         $first = " | ";
+      }
+   }
 
-	print <<END
+   print <<END;
 <tr>
-	<td class='mainmenu'>
-	<script>
-		function menu_clear( me )
-		{
+   <td class='mainmenu'>
+   <script TYPE="text/javascript">
+      function menu_clear( me )
+      {
 END
-;
 
-	foreach my $option ( @clear_sections ){
-		print "\t\t\tif( me != '$option') document.getElementById('$option').style.display = 'none';\n";
-		print "\t\t\tif( me != '$option') document.getElementById('${option}shadow').style.display = 'none';\n";
-	}
+   foreach my $option ( @clear_sections ){
+      print "\t\t\tif( me != '$option') document.getElementById('$option').style.display = 'none';\n";
+      print "\t\t\tif( me != '$option') document.getElementById('${option}shadow').style.display = 'none';\n";
+   }
 
-print <<END
-		}
-		function menu_show( what ){
-			menu_clear();
-			document.getElementById(what).style.display = 'block';
-			document.getElementById( what+'shadow' ).style.display = 'block';
-		}
-	</script>
+print <<END;
+      }
+      function menu_show( what ){
+         menu_clear();
+         document.getElementById(what).style.display = 'block';
+         document.getElementById( what+'shadow' ).style.display = 'block';
+      }
+   </script>
 <table style='float: right;'>
 <tr>
 END
-	;
 
-	print $menu_html;
+   print $menu_html;
 
-	print <<END
+   print <<END;
 </tr></table></td>
 </tr>
 <tr>
-	<td colspan='2' class='quicklink'>
-		<!-- Quicklink Section -->
-		<p style="margin:2px; vertical-align:middle">
-		<a href='/cgi-bin/shutdown.cgi'>$tr{'ssshutdown'}</a> | <a href="javascript:displayHelp('$helpPath$thisscript');" title="This will popup a new window with the requested help file">help <img src="/ui/img/help.gif" alt="" ></a></p>
-	</td>
+   <td colspan='2' class='quicklink'>
+      <!-- Quicklink Section -->
+      <p style="margin:2px; vertical-align:middle">
+      <a href='/cgi-bin/shutdown.cgi'>$tr{'ssshutdown'}</a> | <a href="javascript:displayHelp('$helpPath$thisscript');" title="This will popup a new window with the requested help file">help <img src="/ui/img/help.gif" alt="" ></a></p>
+   </td>
 </tr>
 
 
 <!-- Create the top menu -->
 
 <tr>
-	<td colspan='2'>
-	&nbsp;
+   <td colspan='2'>
+   &nbsp;
 END
-	;
 
-	showsection( @menu );
+   showsection( @menu );
 
-	return;
+   return;
 }
 
 sub showhovermenu
 {
-	my @tempmenu = @_;
-	my $html;
-	foreach my $item ( @tempmenu ){
-		my $width = 8 + (8 * length( $tr{ $item->{'title'} } ));
-		if ( defined $item->{'active'} and $item->{'active'} eq "true" ){
-			$html .= "<a class='menushade' href='$item->{'urlPath'}$item->{'href'}'>$tr{$item->{'title'}}</a><br/>";
-		} else {
-			$html .= "<a class='menushade' href='$item->{'urlPath'}$item->{'href'}'>$tr{$item->{'title'}}</a><br/>";
-		}
-		$span++;
-		$remaining -= $width;
-	}
-	return $html;
+   my @tempmenu = @_;
+   my $html;
+   foreach my $item ( @tempmenu ){
+      my $width = 8 + (8 * length( $tr{ $item->{'title'} } ));
+      if ( defined $item->{'active'} and $item->{'active'} eq "true" ){
+         $html .= "<a class='menushade' href='$item->{'urlPath'}$item->{'href'}'>$tr{$item->{'title'}}</a><br />";
+      } else {
+         $html .= "<a class='menushade' href='$item->{'urlPath'}$item->{'href'}'>$tr{$item->{'title'}}</a><br />";
+      }
+      $span++;
+      $remaining -= $width;
+   }
+   return $html;
 }
 
 sub showsection
 {
-	my @menu = @_;
-	print <<END;
+   my @menu = @_;
+   print <<END;
 <table class='mainmenu'>
 <tr>
 END
 
-	my $remaining = 795;
+   my $remaining = 795;
 
-	$span = 0;
-	
-	foreach my $item ( @menu ){
-		my $width = 8 + (8 * length( $tr{ $item->{'title'} } ));
-		if ( defined $item->{'active'} and $item->{'active'} eq "true" ){
-			print "<td class='activetab' style='width: ".( $width + 16 )."px;'><a href='$item->{'urlPath'}$item->{'href'}'>$tr{$item->{'title'}}</a> </td>";
-		} else {
-			print "<td  class='inactivetab' style='width: ${width}px;'><a href='$item->{'urlPath'}$item->{'href'}'>$tr{$item->{'title'}}</a> </td>";
-		}
-		$span++;
-		$remaining -= $width;
-	}
+   $span = 0;
+   
+   foreach my $item ( @menu ){
+      my $width = 8 + (8 * length( $tr{ $item->{'title'} } ));
+      if ( defined $item->{'active'} and $item->{'active'} eq "true" ){
+         print "<td class='activetab' style='width: ".( $width + 16 )."px;'><a href='$item->{'urlPath'}$item->{'href'}'>$tr{$item->{'title'}}</a> </td>";
+      } else {
+         print "<td  class='inactivetab' style='width: ${width}px;'><a href='$item->{'urlPath'}$item->{'href'}'>$tr{$item->{'title'}}</a> </td>";
+      }
+      $span++;
+      $remaining -= $width;
+   }
 
-	$span++;
+   $span++;
 
-	print <<END;
-	<td width='${remaining}px' class='endtab'>&nbsp;</td>
-	<td class='topend'></td>
+   print <<END;
+   <td style='width=${remaining}px' class='endtab'>&nbsp;</td>
+   <td class='topend'></td>
 </tr>
 <tr>
-	<td class='mainbody' colspan='$span'>
+   <td class='mainbody' colspan='$span'>
 END
 
 }
+
 
 sub openpage
 {
-	($title,$menu,$extrahead,$thissection,$overrideStyle,$unused) = @_;
+  ($title,$menu,$extrahead,$thissection,$overrideStyle,$unused) = @_;
 
-	if ($menu == 1) { $colspan = 2; } else { $colspan = 1; }
+  if ($menu == 1) { $colspan = 2; } else { $colspan = 1; }
 
-	print <<END;
+  my %netsettings;
+  &readhash("${swroot}/ethernet/settings", \%netsettings);
+  my ($redip, $orangeip, $greenip, $purpleip, $dns1, $dns2) = ('','','','','','');
+  my $startcell = '<td style="font-size:8pt; padding:0 .4em; border:none; background-color:';
+
+  my $displayName = $hostname;
+  if (length($hostname) > 24)
+  {
+    $displayName = hostname();
+  }
+  my $system = $startcell.'none"><span style="color:black"><b>'.$displayName.'</b></span></td>';
+
+  open (FILE, "${swroot}/red/local-ipaddress");
+  while (<FILE>)
+  {
+    chomp;
+    $redip = $startcell.'#FF9999"><span style="color:black">Red IP:';
+    $redip .= ' <span style="float:right;"><b>'.$_.'</b></span></span></td>';
+  }
+  close (FILE);
+
+  if ($netsettings{'ORANGE_ADDRESS'})
+  {
+    $orangeip = $startcell.'#FFAA77"><span style="color:black">Orange IP:';
+    $orangeip .= ' <span style="float:right;"><b>';
+    $orangeip .= $netsettings{'ORANGE_ADDRESS'}.'</b></span></span></td>';
+  }
+  else
+  {
+    $orangeip = $startcell.'#FFAA77"><span style="color:black">Orange IP:';
+    $orangeip .= ' <span style="float:right;"><b>Not Available</b></span></span></td>';
+  }
+   
+  if ($netsettings{'PURPLE_ADDRESS'})
+  {
+    $purpleip = $startcell.'#DDAAFF"><span style="color:black">Purple IP:';
+    $purpleip .= ' <span style="float:right;"><b>';
+    $purpleip .= $netsettings{'PURPLE_ADDRESS'}.'</b></span></span></td>';
+  }
+  else
+  {
+    $purpleip = $startcell.'#DDAAFF"><span style="color:black">Purple IP:';
+    $purpleip .= ' <span style="float:right;"><b>Not Available</b></span></span></td>';
+  }
+
+  if ($netsettings{'GREEN_ADDRESS'})
+  {
+    $greenip = $startcell.'#99FF99"><span style="color:black">Green IP:';
+    $greenip .= ' <span style="float:right;"><b>';
+    $greenip .= $netsettings{'GREEN_ADDRESS'}.'</b></span></span></td>';
+  }
+
+  open (FILE, "${swroot}/red/dns1");
+  while (<FILE>)
+  {
+    chomp;
+    $dns1 = $startcell.'#F0E68C"><span style="color:black">DNS 1:';
+    $dns1 .= ' <span style="float:right;"><b>'.$_.'</b></span></span></td>';
+  }
+  close (FILE);
+
+  open (FILE, "${swroot}/red/dns2");
+  while (<FILE>)
+  {
+    chomp;
+    $dns2 = $startcell.'#F0E68C"><span style="color:black">DNS 2:';
+    $dns2 .= ' <span style="float:right;"><b>'.$_.'</b></span></span></td>';
+  }
+  close (FILE);
+
+  my $locks = scalar(glob("/var/run/ppp-*.pid"));
+  my $theconnstate;
+  if ( -e "${swroot}/red/active" )
+  {
+    $theconnstate = $startcell.'#99FF99"><span style="color:black">Red Status:';
+    $theconnstate .= '<span style="float:right;"><b>Connected</b></span></span></td>';
+  }
+  elsif ($locks)
+  {
+    $theconnstate = $startcell.'#FFD700"><span style="color:black">Red Status:';
+    $theconnstate .= '<span style="float:right;"><b>Connecting</b></span></span></td>';
+  }
+  else
+  {
+    $theconnstate = $startcell.'#C0C0C0"><span style="color:black">Red Status:';
+    $theconnstate .= '<span style="float:right;"><b>Idle</b></span></span></td>';
+  }
+
+  print <<END;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-	$extrahead
-	<title>($hostname) $title - Smoothwall Express</title>
-	<script language='javascript' SRC='/ui/js/script.js'></script>
-	<link href='/ui/css/style.css' rel='stylesheet' type='text/css'>
+  $extrahead
+  <title>($hostname) $title - Smoothwall Express</title>
+  <script type="text/javascript" src='/ui/js/script.js'></script>
+  <link href='/ui/css/style.css' rel='stylesheet' type='text/css'>
+  <script type="text/javascript">
+    function setVisibility(id) {
+      if(document.getElementById('button1').value=='Hide IP') {
+        document.getElementById('button1').value = 'Show IP';
+        document.getElementById('button1').style.display = 'inline';
+        document.getElementById(id).style.display = 'none';
+      } else {
+        document.getElementById('button1').value = 'Hide IP';
+        document.getElementById('button1').style.display = 'none';
+        document.getElementById(id).style.display = 'inline';
+      }
+    }
+  </script>
 END
 
-	# Override the default style, if specified
-	if (defined($overrideStyle)) {
-	  print <<END;
-	<link href='/ui/css/$overrideStyle.css' rel='stylesheet' type='text/css'>
+  # Override the default style, if specified
+  if (defined($overrideStyle))
+  {
+    print <<END;
+   <link href='/ui/css/$overrideStyle.css' rel='stylesheet' type='text/css'>
 END
-	}
+  }
 
-	print <<END;
+  print <<END;
 </head>
 END
 
-	if ( $thissection ne "help" ) {
-		$cellwidth = $pagewidth / 2;
-		print <<END;
+  if ( $thissection ne "help" )
+  {
+    $cellwidth = $pagewidth / 2;
+    print <<END;
 <body>
 <table class='frame' cellpadding='0' cellspacing='0'>
-<tr style="margin:0">
-  <td style="background-image:url(/ui/img/top-left.png); max-height:4px; height:4px; min-height:4px; max-width:4px; min-width:4px; background-repeat:none"></td>
-  <td style="background-image:url(/ui/img/top.png); max-height:4px; height:4px; min-height:4px; background-repeat:repeat-x"></td>
-  <td style="background-image:url(/ui/img/top-right.png); max-height:4px; height:4px; min-height:4px; max-width:4px; width:4px; min-width:4px; background-repeat:none"></td>
-</tr>
-<tr style="margin:0">
-  <td style="background-image:url(/ui/img/left.png); max-width:4px; width:4px; min-width:4px; background-repeat:repeat-y">
-  </td>
-  <td>
+  <tr style="margin:0">
+    <td style="background-image:url(/ui/img/top-left.png); max-height:4px; height:4px;
+               min-height:4px; max-width:4px; min-width:4px; background-repeat:none"></td>
+    <td style="background-image:url(/ui/img/top.png); max-height:4px; height:4px;
+               min-height:4px; background-repeat:repeat-x"></td>
+    <td style="background-image:url(/ui/img/top-right.png); max-height:4px; height:4px;
+               min-height:4px; max-width:4px; width:4px; min-width:4px; background-repeat:none"></td>
+  </tr>
+  <tr style="margin:0">
+    <td style="background-image:url(/ui/img/left.png); max-width:4px; width:4px;
+               min-width:4px; background-repeat:repeat-y">
+    </td>
+    <td>
 
+      <table class='main' cellpadding='0' cellspacing='0'>
+        <tr>
+          <td class='logo' rowspan='2'>
+          </td>
+          <td class='header'>
 
-<table class='main' cellpadding='0' cellspacing='0'>
-<tr>
-	<td class='logo' rowspan='2'>
-	</td>
-<td class='header'>
+            <table border='0' style="float:right" title="Click to show">
+              <tr>
+                <td style="font-size:10pt"><input id='button1' type=button name=type value='Show IP'
+                    onclick="setVisibility('iptable');"></td>
+                <td style="width:50px"></td> <!-- Dont Use (Spacing) -->
+              </tr>
+            </table>
 
-<table class='frame' cellpadding='0' cellspacing='0'>
-<tr>
-<td style="width: 450px;"></td>
-<td>
-<p style="margin: 0 0 2pt 9pt; font-size:8pt; color:white; font-family:Arial,sans-serif">system: $hostname</p>
-</td>
-</tr>
-</table>
-
-</td>
+            <div id='iptable' title='Click to Hide' style='display:none'
+                 onclick="setVisibility('iptable');">
+              <table width="70%" border="0" cellpadding="0" cellspacing="0"
+                     style="text-align:left; margin:0 0 0 16em;">
+                <tr>
+                  $system
+                  $greenip
+                  $orangeip
+                  $dns1
+                  <td style="width:50px"></td> <!-- Dont Use (Spacing) -->
+                </tr>
+                <tr>
+                  $theconnstate
+                  $redip
+                  $purpleip
+                  $dns2
+                  <td></td> <!-- Dont Use (Spacing) -->
+                </tr>
+              </table>
+            </div>
+          </td>
 END
 
-		&showmenu($thissection);
-		print <<END;
-END
-	} else {
-		print <<END;
+    &showmenu($thissection);
+  } else {
+    print <<END;
 <body onLoad="window.focus()" style="background:white">
 END
-	}
-
+  }
 }
+
 
 sub closepage
 {
-	$thissection = $_[0];
+  $thissection = $_[0];
 
-	$sflogoimg = "/ui/assets/3.5/img/sflogo.png";
+  $sflogoimg = "/ui/assets/3.5/img/sflogo.png";
 
-	if ( $thissection ne "blank" ) {
-		print <<END
-	</td>
-	<td class='end'></td>
-	</tr>
-	<tr>
-		<td colspan='$span' class='bottom'></td>
-		<td class='bottomright'></td>
-	</tr>
-		<!-- End of the Main Body -->
-</table>
-	<br/>
-	</td>
-</tr>
-<tr><td colspan='2' style='background-color: #909090; height: 6px;'></td></tr>
-<tr>
-	<td class='footer' colspan='2' style='width:100%; text-align:center;'>
-		<div style="width:49%; text-align:left; margin:2px; display:inline-block">
-		    	<strong>Smoothwall Express $displayVersion</strong><br/>
-			Smoothwall&trade; is a trademark of <a href='http://www.smoothwall.net/'>Smoothwall Limited</a>.
-		</div>
-		<div style="width:49%; text-align:right; margin:2px; display:inline-block">
-		    	&copy; 2000 - 2015 <a href='http://smoothwall.org/about/team/'>The Smoothwall Team</a><br/>
-			<a href='/cgi-bin/register.cgi'>$tr{'credits'}</a> - Portions &copy; <a href='http://www.smoothwall.org/download/sources/'>original authors</a>
-		</div>
-	</td>
-</tr>
-</table>
-  </td>
-  <td style="background-image:url(/ui/img/right.png); max-width:6px; width:6px; min-width:6px; background-repeat:repeat-y">
-  </td>
-</tr>
-<tr>
-  <td style="background-image:url(/ui/img/bottom-left.png); max-height:6px; height:6px; min-height:6px; max-width:4px; min-width:4px; background-repeat:none">
-  </td>
-  <td style="background-image:url(/ui/img/bottom.png); max-height:6px; height:6px; min-height:6px; background-repeat:repeat-x">
-  </td>
-  <td style="background-image:url(/ui/img/bottom-right.png); max-height:6px; height:6px; min-height:6px; max-width:6px; width:6px; min-width:6px; background-repeat:none">
-  </td>
-</tr>
+  if ( $thissection ne "blank" )
+  {
+    print <<END;
+                </td>
+                <td class='end'></td>
+              </tr>
+              <tr>
+                <td colspan='$span' class='bottom'></td>
+                <td class='bottomright'></td>
+              </tr>
+                  <!-- End of the Main Body -->
+            </table>
+            <br />
+          </td>
+        </tr>
+        <tr><td colspan='2' style='background-color: #909090; height: 6px;'></td></tr>
+        <tr>
+	  <td class='footer' colspan='2' style='width:100%'>
+            <div style="width:35%; text-align:left; margin:2px; display:inline-block; float:left">
+              <strong>Smoothwall Express $displayVersion</strong><br/>
+              Smoothwall&trade; is a trademark of <a href='http://www.smoothwall.net/'>Smoothwall Limited</a>.
+            </div>
+            <p id='currentTime' style='margin:.1em 0 0 0; width:29%;
+                                       text-align:center; display:inline-block'></p>
+            <div style="width:35%; text-align:right; margin:2px; float:right">
+              &copy; 2000 - 2015 <a href='http://smoothwall.org/about/team/'>The Smoothwall Team</a><br/>
+              <a href='/cgi-bin/register.cgi'>$tr{'credits'}</a> - Portions &copy; <a href='http://www.smoothwall.org/download/sources/'>original authors</a>
+            </div>
+   	  </td>
+        </tr>
+      </table>
+<script type='text/javascript'
+        language='JavaScript'
+        src='/ui/js/monitor.js'>
+</script>
+<script type='text/javascript'
+        language='JavaScript'>
+  var timeMonitorObj = new Object();
+
+  function doTime () {
+    simpleMonitor(timeMonitorObj, '/cgi-bin/time-clock.cgi', displayTime);
+  }
+
+  function displayTime(dateTime) {
+    document.getElementById('currentTime').innerHTML = 'Firewall Time<br /><span style="color:#505050; font-size:10pt; font-weight:bold">'+ dateTime +'</span>';
+  }
+  var timeTimer = setInterval (doTime, 1000);
+</script>
+
+    </td>
+    <td style="background-image:url(/ui/img/right.png); max-width:6px; width:6px;
+               min-width:6px; background-repeat:repeat-y">
+    </td>
+  </tr>
+  <tr>
+    <td style="background-image:url(/ui/img/bottom-left.png); max-height:6px; height:6px;
+               min-height:6px; max-width:4px; min-width:4px; background-repeat:none">
+    </td>
+    <td style="background-image:url(/ui/img/bottom.png); max-height:6px; height:6px;
+               min-height:6px; background-repeat:repeat-x">
+    </td>
+    <td style="background-image:url(/ui/img/bottom-right.png); max-height:6px; height:6px;
+               min-height:6px; max-width:6px; width:6px; min-width:6px; background-repeat:none">
+    </td>
+  </tr>
 </table>
 
 END
-		;
-	}
 
+  }
 
-	if ( $thissection ne "update" ) {
-		print <<END
-	<script language='javascript' SRC='/ui/js/wz_tooltip.js'></script>
-	<script>
+  if ( $thissection ne "update" )
+  {
+    print <<END;
+    <script TYPE="text/javascript" SRC='/ui/js/wz_tooltip.js'></script>
+    <script TYPE="text/javascript">
 END
-;
 
-foreach my $item ( @_validation_items ){
-	print "$item;\n";
-}
 
-print <<END
-	</script>
-	</body>
-	</html>
+    foreach my $item ( @_validation_items )
+    {
+      print "$item;\n";
+    }
+
+print <<END;
+    </script>
+  </body>
+</html>
 END
-;
-	}
 
-
+  }
 }
 
 sub openbigbox
@@ -606,350 +752,350 @@ sub closebigbox
 
 sub openbox
 {
-	my ( $caption ) = @_;
+   my ( $caption ) = @_;
 
-	print <<END
-<br/>
+   print <<END;
+<br />
 <table class='box'>
 <tr>
-	<td>
+   <td>
 END
-	;
-	if ($caption) {
-		print "<span class='caption'>$caption</span><br/>\n";
-	}
+
+   if ($caption) {
+      print "<span class='caption'>$caption</span><br />\n";
+   }
 }
 
 sub closebox
 {
-	print <<END
-	</td>
+   print <<END;
+   </td>
 </tr>
 </table>
-<br/>
+<br />
 END
-	;
+
 }
 
 sub alertbox
 {
-	my $thiserror = $_[0];
-	my $additional = $_[1];
-	if ( $thiserror ne '' && $additional eq '' ) {
-		&pageinfo( "error", $thiserror);
-	} elsif ( $thiserror eq 'add' && $additional eq 'add' && $abouttext{$thisscript . "-additional"} ne '' ) {
-		&pageinfo( $alertbox{"textadd"}, $abouttext{$thisscript . "-additional"});
-	} elsif ( $thiserror eq 'add' && $additional eq 'add' && $abouttext{$thisscript . "-additional"} eq '' ) {
-		# deliberately do nothing
-	} else {
-		&pageinfo( $alertbox{"textok"}, $abouttext{$thisscript});
-	}
+   my $thiserror = $_[0];
+   my $additional = $_[1];
+   if ( $thiserror ne '' && $additional eq '' ) {
+      &pageinfo( "error", $thiserror);
+   } elsif ( $thiserror eq 'add' && $additional eq 'add' && $abouttext{$thisscript . "-additional"} ne '' ) {
+      &pageinfo( $alertbox{"textadd"}, $abouttext{$thisscript . "-additional"});
+   } elsif ( $thiserror eq 'add' && $additional eq 'add' && $abouttext{$thisscript . "-additional"} eq '' ) {
+      # deliberately do nothing
+   } else {
+      &pageinfo( $alertbox{"textok"}, $abouttext{$thisscript});
+   }
 }
 
 sub pageinfo
 {
-	my $thisalerttype = $_[0];
-	my $thisboxmessage = $_[1];
+   my $thisalerttype = $_[0];
+   my $thisboxmessage = $_[1];
 
-	print <<END
-<br/>
+   print <<END;
+<br />
 END
-;
-
-	if ( $thisalerttype ne "error" ) {
-		print "<table class='note'>";
-		print "<tr>";
-		print "<td class='note'>$thisboxmessage</td>";
-	}  else {
-		print "<table class='warning'>";
-		print "<tr>";
-		print "<td class='warningimg'><img src='/ui/img/warning.jpg' alt='$tr{'error'}'></td><td class='warning'><strong>$tr{'error'}</strong>$thisboxmessage</td>";
-	}
 
 
-print <<END
-	</tr>
+   if ( $thisalerttype ne "error" ) {
+      print "<table class='note'>";
+      print "<tr>";
+      print "<td class='note'>$thisboxmessage</td>";
+   }  else {
+      print "<table class='warning'>";
+      print "<tr>";
+      print "<td class='warningimg'><img src='/ui/img/warning.jpg' alt='$tr{'error'}'></td><td class='warning'><strong>$tr{'error'}</strong>$thisboxmessage</td>";
+   }
+
+
+print <<END;
+   </tr>
 </table>
 END
-;
+
 
 }
 
 sub readvalue
 {
-	my ( $filename, $value ) = @_;
+   my ( $filename, $value ) = @_;
 
-	unless ( open(FILE, $filename) ){
-		return undef;
-	}
+   unless ( open(FILE, $filename) ){
+      return undef;
+   }
 
-	while (<FILE>)
-	{
-		chomp;
-		$value = $_;
-	}
-	close FILE;
-	return $value;
+   while (<FILE>)
+   {
+      chomp;
+      $value = $_;
+   }
+   close FILE;
+   return $value;
 }
 
 sub writevalue
 {
-	my ( $filename, $value ) = @_;
+   my ( $filename, $value ) = @_;
 
-	unless ( open( FILE, ">$filename" ) ){
-		return undef;
-	}
-	print FILE "$value\n";
-	close FILE;
+   unless ( open( FILE, ">$filename" ) ){
+      return undef;
+   }
+   print FILE "$value\n";
+   close FILE;
 }
 
 sub writehash
 {
-	my $filename = $_[0];
-	my $hash = $_[1];
-	
-	# write cgi vars to the file.
-	open(FILE, ">${filename}") or die "Unable to write file $filename";
-	flock FILE, 2;
-	foreach $var (keys %$hash)
-	{
-		$val = $hash->{$var};
-		if ($val =~ / /) {
-			$val = "\'$val\'"; }
-		if (!($var =~ /^ACTION/)) {
-			print FILE "${var}=${val}\n"; }
-	}
-	close FILE;
+   my $filename = $_[0];
+   my $hash = $_[1];
+   
+   # write cgi vars to the file.
+   open(FILE, ">${filename}") or die "Unable to write file $filename";
+   flock FILE, 2;
+   foreach $var (keys %$hash)
+   {
+      $val = $hash->{$var};
+      if ($val =~ / /) {
+         $val = "\'$val\'"; }
+      if (!($var =~ /^ACTION/)) {
+         print FILE "${var}=${val}\n"; }
+   }
+   close FILE;
 }
 
 sub readhash
 {
-	my $filename = $_[0];
-	my $hash = $_[1];
-	my ($var, $val);
+   my $filename = $_[0];
+   my $hash = $_[1];
+   my ($var, $val);
 
-	open(FILE, $filename) or die "Unable to read file $filename";
-	
-	while (<FILE>)
-	{
-		chomp;
-		next if ($_ =~ /^\s*#/);
-		next if ($_ eq "");
-		($var, $val) = split /=/, $_, 2;
-		if ($var)
-		{
-			$val =~ s/^\'//g;
-			$val =~ s/\'$//g;
-			$hash->{$var} = $val;
-		}
-	}
-	close FILE;
+   open(FILE, $filename) or die "Unable to read file $filename";
+   
+   while (<FILE>)
+   {
+      chomp;
+      next if ($_ =~ /^\s*#/);
+      next if ($_ eq "");
+      ($var, $val) = split /=/, $_, 2;
+      if ($var)
+      {
+         $val =~ s/^\'//g;
+         $val =~ s/\'$//g;
+         $hash->{$var} = $val;
+      }
+   }
+   close FILE;
 }
 
 sub getcgihash
 {
-	my $hash = $_[0];
-	my $buffer = '';
-	my $length = $ENV{'CONTENT_LENGTH'};
-	my ($name, $value);
-	my ($pair, @pairs, $read);
-	my %hash;
-	my $boundary;
-	my %remotesettings;
-	my %main;
-	my %netsettings;
-	my $redip = '0.0.0.0';
-	my $referer;
-	my $shorthostname;
-	my @hostnameelements;
-	
-	if ($ENV{'REQUEST_METHOD'} ne 'POST') {
-		return; }
+   my $hash = $_[0];
+   my $buffer = '';
+   my $length = $ENV{'CONTENT_LENGTH'};
+   my ($name, $value);
+   my ($pair, @pairs, $read);
+   my %hash;
+   my $boundary;
+   my %remotesettings;
+   my %main;
+   my %netsettings;
+   my $redip = '0.0.0.0';
+   my $referer;
+   my $shorthostname;
+   my @hostnameelements;
+   
+   if ($ENV{'REQUEST_METHOD'} ne 'POST') {
+      return; }
 
-	$ENV{'HTTP_REFERER'} =~ m/^(http|https)\:\/\/(.*?)[\:|\/]/;
-	$referer = $2;
+   $ENV{'HTTP_REFERER'} =~ m/^(http|https)\:\/\/(.*?)[\:|\/]/;
+   $referer = $2;
 
-	&readhash("${swroot}/remote/settings", \%remotesettings);
-	&readhash("${swroot}/main/settings", \%main);
-	&readhash("${swroot}/ethernet/settings", \%netsettings);
+   &readhash("${swroot}/remote/settings", \%remotesettings);
+   &readhash("${swroot}/main/settings", \%main);
+   &readhash("${swroot}/ethernet/settings", \%netsettings);
 
-	@hostnameelements = split(/\./, $main{'HOSTNAME'});
-	$shorthostname = $hostnameelements[0];
+   @hostnameelements = split(/\./, $main{'HOSTNAME'});
+   $shorthostname = $hostnameelements[0];
 
-	if (open(FILE, "${swroot}/red/local-ipaddress"))
-	{
-		$redip = <FILE>; chomp $redip;
-		close(FILE);
-	}
+   if (open(FILE, "${swroot}/red/local-ipaddress"))
+   {
+      $redip = <FILE>; chomp $redip;
+      close(FILE);
+   }
 
-	if ($remotesettings{'ENABLE_SECURE_ADMIN'} eq 'on')
-	{
-		unless ($referer eq $main{'HOSTNAME'} ||
-			$referer eq $shorthostname ||
-			$referer eq $netsettings{'GREEN_ADDRESS'} ||
-			$referer eq $redip)
-		{
-			&log("Referral $ENV{'HTTP_REFERER'} is not a Smoothwall page.");
-			return;
-		}
-	}
-	
-	$read = 0;
-	$buffer = "";
-	while($read < $length){
-		$read = $read + (read(STDIN, $buf, 1024) or die "Could not read buffer:$read: $@");
-		$buffer .= $buf;
-	}
-	unless($read == $length) {
-		die "Could not read buffer: $!";
-	}
+   if ($remotesettings{'ENABLE_SECURE_ADMIN'} eq 'on')
+   {
+      unless ($referer eq $main{'HOSTNAME'} ||
+         $referer eq $shorthostname ||
+         $referer eq $netsettings{'GREEN_ADDRESS'} ||
+         $referer eq $redip)
+      {
+         &log("Referral $ENV{'HTTP_REFERER'} is not a Smoothwall page.");
+         return;
+      }
+   }
+   
+   $read = 0;
+   $buffer = "";
+   while($read < $length){
+      $read = $read + (read(STDIN, $buf, 1024) or die "Could not read buffer:$read: $@");
+      $buffer .= $buf;
+   }
+   unless($read == $length) {
+      die "Could not read buffer: $!";
+   }
 
-	if($ENV{'CONTENT_TYPE'} =~ m/multipart\/form-data; boundary=(.*)/) {
-		$boundary = $1;
-		chomp $boundary;
-		$boundary =~ s/\+/ /g;
-		foreach (split(/$boundary/,$buffer)) {
-			s!--$!!so;
-			if(m/Content-Disposition: form-data; name="(.*?)"/is) {
-				$name = $1;
-			}
-			if(m/Content-Disposition: form-data; name="$name".*?\015\012\015\012(.*)$/is) {
-				$value = $1;
-				$value =~ s!\015\012$!!so;
-				$hash->{$name} = encode_entities($value);
-			}
-			else { next; }
-		}
-	} else {
-		@pairs = split(/&/, $buffer);
+   if($ENV{'CONTENT_TYPE'} =~ m/multipart\/form-data; boundary=(.*)/) {
+      $boundary = $1;
+      chomp $boundary;
+      $boundary =~ s/\+/ /g;
+      foreach (split(/$boundary/,$buffer)) {
+         s!--$!!so;
+         if(m/Content-Disposition: form-data; name="(.*?)"/is) {
+            $name = $1;
+         }
+         if(m/Content-Disposition: form-data; name="$name".*?\015\012\015\012(.*)$/is) {
+            $value = $1;
+            $value =~ s!\015\012$!!so;
+            $hash->{$name} = $value;
+         }
+         else { next; }
+      }
+   } else {
+      @pairs = split(/&/, $buffer);
 
-		foreach $pair (@pairs)
-		{
-			$pair =~ s/\+/ /g;
-			($name, $value) = split(/=/, $pair);
-			next unless $name; # fields MUST BE named!
-			$value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack('C', hex($1))/eg;
-			$value =~s/[^\w\013\n!@#\$%\^\*()_\-\+=\{\}\[\]\\|;:\'\"<,>\.?\/`~\& ]//g;
-			$hash->{$name} = encode_entities($value);
-    	}
-    }
-	return %hash;
+      foreach $pair (@pairs)
+      {
+         $pair =~ s/\+/ /g;
+         ($name, $value) = split(/=/, $pair);
+         next unless $name; # fields MUST BE named!
+         $value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack('C', hex($1))/eg;
+         $value =~s/[^\w\013\n!@#\$%\^\*()_\-\+=\{\}\[\]\\|;:\'\"<,>\.?\/`~\& ]//g;
+         $hash->{$name} = $value;
+          }
+       }
+   return %hash;
 }
 
 sub log
 {
-	system('/usr/bin/logger', '-t', 'smoothwall', $_[0]);
+   system('/usr/bin/logger', '-t', 'smoothwall', $_[0]);
 }
 
 sub pipeopen
 {
-	my $ret;
-	
-	open(PIPE, '-|') || exec(@_) or die "Couldn't run @_";
-	while (<PIPE>) { $ret .= $_; }
-	close (PIPE);
+   my $ret;
+   
+   open(PIPE, '-|') || exec(@_) or die "Couldn't run @_";
+   while (<PIPE>) { $ret .= $_; }
+   close (PIPE);
 
-	return $ret;
-}	
+   return $ret;
+}   
 
 sub age
 {
-	my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
-	        $atime, $mtime, $ctime, $blksize, $blocks) = stat $_[0];
-	my $now = time;
+   my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
+           $atime, $mtime, $ctime, $blksize, $blocks) = stat $_[0];
+   my $now = time;
 
-	my $totalsecs = $now - $mtime;
-	my $days = int($totalsecs / 86400);
-	my $totalhours = int($totalsecs / 3600);
-	my $hours = $totalhours % 24;
-	my $totalmins = int($totalsecs / 60);
-	my $mins = $totalmins % 60;
-	my $secs = $totalsecs % 60;
+   my $totalsecs = $now - $mtime;
+   my $days = int($totalsecs / 86400);
+   my $totalhours = int($totalsecs / 3600);
+   my $hours = $totalhours % 24;
+   my $totalmins = int($totalsecs / 60);
+   my $mins = $totalmins % 60;
+   my $secs = $totalsecs % 60;
 
- 	return "${days}d ${hours}h ${mins}m ${secs}s";
+    return "${days}d ${hours}h ${mins}m ${secs}s";
 }
 
 sub validip
 {
-	my $ip = $_[0];
+   my $ip = $_[0];
 
-	if (!($ip =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/)) {
-		return 0; }
-	else
-	{
-		@octets = ($1, $2, $3, $4);
-		foreach $_ (@octets)
-		{
-			if (/^0./) {
-				return 0; }
-			if ($_ < 0 || $_ > 255) {
-				return 0; }
-		}
-		return 1;
-	}
+   if (!($ip =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/)) {
+      return 0; }
+   else
+   {
+      @octets = ($1, $2, $3, $4);
+      foreach $_ (@octets)
+      {
+         if (/^0./) {
+            return 0; }
+         if ($_ < 0 || $_ > 255) {
+            return 0; }
+      }
+      return 1;
+   }
 }
 
 sub validmask
 {
-	my $mask = $_[0];
+   my $mask = $_[0];
 
-	# secord part an ip?
-	if (&validip($mask)) {
-		return 1; }
-	# second part a number?
-	if (/^0/) {
-		return 0; }
-	if (!($mask =~ /^\d+$/)) {
-		return 0; }
-	if ($mask >= 0 && $mask <= 32) {
-		return 1; }
-	return 0;
+   # secord part an ip?
+   if (&validip($mask)) {
+      return 1; }
+   # second part a number?
+   if (/^0/) {
+      return 0; }
+   if (!($mask =~ /^\d+$/)) {
+      return 0; }
+   if ($mask >= 0 && $mask <= 32) {
+      return 1; }
+   return 0;
 }
 
 sub validipormask
 {
-	my $ipormask = $_[0];
+   my $ipormask = $_[0];
 
-	# see if it is a IP only.
-	if (&validip($ipormask)) {
-		return 1; }
-	# split it into number and mask.
-	if (!($ipormask =~ /^(.*?)\/(.*?)$/)) {
-		return 0; }
-	$ip = $1;
-	$mask = $2;
-	# first part not a ip?
-	if (!(&validip($ip))) {
-		return 0; }
-	return &validmask($mask);
+   # see if it is a IP only.
+   if (&validip($ipormask)) {
+      return 1; }
+   # split it into number and mask.
+   if (!($ipormask =~ /^(.*?)\/(.*?)$/)) {
+      return 0; }
+   $ip = $1;
+   $mask = $2;
+   # first part not a ip?
+   if (!(&validip($ip))) {
+      return 0; }
+   return &validmask($mask);
 }
 
 sub validipandmask
 {
-	my $ipandmask = $_[0];
+   my $ipandmask = $_[0];
 
-	# split it into number and mask.
-	if (!($ipandmask =~ /^(.*?)\/(.*?)$/)) {
-		return 0; }
-	$ip = $1;
-	$mask = $2;
-	# first part not a ip?
-	if (!(&validip($ip))) {
-		return 0; }
-	return &validmask($mask);
+   # split it into number and mask.
+   if (!($ipandmask =~ /^(.*?)\/(.*?)$/)) {
+      return 0; }
+   $ip = $1;
+   $mask = $2;
+   # first part not a ip?
+   if (!(&validip($ip))) {
+      return 0; }
+   return &validmask($mask);
 }
 
 sub validport
 {
-	$_ = $_[0];
+   $_ = $_[0];
 
-	if (!/^\d+$/) {
-		return 0; }
-	if (/^0./) {
-		return 0; }
-	if ($_ >= 1 && $_ <= 65535) {
-		return 1; }
-	return 0;
+   if (!/^\d+$/) {
+      return 0; }
+   if (/^0./) {
+      return 0; }
+   if ($_ >= 1 && $_ <= 65535) {
+      return 1; }
+   return 0;
 }
 
 sub validportrange
@@ -974,137 +1120,138 @@ sub validportrange
 
 sub validmac
 {
-	$_ = $_[0];
+   $_ = $_[0];
 
-	if (/^[0-9a-fA-F]{2}[\:\-][0-9a-fA-F]{2}[\:\-][0-9a-fA-F]{2}[\:\-][0-9a-fA-F]{2}[\:\-][0-9a-fA-F]{2}[\:\-][0-9a-fA-F]{2}$/) {
-		return 1; }
-	return 0;
+   if (/^[0-9a-fA-F]{2}[\:\-][0-9a-fA-F]{2}[\:\-][0-9a-fA-F]{2}[\:\-][0-9a-fA-F]{2}[\:\-][0-9a-fA-F]{2}[\:\-][0-9a-fA-F]{2}$/) {
+      return 1; }
+   return 0;
 }
 
 sub validcomment
 {
-	$_ = $_[0];
-	if (/^[\w\d\.\-,\(\)\@£\$!\%\^\&\*=\+_ ]*$/){
+   $_ = $_[0];
+   if (/^[\w\d\.\-,\(\)\@Â£\$!\%\^\&\*=\+_ ]*$/){
                 if ( length $_ > 255 ){
                         return 0;
                 }
                 return 1;
         }
-	return 0;
+   return 0;
 }
 
 
 sub validhostname
 {
-	my $hostname = $_[0];
-	my $part;
+   my $hostname = $_[0];
+   my $part;
 
-	# Sanity checks
-	if (length($hostname) > 254)
-	{
-		return 0;
-	}
-	unless ($hostname =~ /^[0-9A-Za-z.-]+$/)
-	{
-		return 0;
-	}
+   # Sanity checks
+   if (length($hostname) > 254)
+   {
+      return 0;
+   }
+   unless ($hostname =~ /^[0-9A-Za-z.-]+$/)
+   {
+      return 0;
+   }
 
-	my @parts = split(/\./, $hostname);
-	# validate each label
-	foreach $part (@parts)
-	{
-		if (length($part) > 63)
-		{
-			return 0;
-		}
-		unless (($part =~ /^[A-Za-z]$/) or
-		        ($part =~ /^[A-Za-z][A-Za-z0-9-]*[A-Za-z0-9]$/))
-	       	{
-			return 0;
-		}
-	}
-	return 1;
+   my @parts = split(/\./, $hostname);
+   # validate each label
+   foreach $part (@parts)
+   {
+      if (length($part) > 63)
+      {
+         return 0;
+      }
+      unless (($part =~ /^[A-Za-z]$/) or
+              ($part =~ /^[A-Za-z][A-Za-z0-9-]*[A-Za-z0-9]$/))
+             {
+         return 0;
+      }
+   }
+   return 1;
 }
 
 sub basename {
-	my ($filename) = @_;
-	$filename =~ m!.*/(.*)!;
-	if ($1) {
-		return $1;
-	} else {
-		return $filename;
-	}
+   my ($filename) = @_;
+   $filename =~ m!.*/(.*)!;
+   if ($1) {
+      return $1;
+   } else {
+      return $filename;
+   }
 }
 
 sub dirname {
-	my ($filename) = @_;
-	$filename =~ s=(.*)/.*=$1=;
-	if ($1) {
-		return $1;
-	} else {
-		return $filename;
-	}
+   my ($filename) = @_;
+   $filename =~ s=(.*)/.*=$1=;
+   if ($1) {
+      return $1;
+   } else {
+      return $filename;
+   }
 }
 
 sub connectedstate {
-	my $locks = scalar(glob("/var/run/ppp-*.pid"));
-	my $theconnstate;
-	if ( -e "${swroot}/red/active" ) {
-		$theconnstate = "connected";
-	} elsif ($locks) {
-		$theconnstate = "connecting";
-	} else {
-		$theconnstate = "idle";
-	}
-	return $theconnstate;
+   my $locks = scalar(glob("/var/run/ppp-*.pid"));
+   my $theconnstate;
+   if ( -e "${swroot}/red/active" ) {
+      $theconnstate = "connected";
+   } elsif ($locks) {
+      $theconnstate = "connecting";
+   } else {
+      $theconnstate = "idle";
+   }
+   return $theconnstate;
 }
 
 sub getsystemid
 {
-	my %ownership;
-	&readhash("${swroot}/main/ownership", \%ownership);
-	return $ownership{'ID'};
+   my %ownership;
+   &readhash("${swroot}/main/ownership", \%ownership);
+   return $ownership{'ID'};
 }
 
 sub outputfile
 {
-	my $filename = $_[0];
-	my $outfilename = $_[1];
+   my $filename = $_[0];
+   my $outfilename = $_[1];
 
-	print "Content-type: application/octet-stream\n";
-	print "Content-disposition: attachment; filename=\"$outfilename\"\n\n";
+   print "Content-type: application/octet-stream\n";
+   print "Content-disposition: attachment; filename=\"$outfilename\"\n\n";
 
-	open (FILE, $filename) or die "Unable to open $filename";
-	while (<FILE>) {
-		print $_;
-	}
-	close (FILE);
-	
-	exit;
+   open (FILE, $filename) or die "Unable to open $filename";
+   while (<FILE>) {
+      print $_;
+   }
+   close (FILE);
+   
+   exit;
 }
 
 sub getLinkSpeed
 {
-	# Return the specified NIC's formatted current speed or empty string
-	my ($nic, $type) = @_;
-	open(RATE, "/sys/class/net/$nic/speed");
-	my $rate = <RATE>;
-	chomp $rate;
-	close RATE;
-	if ($type eq "string")
-	{
-		return " ($rate)" if ($rate == 10 or $rate == 100 or $rate == 1000 or $rate == 10000);
-		return "";
-	}
-	elsif ($type eq "number")
-	{
-		return "$rate" if ($rate == 10 or $rate == 100 or $rate == 1000 or $rate == 10000);
-		return "0";
-	}
-	else
-	{
-		return undef;
-	}
+   # Return the specified NIC's formatted current speed or empty string
+   my ($nic, $type) = @_;
+   open(RATE, "/sys/class/net/$nic/speed");
+   my $rate = <RATE>;
+   chomp $rate;
+   close RATE;
+   if ($type eq "string")
+   {
+      return " ($rate)" if ($rate == 10 or $rate == 100 or $rate == 1000 or $rate == 10000);
+      return "";
+   }
+   elsif ($type eq "number")
+   {
+      return "$rate" if ($rate == 10 or $rate == 100 or $rate == 1000 or $rate == 10000);
+      return "0";
+   }
+   else
+   {
+      return undef;
+   }
 }
 
 1;
+
