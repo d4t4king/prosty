@@ -8,20 +8,22 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = miniupnpd
-VERSION = 1.7
+VERSION = 1.9.20150609
 
 BASE_URL = http://miniupnp.free.fr/files/
 
 PATCH_FILE1 = umask.patch
 PATCH_FILE2 = genconfig.patch
+PATCH_FILE3 = pcpserver.c.patch
 
 CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
+PRECONFIGURE = CONFIG_OPTIONS="--portinuse --vendorcfg --leasefile --pcp-peer"
+
 configure: patch
-	cd $(DIR); make -f Makefile.linux config.h
-	@true
+	cd $(DIR); $(PRECONFIGURE) make -f Makefile.linux config.h
 
 compile: configure
 	@make $(JOBS) -C $(DIR) -f Makefile.linux \
