@@ -8,14 +8,18 @@
 
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
+use strict;
 
-$graphcriticalcolour = "#ff0000";
-$graphwarningcolour  = "#ff5d00";
-$graphnominalcolour  = "#ffa200";
-$graphblankcolour    = "#ffffff";
+my $errormessage;
 
-$graphalertcritical = 90;
-$graphalertwarning  = 70;
+my $graphcriticalcolour = "#ff0000";
+my $graphwarningcolour  = "#ff5d00";
+my $graphnominalcolour  = "#ffa200";
+my $graphblankcolour    = "#ffffff";
+my $graphbgcolour       = '';
+
+my $graphalertcritical = 90;
+my $graphalertwarning  = 70;
 
 &showhttpheaders();
 
@@ -26,15 +30,8 @@ $graphalertwarning  = 70;
 &alertbox($errormessage);
 
 &openbox($tr{'memory'});
-my $memz = `/usr/bin/free -otm | awk '/Mem:/ { print \$2 }'`;
-chomp($memz);
-if ($memz >= 1024) {
-	@echo = `/usr/bin/free -otm`;
-	$size = "m";
-} else {
-	@echo = `/usr/bin/free -ot`;
-	$size = "k";
-}
+
+my @echo = `/usr/bin/free -ot`;
 shift(@echo);
 
 # these really should be tr strings
@@ -44,23 +41,26 @@ print qq|
 <table style='width: 90%; margin-left: auto; margin-right: auto; border-collapse: collapse; border: solid 1px #c0c0c0;'>
 <tr>
 	<th>&nbsp;</th>
-	<th style='text-align: right; width: 50px'>$tr{ 'adv total' }</th>
-	<th style='text-align: right; width: 50px'>$tr{ 'adv used' }</th>
-	<th style='text-align: right; width: 50px'>$tr{ 'adv free' }</th>
+	<th style='text-align: right; width: 6em'>$tr{ 'adv total' }</th>
+	<th style='text-align: right; width: 6em'>$tr{ 'adv used' }</th>
+	<th style='text-align: right; width: 6em'>$tr{ 'adv free' }</th>
 	<th style='text-align: right;'>&nbsp;</th>
 	<th style='text-align: center; width: 150px;'>$tr{ 'adv used%' }</th>
-	<th style='text-align: right; width: 50px;' >$tr{ 'adv shared' }</th>
-	<th style='text-align: right; width: 50px;' >$tr{ 'adv buffers' }</th>
-	<th style='text-align: right; width: 50px;' >$tr{ 'adv cached' }</th>
+	<th style='text-align: right; width: 6em;' >$tr{ 'adv shared' }</th>
+	<th style='text-align: right; width: 6em;' >$tr{ 'adv buffers' }</th>
+	<th style='text-align: right; width: 6em;' >$tr{ 'adv cached' }</th>
 </tr>
 |;
 
-foreach $mline (@echo) {
+foreach my $mline (@echo) {
 	chomp($mline);
 
 	my ($mdev, $mtotal, $mused, $mfree, $mshared, $mbuffers, $mcached) = split(/\s+/, $mline);
 
-	$mperc = int((($mused/$mtotal)*100));
+	my $mperc = 0;
+	if ($mtotal) {
+		$mperc = int((($mused/$mtotal)*100));
+	}
 	if ($mperc > $graphalertcritical) {
 		$graphbgcolour = $graphcriticalcolour;
 	} elsif ($mperc > $graphalertwarning) {
@@ -77,25 +77,14 @@ foreach $mline (@echo) {
 		$graphbgcolour = $graphnominalcolour;
 	}
 	print qq|
-<tr>|;
-if ($size eq "m") {
-	print qq|
-<td style='text-align: right;'><tt>$mdev</tt></td>
-<td style='text-align: right;'><tt>${mtotal}</tt></td>
-<td style='text-align: right;'><tt>${mused}M</tt></td>
-<td style='text-align: right;'><tt>${mfree}M</tt></td>
-<td style='text-align: right;'><tt>&nbsp;</tt></td>
-<td style='text-align: right;' width='160px;' nowrap>|;
-} else {
-	print qq|
+<tr>
 <td style='text-align: right;'><tt>$mdev</tt></td>
 <td style='text-align: right;'><tt>${mtotal}</tt></td>
 <td style='text-align: right;'><tt>${mused}K</tt></td>
 <td style='text-align: right;'><tt>${mfree}K</tt></td>
 <td style='text-align: right;'><tt>&nbsp;</tt></td>
-<td style='text-align: right;' width='160px;' nowrap>|;
-}
-	print qq|<table class='blank' style='width: 150px; border: 1px #505050 solid;'><tr>|;
+<td style='text-align: right;' width='160px;' nowrap>
+	<table class='blank' style='width: 150px; border: 1px #505050 solid;'><tr>|;
 	if ($mperc < 1) {
 		print "<td style='background-color: $graphbgcolour; width: 1%; text-align: center;'><tt>$mperc%</tt></td>";}
 	else {
@@ -105,19 +94,11 @@ if ($size eq "m") {
 <td style='background-color: $graphblankcolour;'>&nbsp;</td></tr></table></td>
 |;
 	if ( $mshared ne "" ) {
-		if ($size eq "m") {
-		print qq|
-<td style='text-align: right;'><tt>${mshared}M</tt></td>
-<td style='text-align: right;'><tt>${mbuffers}M</tt></td>
-<td style='text-align: right;'><tt>${mcached}M</tt></td>
-|;
-		} else {
 		print qq|
 <td style='text-align: right;'><tt>${mshared}K</tt></td>
 <td style='text-align: right;'><tt>${mbuffers}K</tt></td>
 <td style='text-align: right;'><tt>${mcached}K</tt></td>
 |;
-		}
 	}
 	print qq|
 </tr>
@@ -146,9 +127,9 @@ print qq|
 <th style='width: 150px; text-align: center;'>$tr{ 'adv used%' }</th>
 </tr>
 |;
-foreach $mount (@echo) {
+foreach my $mount (@echo) {
    chomp($mount);
-   ($dev, $size, $size_used, $size_avail, $size_percentage, $mount_point) = split(/\s+/,$mount);
+   my ($dev, $size, $size_used, $size_avail, $size_percentage, $mount_point) = split(/\s+/,$mount);
    if (int($size_percentage) > $graphalertcritical) {
       $graphbgcolour = $graphcriticalcolour;
    } elsif (int($size_percentage) > $graphalertwarning) {
@@ -200,9 +181,9 @@ print qq|
 <th style='width: 150px; text-align: center;'>$tr{ 'adv used%' }</th>
 </tr>
 |;
-foreach $mount (@echo) {
+foreach my $mount (@echo) {
    chomp($mount);
-   ($dev, $size, $size_used, $size_avail, $size_percentage, $mount_point) = split(/\s+/,$mount);
+   my ($dev, $size, $size_used, $size_avail, $size_percentage, $mount_point) = split(/\s+/,$mount);
    if (int($size_percentage) > $graphalertcritical) {
       $graphbgcolour = $graphcriticalcolour;
    } elsif (int($size_percentage) > $graphalertwarning) {
@@ -309,10 +290,6 @@ foreach my $interface ( @interfaces ){
 
 	if ( defined $devices{$devicename} ){
 		$devicename = "$devicename ($devices{$devicename})";
-	}
-
-	if ((!defined $ipaddress) || ($ipaddress eq "")) {
-		next;
 	}
 
 	print qq{
@@ -479,18 +456,6 @@ print "<PRE>";
 system ('/bin/uname', '-a');
 print "</PRE>\n";
 &closebox();
-
-&openbox($tr{'crontab'});
-print "<PRE>";
-system("/bin/cat /tmp/dc");
-print "</PRE>\n";
-&closebox;
-
-&openbox($tr{'hosts'});
-print "<PRE>";
-system("/bin/cat /etc/hosts");
-print "</PRE>\n";
-&closebox;
 
 &alertbox('add', 'add');
 

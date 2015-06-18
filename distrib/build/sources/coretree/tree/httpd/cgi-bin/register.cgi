@@ -8,7 +8,10 @@
 
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
+use strict;
 use IO::Socket;
+
+my $errormessage;
 
 my %ownership;
 &readhash( "/var/smoothwall/main/ownership", \%ownership );

@@ -10,6 +10,7 @@ use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
 use smoothtype qw( :standard );
+use strict;
 
 my (%cgiparams,%checked);
 my $filename = "${swroot}/vpn/config";
@@ -120,10 +121,10 @@ foreach $line (@current)
         {
                 chomp($line);
                 @temp = split(/[\t ]+/,$line);
-                $d = 0;
-                $left_vpnnet = $temp[1];
+                my $d = 0;
+                my $left_vpnnet = $temp[1];
                 $left_vpnnet =~ /\//; $left_vpnnet = $`;
-                $right_vpnnet = $temp[3];
+                my $right_vpnnet = $temp[3];
                 $right_vpnnet =~ /\//; $right_vpnnet = $`;
                 my $remote = $temp[5];
                 $remote =~ /\@/; $remote = $';

@@ -5,14 +5,16 @@
 # This code is distributed under the terms of the GPL
 #
 # (c) The SmoothWall Team
+use strict;
+use warnings;
 
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothnet qw( checkmd5 );
 
-my %pppsettings;
-my %modemsettings;
-my %netsettings;
+my (%pppsettings, %modemsettings, %netsettings, %cgiparams, %alertbox);
+my ($timestr, $connstate, $refresh, $channels, $channel, $errormessage, $number, $connpick);
+my (@av, @temp);
 
 my $locks = scalar(glob("/var/run/ppp-*.pid"));
 
@@ -175,7 +177,7 @@ if ( not defined $ownership{'ADDED_TO_X3'} or $ownership{'ADDED_TO_X3'} eq "0" )
 
 &openbox('');
 
-$currentconnection = &connectedstate();
+my $currentconnection = &connectedstate();
 print <<END
 <table class='centered'>
 	<tr>
@@ -275,7 +277,7 @@ if ($#av != -1)
 {
 	&pageinfo($alertbox{"texterror"}, "$tr{'there are updates'}");
 }
-$age = &age("/${swroot}/patches/available");
+my $age = &age("/${swroot}/patches/available");
 if ($age =~ m/(\d{1,3})d/)
 {
 	if ($1 >= 7)
@@ -373,12 +375,12 @@ sub showstats
 			my $number = $_[0];
 			my $ret;
 			
-			if ( $number > (1000*1000*1000) ){
-				$ret = sprintf( "%0.1f TB", $number/(1000*1000*1000) );	
-			} elsif ( $number > (1000*1000) ){
-				$ret = sprintf( "%0.1f GB", $number/(1000*1000) );	
-			} elsif ( $number > (1000) ){
-				$ret = sprintf( "%0.1f MB", $number/(1000) );	
+			if ( $number > (1024*1024*1024) ){
+				$ret = sprintf( "%0.1f TB", $number/(1024*1024*1024) );	
+			} elsif ( $number > (1024*1024) ){
+				$ret = sprintf( "%0.1f GB", $number/(1024*1024) );	
+			} elsif ( $number > (1024) ){
+				$ret = sprintf( "%0.1f MB", $number/(1024) );	
 			} else {
 				$ret = sprintf( "%0.1f KB", $number );	
 			}
@@ -390,11 +392,11 @@ sub showstats
 			my $ret;
 			
 			if ( $number > (1000*1000*1000) ){
-				$ret = sprintf( "%0.1f Gbit/s", $number/(1000*1000*1000) );	
+				$ret = sprintf( "%0.1f Gbit/s", $number/(1024*1024*1024) );	
 			} elsif ( $number > (1000*1000) ){
-				$ret = sprintf( "%0.1f Mbit/s", $number/(1000*1000) );	
+				$ret = sprintf( "%0.1f Mbit/s", $number/(1024*1024) );	
 			} elsif ( $number > (1000) ){
-				$ret = sprintf( "%0.1f Kbit/s", $number/(1000) );	
+				$ret = sprintf( "%0.1f Kbit/s", $number/(1024) );	
 			} else {
 				$ret = sprintf( "%0.1f bit/s", $number );	
 			}

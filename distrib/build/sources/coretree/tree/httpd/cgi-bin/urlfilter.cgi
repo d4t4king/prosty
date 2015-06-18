@@ -10,7 +10,7 @@
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
-
+use strict;
 use IO::Socket;
 
 my $swbin = '/usr/bin/smoothwall';
@@ -671,7 +671,7 @@ END
 if (-e "$dbdir/custom/blocked/domains")
 {
 	open(FILE,"$dbdir/custom/blocked/domains");
-	@data = <FILE>;
+	my @data = <FILE>;
 	close(FILE);
 	print @data;
 }
@@ -687,7 +687,7 @@ END
 if (-e "$dbdir/custom/blocked/urls")
 {
 	open(FILE,"$dbdir/custom/blocked/urls");
-	@data = <FILE>;
+	my @data = <FILE>;
 	close(FILE);
 	print @data;
 }
@@ -734,7 +734,7 @@ END
 if (-e "$dbdir/custom/allowed/domains")
 {
 	open(FILE,"$dbdir/custom/allowed/domains");
-	@data = <FILE>;
+	my @data = <FILE>;
 	close(FILE);
 	print @data;
 }
@@ -750,7 +750,7 @@ END
 if (-e "$dbdir/custom/allowed/urls")
 {
 	open(FILE,"$dbdir/custom/allowed/urls");
-	@data = <FILE>;
+	my @data = <FILE>;
 	close(FILE);
 	print @data;
 }
@@ -792,7 +792,7 @@ END
 if (-e "$dbdir/custom/blocked/expressions")
 {
         open(FILE,"$dbdir/custom/blocked/expressions");
-        @data = <FILE>;
+        my @data = <FILE>;
         close(FILE);
         print @data;
 }

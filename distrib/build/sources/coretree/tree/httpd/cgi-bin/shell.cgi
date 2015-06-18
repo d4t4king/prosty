@@ -8,6 +8,9 @@
 
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
+use strict;
+
+my $errormessage;
 
 &showhttpheaders();
 

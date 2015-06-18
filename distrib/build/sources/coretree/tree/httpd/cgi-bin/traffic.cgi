@@ -11,7 +11,7 @@ use lib "/usr/lib/smoothwall";
 use header qw(:standard);
 use smoothtype qw(:standard);
 use smoothd qw(message);
-
+use strict;
 use Socket;
 
 my (%cgiparams, %selected, %checked, $default_block);
@@ -23,9 +23,10 @@ my $errormessage = '';
 my %settings;
 my %netsettings;
 
+my (%trafficsettings, %speed_labels);
 # Two values are scale factor from full line speed for rate and ceiling
 # 100% is full speed
-# Values > 100 are actual bit rates
+# Values > 1 are actual bit rates
 # The sum of the 'share' rates must not exceed 100%.
 # as cannot promise more than the available bandwidth!
 
@@ -34,28 +35,27 @@ my %netsettings;
 # The sum of the 'share' rates must never exceed 100%.
 # Second is the maximum B/W the class may use, with or without contention.
 # A rate is either a percentage of the link's bandwidth (<=100) OR an
-# actual bit rate (>100, with NO multiplier).
+# actual bit rate (>100).
 # The 'share' rates indicate the relative proportion of the bandwidth each
 #   contending stream will get. Thus, if there are only normal and admin
-#   packets to send, each stream will get a 1/100:1/100 share (50%). If there
+#   packets to send, each stream will get a 1/10:1/10 share (50%). If there
 #   are normal, admin and isochronous (assume 10Mb/s outbound) streams, they
-#   will receive 1/100:1/100:128/10000 shares of bandwidth.
-# In the absence of contention (only one stream to transmit), isochron can use
-#   up to 128000b/s, high (usually DNS) can use up to 20%, and the
+#   will receive 1/10:1/10:64/10000 shares of bandwidth.
+# In the absence of contention (only one stream to transmit), smallpkt can use
+#   up to 20% of availabled bandwidth, isochron can use up to 120kb/s, and the
 #   rest can use up to 100%.
-# As of 11/2014, trafficloader.pl uses each internal NIC's negotiated bit rate. This is
-#   nearly always too fast; there should be a %age multipler in the UI to allow the
-#   admin to specify the actual observed bit rate. 95% might not be unreasonable.
+# A drawback to the current implementation is that internal NICs are assumed
+#   to be all the same speed.
 
 my %scale = (
-	      normal => [     1,     100],
-	        high => [     1,      20],
-	         low => [     1,     100],
-	    isochron => [128000,  128000],
-	 smoothadmin => [     1,     100],
-	    webcache => [     1,     100],
-	    smallpkt => [     1,     100],
-	localtraffic => [     1,     100]
+	      normal => [   10,     100],
+	        high => [   10,      20],
+	         low => [   10,     100],
+	    isochron => [64000,  128000],
+	 smoothadmin => [   10,     100],
+	    webcache => [   10,     100],
+	    smallpkt => [   10,      20],
+	localtraffic => [   10,     100]
 );
 
 my %prios = (
@@ -255,7 +255,7 @@ sub display_rules
 	        low => $tr{'traffic low'}, 
 	     normal => $tr{'traffic normal'},
 	       high => $tr{'traffic high'}, 
-           isochron => $tr{'traffic isochronous'},
+           isochron => "isochronous",
 );
 
 	my %class_labels = ( 
@@ -263,7 +263,7 @@ sub display_rules
 	        low => $tr{'traffic low'}, 
 	     normal => $tr{'traffic normal'},
 	       high => $tr{'traffic high'}, 
-           isochron => $tr{'traffic isochronous'},
+           isochron => "isochronous",
 	);
 
 	# Set a few menu options

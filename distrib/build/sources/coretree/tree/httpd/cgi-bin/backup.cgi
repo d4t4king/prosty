@@ -10,6 +10,7 @@ use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
 use smoothtype qw(:standard);
+use strict;
 
 my (%cgiparams,%selected,%checked);
 my $filename = "${swroot}/backup/config";
@@ -71,7 +72,7 @@ if ($cgiparams{'ACTION'} eq $tr{'create backup floppy disk'} ||
 				open (FILE, "${swroot}/tmp/backup.img");
 				$_= <FILE>;
 				print $_;
-				$l = length;
+				my $l = length;
 				
 				close (FILE);
 
@@ -172,6 +173,7 @@ print "<form method='post'>\n";
 &openbox($tr{'bu backup statusc'});
 
 # Read .../backup/flag into $flag
+my $flag;
 open FLAG, $flagfile;
 read FLAG, $flag, 500;
 close FLAG;
