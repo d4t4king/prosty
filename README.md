@@ -3,47 +3,27 @@ off-the-wall
 Smoothwall Express 3.1.....plus some.
 
 Added so far:
+* ruby -- the newest addition. I find myself scripting with it more and more, it'd just be really handy to have it on SWE.
 * iptraf-ng
 * curl
 * htop
 * Perl Modules
-	* App::Control *
-	* Authen::NTLM *
-	* Authen::SASL *
 	* Bit::Vector
 	* Carp::Clan
-	* Config::Patch *
-	* Date::Calc *
 	* Digest::HMAC
-	* GD *
-	* GDGraph *
-	* GDTextUtil *
 	* Geo::IP::PurePerl
-	* HTML-Parser *
-	* HTML-Tagset *
-	* IO-Socket-SSL *
-	* libnet *
-	* libwww-perl *
-	* local-lib *
-	* Log::Log4perl *
-	* NetAddr::IP *
-	* Net::CIDR *
 	* Net::DNS
 	* Net::IPv4Addr
-	* Net::Netmask *
 	* Net::Nslookup
-	* Net::SSLeay *
-	* RRD::Simple *
-	* Set::IntSpan *
 	* Sub::Uplevel
 	* Test::Exception
-	* URI *
 
-\* Included in SWE3.1u3
+\* no real reason to keep tracking perl mods that are already included in SWE!
 
 Version bumps:
 * ntp -> 4.2.8p2
 * glibc -> 2.21
+* I thought I bumped apache, but I could be mistaken.  Will double-check and update.
 
 Configuratin changes:
 * Added security HTTP headers to httpd.conf
@@ -56,4 +36,5 @@ NOTE: That git doesn't know where to access the certificate information in smoot
 Other:
 * gdbm is now built in Stage 3 prior to perl, since building perl on Gentoo /demanded/ gdbm.  It wouldn't seem to accept any attempts to make it ignore gdbm.
 * Also incorporated some changes that help to tidy up the UI.
+* Most of the UI pages are now "strict-ified".  If you don't know what that means, accept it as "cleaner code".
 
