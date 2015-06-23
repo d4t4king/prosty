@@ -8,11 +8,11 @@
 
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
-
+use strict;
 use Socket;
 
-my %cgiparams;
-my @inaddrs, @addrs;
+my (%cgiparams, %selected);
+my (@inaddrs, @addrs);
 my $addr;
 my $address;
 my $errormessage = '';
@@ -74,10 +74,10 @@ if ($cgiparams{'ACTION'} eq $tr{'run'})
 
 unless ($errormessage)
 {
-	foreach $addr (@addrs)
+	foreach my $addr (@addrs)
 	{
-		$iaddr = inet_aton($addr);
-		$hostname = gethostbyaddr($iaddr, AF_INET);
+		my $iaddr = inet_aton($addr);
+		my $hostname = gethostbyaddr($iaddr, AF_INET);
 		if (!$hostname) { $hostname = $tr{'lookup failed'}; }
 	
 		&openbox("${addr} (${hostname})");

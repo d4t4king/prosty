@@ -17,12 +17,13 @@ use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
 use smoothtype qw(:standard);
+use strict;
 
 require "$swroot/smoothinfo/about.ph";
 
-$MODDIR = "$swroot/smoothinfo/etc";
+my $MODDIR = "$swroot/smoothinfo/etc";
 
-my (%smoothinfosettings, %checked);
+my (%smoothinfosettings, %checked, %modinfo, %selected);
 my $version = $modinfo{'MOD_LONG_NAME'} . " v. " . $modinfo{'MOD_VERSION'};
 my $filename = "$MODDIR/report.txt";
 my $settingsfile = "$MODDIR/settings";
@@ -911,7 +912,7 @@ END
 print "$tr{'smoothinfo-chains'}";
 my @rows = ();
   print "<table style='width: 100%;'>";
-  $id = -1;
+  my $id = -1;
   foreach (@chains)
   {
     $id++;
@@ -950,6 +951,7 @@ print <<END
 END
 ;
 
+my ($textarea, $bbcodehelp);
 if ($smoothinfosettings{'EDIT'} eq 'on')
 {
 $textarea = "<TD ALIGN='CENTER' WIDTH='50%'><TEXTAREA NAME='data' ROWS='30' COLS='85' WRAP='off'>";

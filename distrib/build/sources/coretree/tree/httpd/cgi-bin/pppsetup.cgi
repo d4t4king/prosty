@@ -9,6 +9,7 @@
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothtype qw( :standard );
+use strict;
 
 my %pppsettings;
 my %temppppsettings;

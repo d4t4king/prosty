@@ -11,6 +11,7 @@ use header qw(:standard);
 use smoothtype qw(:standard);
 use smoothd qw(message);
 
+use strict;
 use Socket;
 
 my %cgiparams;
@@ -306,6 +307,8 @@ sub display_interface
 {
   my ( $settings, $prefix ) = @_;
 
+  my $macaddress;
+
   my $interface = $settings{"${prefix}_DEV"};
 
   # Get the MAC address
@@ -364,6 +367,8 @@ END
 sub display_red_interface
 {
   my ( $settings ) = @_;
+
+  my $macaddress;
 
   my $interface = $settings{"RED_DEV"};
 
@@ -495,6 +500,7 @@ END
 
   &openbox("Overrides");
 
+  my $ignoremtutext;
   if ($ignoremtuchecked eq '')
   {
     $ignoremtutext = 'Not checked';

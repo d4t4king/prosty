@@ -6,16 +6,13 @@
 
 include ../Makefile.conf
 
-PACKAGE = qemu
-VERSION = 2.3.0
+PACKAGE = ruby
+MAJ_VER = 2.2
+MIN_VER = .2
+VERSION = $(MAJ_VER)$(MIN_VER)
 
-BASE_URL = http://wiki.qemu-project.org/download
-EXTENSION = .tar.bz2
+BASE_URL = http://cache.ruby-lang.org/pub/$(PACKAGE)/$(MAJ_VER)
 
-# Verbose build
-export V=1
-
-CONFIG_OPTS = --target-list=i386-softmmu
+CONFIG_OPTS = --prefix=/usr
 
 include ../Makefile.rules
-

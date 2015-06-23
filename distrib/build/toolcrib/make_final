@@ -370,6 +370,8 @@ fi
       build squidguard
       build subversion
       build qemu
+	  #build setuptools
+	  #build mako
       build ntop
       build iperf
       build apcupsd

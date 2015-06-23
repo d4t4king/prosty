@@ -11,7 +11,7 @@ VERSION = 5.0.1
 
 BASE_URL = http://iweb.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/Stable/
 
-CONFIG_OPTS += --prefix=/usr --with-ssl --with-ossl-root=/usr --with-ossl-lib=/usr/lib --with-ossl-include=/usr/include
+CONFIG_OPTS += --prefix=/usr --with-ssl --with-ossl-root=/usr --with-ossl-lib=/usr/lib --with-ossl-include=/usr/include --enable-threads --enable-jumbo-frames
 
 CONFIGURE = yes
 

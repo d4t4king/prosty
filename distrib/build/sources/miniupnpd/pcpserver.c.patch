@@ -1,0 +1,11 @@
+--- miniupnpd-1.9.20150609-built/pcpserver.c	2014-10-27 12:40:35.000000000 -0400
++++ miniupnpd-1.9.20150609/pcpserver.c	2015-06-17 02:28:43.000000000 -0400
+@@ -533,7 +533,7 @@
+ #endif
+ 		opt_flp = (pcp_flow_priority_option_t*)pcp_buf;
+ 
+-		if ( option_length != sizeof (*flp) ) {
++		if ( option_length != sizeof (*opt_flp) ) {
+ 			syslog(LOG_ERR, "PCP: Error processing DSCP. sizeof %d and remaining %d . flow len %d \n",
+ 			       (int)sizeof(pcp_flow_priority_option_t), remain, opt_flp->len);
+ 			pcp_msg_info->result_code = PCP_ERR_MALFORMED_OPTION;

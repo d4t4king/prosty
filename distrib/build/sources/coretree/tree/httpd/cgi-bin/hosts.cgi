@@ -10,6 +10,7 @@ use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
 use smoothtype qw(:standard);
+use strict;
 
 my (%cgiparams,%selected,%checked);
 my $filename = "${swroot}/hosts/config";

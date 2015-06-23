@@ -8,6 +8,11 @@
 
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
+use strict;
+
+my $errormessage;
+
+my ( $table1colour, $table2colour ) = ( '#f0f0f0', '#e0e0e0' );
 
 my %netsettings;
 
@@ -33,6 +38,7 @@ chomp @PPPdevices;
 # Get NIC bit rates
 my @devices;
 my %deviceRates;
+my $i = 0;
 if ( $netsettings{'GREEN_DEV'}) {
 	$devices[$i++] = $netsettings{'GREEN_DEV'};
 	$deviceRates{$netsettings{'GREEN_DEV'}} = &getLinkSpeed($netsettings{'GREEN_DEV'}, "string");
@@ -132,6 +138,8 @@ sub realtime_graphs
 	my @rules;
 
 	foreach my $interface ( @devices ){
+		my $bgcolor = '';
+		my $section;
 		my $iftitle = $interface;
 		$iftitle =~ s/_/ /g;
 		$iftitle =~ s/(GREEN|RED|ORANGE|PURPLE)//;

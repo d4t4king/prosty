@@ -11,10 +11,10 @@
  
  # pfSense special case
  if [ -f /etc/platform ]; then
-@@ -243,8 +243,12 @@
- 	Darwin)
- 		echo "#define USE_IFACEWATCHER 1" >> ${CONFIGFILE}
+@@ -284,8 +284,12 @@
+		else
  		FW=ipfw
+		fi
  		OS_URL=http://developer.apple.com/macosx
  		;;
 +	"Smoothwall Express")

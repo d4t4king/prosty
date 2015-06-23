@@ -226,6 +226,15 @@ update: crumbs/Final.built
 	@echo -e "\nPreparing update '$(UPDATE)'..."
 	+@ $(ARCHset) toolcrib/as_chroot "/build/toolcrib/make_update $(UPDATE)"
 
+# prepare a bootable flash image
+#
+RELEASE = $(BASENAME)$(PRODUCT_EXTRA)-$(mTUPLE)
+mediaflashimg: 
+	@echo -e "\nMaking FLASH image..."; sleep 1
+	@+sudo su -c "RELEASE=$(RELEASE) toolcrib/make_flashimg"
+
+
+
 # prepare a bootable flash drive
 #
 mediaflash: 

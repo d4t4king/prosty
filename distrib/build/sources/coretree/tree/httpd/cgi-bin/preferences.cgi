@@ -8,8 +8,11 @@
 
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
+use strict;
 
-my %cgiparams, %settingsParams, %uiSettingsParams;
+my (%cgiparams, %settingsParams, %uiSettingsParams);
+my (%settings, %uisettings, %selected);
+my $errormessage;
 
 $cgiparams{'ACTION'} = '';
 $cgiparams{'MENU'} = 'off';
@@ -21,6 +24,7 @@ $cgiparams{'OPENNESS'} = '';
 
 &getcgihash(\%cgiparams);
 
+my $method;
 if ($cgiparams{'ACTION'} eq $tr{'save'})
 {
 	$settingsParams{'LANGUAGE'} = $cgiparams{'LANGUAGE'};

@@ -11,11 +11,12 @@ use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
 use smoothtype qw( :standard );
+use strict;
 
 my (%cgiparams,%checked,%selected);
 my $filename = "${swroot}/ipblock/config";
 my @vars;
-my $var, $addr;
+my ($var, $addr);
 my $needrestart = 0;
 
 &showhttpheaders();
@@ -28,8 +29,9 @@ $cgiparams{'ORDER'} = $tr{'log ascending'};
 
 &getcgihash(\%cgiparams);
 
+my $errormessage;
 
-
+my $colourred = '#FF0000';
 
 if ($ENV{'QUERY_STRING'} && $cgiparams{'ACTION'} eq '')
 {

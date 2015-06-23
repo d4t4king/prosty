@@ -9,11 +9,13 @@
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use File::Basename;
+use strict;
 
 my %cgiparams;
 # Maps a nice printable name to the changing part of the pid file, which
 # is also the name of the program
 
+my ($errormessage, $howlong);
 my $iface = '';
 if (open(FILE, "${swroot}/red/iface"))
 {
