@@ -10,6 +10,7 @@ use lib "/usr/lib/smoothwall";
 use Digest::SHA qw(sha1_hex);
 use header qw( :standard );
 use smoothd qw( message );
+use strict;
 
 my %cgiparams;
 my $errormessage;
@@ -19,7 +20,7 @@ my ($lastToken, $newToken, $rtnToken);
 my $tmp = "";
 
 # Generate a new token and the previous token on each entry.
-foreach $token ("1","2","3")
+foreach my $token ("1","2","3")
 {
   if (open TKN,"</usr/etc/token${token}.sum")
   {

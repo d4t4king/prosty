@@ -9,8 +9,9 @@
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
+use strict;
 
-my %cgiparams;
+my (%cgiparams, %selected);
 
 &showhttpheaders();
 

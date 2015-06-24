@@ -13,11 +13,14 @@
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use POSIX qw(strftime);
+use strict;
 
 my %cgiparams;
 my @graphs;
+my $errormessage;
 
 my $title = "";
+my $name = "";
 
 my %netsettings;
 
@@ -28,7 +31,7 @@ my %netsettings;
 my @values = split(/&/, $ENV{'QUERY_STRING'});
 foreach my $i (@values)
 {
-        ($varname, $mydata) = split(/=/, $i);
+        my ($varname, $mydata) = split(/=/, $i);
         if ($varname eq 'i')
         {
                 $name = $mydata;

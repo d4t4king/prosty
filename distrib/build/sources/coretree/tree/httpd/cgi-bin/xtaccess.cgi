@@ -10,9 +10,11 @@ use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
 use smoothtype qw( :standard );
+use strict;
 
 my (%cgiparams, %checked, %selected);
 my $filename = "${swroot}/xtaccess/config";
+my $colourred = "#FF0000";
 
 &showhttpheaders();
 

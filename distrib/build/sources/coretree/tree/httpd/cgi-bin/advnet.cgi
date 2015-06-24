@@ -9,8 +9,10 @@
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
+use strict;
 
-my (%advnetsettings,%checked);
+my (%advnetsettings, %checked, %selected);
+my $errormessage;
 
 &showhttpheaders();
 
