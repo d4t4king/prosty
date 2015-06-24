@@ -378,6 +378,7 @@ fi
       build setkerneltz
 	  build htop
 	  build iptraf-ng
+	  build ruby
 
       touch crumbs/Final.grp6.compiled
     fi

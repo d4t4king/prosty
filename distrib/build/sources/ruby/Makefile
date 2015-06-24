@@ -6,10 +6,13 @@
 
 include ../Makefile.conf
 
-PACKAGE = setuptools
-VERSION = 18.0b1
+PACKAGE = ruby
+MAJ_VER = 2.2
+MIN_VER = .2
+VERSION = $(MAJ_VER)$(MIN_VER)
 
-EXTENSION = .zip
-BASE_URL = https://bitbucket.org/pypa/setuptools/downloads/
+BASE_URL = http://cache.ruby-lang.org/pub/$(PACKAGE)/$(MAJ_VER)
+
+CONFIG_OPTS = --prefix=/usr
 
 include ../Makefile.rules
