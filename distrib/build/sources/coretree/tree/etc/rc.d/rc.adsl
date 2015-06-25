@@ -1,11 +1,13 @@
 #!/bin/sh
 
+. /etc/rc.d/inc.rc-functions
+
 . /var/smoothwall/adsl/settings
 
 if [ "$ENABLED" = "on" ]; then
 	/sbin/modprobe n_hdlc
 	sleep 5
-	echo "Device type is $DEVICE"
+	echolog "e" "s" "" "Device type is $DEVICE"
 	if [ "$DEVICE" = "ALCATEL" ]; then
 		/usr/bin/modem_run -f /var/smoothwall/adsl/mgmt.o -v 2 2>/dev/null
 	fi
@@ -35,5 +37,5 @@ if [ "$ENABLED" = "on" ]; then
 		sleep 30
 	fi
 else
-	echo "  No USB ADSL enabled"
+	echolog "e" "s" "" "  No USB ADSL enabled"
 fi

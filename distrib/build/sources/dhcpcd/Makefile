@@ -7,22 +7,17 @@
 include ../Makefile.conf
 
 PACKAGE = dhcpcd
-VERSION =  3.2.3
+VERSION =  6.9.0
+EXTENSION = .tar.bz2
 
-BASE_URL = http://ftp.debian.org/debian/pool/main/d/dhcpcd/
+BASE_URL = http://roy.marples.name/downloads/dhcpcd/
 
-TARBALL = $(PACKAGE)_$(VERSION).orig
+TARBALL = $(PACKAGE)-$(VERSION)
 
-DIR =  $(PACKAGE)-$(VERSION).orig
+DIR =  $(PACKAGE)-$(VERSION)
 
-CONFIG_OPTS += --mandir=/$(PKG_DIR)/man
+CONFIG_OPTS += --mandir=$(PKG_DIR)/man
 
-PATCH_FILE1 = config.h.patch
-
-CONFIGURE = yes
-
-configure: patch
-	@true
 
 INSTALL = yes
 
@@ -30,6 +25,5 @@ install: compile
 	@mkdir -p $(PKG_ROOT)
 	make -C $(DIR) DESTDIR=$(PKG_ROOT) install
 	@mkdir -p $(PKG_ROOT)$(PKG_DIR)/sbin
-	@(cd $(PKG_ROOT)$(PKG_DIR)/sbin; rm -f dhcpcd; ln -s /sbin/dhcpcd)
 
 include ../Makefile.rules

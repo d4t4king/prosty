@@ -1,16 +1,17 @@
 #!/bin/sh
 
+. /etc/rc.d/inc.rc-functions
+
 if [ -e "/var/smoothwall/notregistered" ]; then
 	/usr/bin/smoothwall/machine_reg.pl
 	if [ $? -eq 0 ]; then
-		echo -e "Register: Done\r"
-		logger -t smoothwall "Registered this Smoothwall"
+		echolog "E" "s" "" "Registered this Smoothwall Express"
 		rm -f /var/smoothwall/notregistered
 	else
-		echo -e "Register: Failed\r"
+		echolog "E" "s" "" "Register: Failed"
 	fi
 else
-	echo -e "Register: Already registered\r"
+	echolog "E" "s" "" "Register: Already registered"
 fi
 
 /usr/bin/smoothwall/imagerotator.pl

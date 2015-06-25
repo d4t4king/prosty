@@ -1,27 +1,29 @@
 #!/bin/sh
 
+. /etc/rc.d/inc.rc-functions
+
 . /var/smoothwall/ethernet/settings
 
 export STARTSTOP="shutdown"
 
-echo "Shutting down..."
+echolog "e" "s" "" "Shutting down..."
 
 # Block all inbound packets on all NICs
 . /etc/rc.d/inc.block-ingress
 
-echo "Sending all processes the TERM signal..." 
+echolog "e" "s" "" "Sending all processes the TERM signal..." 
 /sbin/killall5 -15
 sleep 3
-echo "Sending all processes the KILL signal..."
+echolog "e" "s" "" "Sending all processes the KILL signal..."
 /sbin/killall5 -9
 sleep 3
 
-echo "Turning off swap"
+echolog "e" "s" "" "Turning off swap"
 /sbin/swapoff -a
-echo "Unmounting others"
+echolog "e" "s" "" "Unmounting others"
 umount -l /var/log
 umount -l /boot
-echo "Remounting root RO"
+echolog "e" "s" "" "Remounting root RO"
 mount -n -o remount,ro /
 
 echo -ne \\a >/dev/console 
