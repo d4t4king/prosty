@@ -306,6 +306,14 @@ fi
 /sbin/iptables -t nat -N portfw
 /sbin/iptables -t nat -A PREROUTING -j portfw
 
+# UPNP
+for chain in MINIUPNPD MINIUPNPD_PCP_PEER; do
+  /sbin/iptables -t nat -N $chain
+  for iface in $RED_DEV ppp0 ippp0; do
+    /sbin/iptables -t nat -A PREROUTING -i $iface -j $chain
+  done
+done
+
 # Web proxy
 /sbin/iptables -t nat -N squid
 /sbin/iptables -t nat -N jmpsquid
@@ -374,19 +382,15 @@ if [ "$PURPLE_DEV" != "" ]; then
 	/sbin/iptables -t nat -A POSTROUTING -o $PURPLE_DEV -m mark --mark 3 -j SNAT --to-source $PURPLE_ADDRESS
 fi
 
-# UPNP
-/sbin/iptables -t nat -N MINIUPNPD
-/sbin/iptables -t nat -A PREROUTING -i ppp0 -j MINIUPNPD
-/sbin/iptables -t nat -A PREROUTING -i ippp0 -j MINIUPNPD
-if [ "$RED_DEV" != "" ]; then
-	/sbin/iptables -t nat -A PREROUTING -i $RED_DEV -j MINIUPNPD
-fi
 
 # Drop INVALID packets early
 /sbin/iptables -t mangle -N invdrop
 # Don't log here; soon enough, advnet will add logging if it's set
 /sbin/iptables -t mangle -A invdrop -j DROP
 /sbin/iptables -t mangle -I PREROUTING -m state --state INVALID -j invdrop
+
+# adding MINIUPNPD chain to mangle
+/sbin/iptables -t mangle -N MINIUPNPD
 
 # Portforward bouncing
 /sbin/iptables -t mangle -N portfwb
@@ -421,6 +425,9 @@ if [ "$PURPLE_DEV" != "" ]; then
 	/sbin/iptables -t mangle -A postrouting-1 -o $PURPLE_DEV -j RETURN
 fi
 if [ "$RED_DEV" != "" ]; then
+# Is this right?
+        /sbin/iptables -t mangle -A PREROUTING -i $RED_DEV -j MINIUPNPD
+        #----
 	/sbin/iptables -t mangle -A prerouting-2 -i $RED_DEV -j RETURN
 	/sbin/iptables -t mangle -A postrouting-2 -o $RED_DEV -j RETURN
 fi
@@ -439,6 +446,7 @@ done
 /sbin/iptables -t mangle -A FORWARD -j trafficforward
 /sbin/iptables -t mangle -N trafficpostrouting
 /sbin/iptables -t mangle -A POSTROUTING -j trafficpostrouting
+
 
 # These are rules to set connmarks that identify the type of conn: INCOMING,
 #   OUTGOING, and INTERNAL, and identify a few other useful

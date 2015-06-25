@@ -5,17 +5,20 @@
 
 # Tweaks to handle DHCP changes by Neal Murphy and Stan Prescott, 4/2013
 # Re-arranged a little and ip-up merged in; Neal Murphy, 7/2013
+# Console output expanded to dump to console, syslog (smoothwall) and/or
+#   syslog (dhcpcd debugging); Murphy/Jones, 2015
 
-# crEcho: print stuff with <CR><NL> at EOL
-function crEcho {
-	if [ "$1" == "-n" ]; then
-		crOpts="-e -n"
-		shift
-	else
-		crOpts="-e"
-	fi
-	echo $crOpts "$*\r"
-}
+# A bit of shorthand
+ethDIR="/var/smoothwall/ethernet"
+pppDIR="/var/smoothwall/ppp"
+redDIR="/var/smoothwall/red"
+
+. /etc/rc.d/inc.rc-functions
+
+dns1ENV=$DNS1
+dns2ENV=$DNS2
+. ${ethDIR}/settings
+
 
 # readRED: read the data files in .../red/*
 function readRED {
@@ -28,7 +31,7 @@ function readRED {
 	    RED_DNS2=`cat $redDIR/dns2`
 	    ;;
 	  *)
-	    logger -t updatered "readRED called for invalid red type '$RED_TYPE'"
+	    echolog "" "s" "$DEBUG_DHCPCD" "readRED called for invalid red type '$RED_TYPE'"
 	    exit 1
 	    ;;
 	esac
@@ -46,14 +49,166 @@ function writeRED {
 	chown nobody:nobody $redDIR/*
 }
 
-# A bit of shorthand
-ethDIR="/var/smoothwall/ethernet"
-pppDIR="/var/smoothwall/ppp"
-redDIR="/var/smoothwall/red"
 
-dns1ENV=$DNS1
-dns2ENV=$DNS2
-. ${ethDIR}/settings
+
+# writeDHCPinfo: writes out the dhcpcd-6.9.0 data to the expected location and format for legacy support:
+function writeDHCPinfo {
+        echolog "$DEBUG" "" "$DEBUG_DHCPCD" "enter rc.updatered function writeDHCPinfo ($reason) [`date`]"
+	# Compat enter hook shim for older dhcpcd versions
+	rm -f /var/lib/dhcpcd/dhcpcd-"$INTERFACE".info
+        
+        # dhcpcd information file (used by various parts of the system):
+        info_dir="/var/lib/dhcpcd"
+        info_file="$info_dir"/dhcpcd-"$interface".info
+
+        # check for existence of /var/lib/dhcpcd directory
+        if [ ! -d "$info_dir" ]; then
+              mkdir "$info_dir"
+        fi
+	# remove crumbs from prior dhcpcd lease:
+	rm -f $info_file
+        
+        #get the epoch time as equivalent of old dhcpcd LEASEDFROM (legacy):
+        legacy_leasedfrom=$(date +%s)
+        echolog "$DEBUG" "" "$DEBUG_DHCPCD" "rc.updatered function writeDHCPinfo: legacy_leasedfrom = $legacy_leasedfrom"
+
+        # get the CLIENTID (legacy)
+	client_duid=""
+        if [ -e /usr/etc/dhcpcd.duid ]; then
+                client_duid=$(< /usr/etc/dhcpcd.duid)
+                echolog "$DEBUG" "" "$DEBUG_DHCPCD" "rc.updatered function writeDHCPinfo (file exists): client_duid = $client_duid"
+        fi
+        echolog "$DEBUG" "" "$DEBUG_DHCPCD" "rc.updatered function writeDHCPinfo: client_duid = $client_duid"
+      
+        # obtain the #RED_DEV mac address (legacy DHCPCADDR):
+        red_macaddr=$(cat /sys/class/net/$interface/address)
+        echolog "$DEBUG" "" "$DEBUG_DHCPCD" "rc.updatered function writeDHCPinfo (get red mac address): RED_MACADDR = $red_macaddr"
+
+	IPADDR=$new_ip_address
+	NETMASK=$new_subnet_mask
+	NETWORK=$new_network_number
+	BROADCAST=$new_broadcast_address
+        MTU=$ifmtu
+        ROUTES=""
+	GATEWAYS=$new_routers
+        HOSTNAME=$RED_DHCP_HOSTNAME
+	DNSDOMAIN="not_looked_up"
+	DNSSERVERS=$new_domain_name_servers
+	DHCPSID=$new_dhcp_server_identifier
+        LEASEDFROM=$legacy_leasedfrom
+        LEASETIME=$new_dhcp_lease_time
+        RENEWALTIME=$new_dhcp_renewal_time
+        REBINDTIME=$new_dhcp_rebinding_time
+        INTERFACE=$interface
+	CLASSID="dhcpcd 6.9.0"
+        CLIENTID=$client_duid
+	DHCPCADDR=$red_macaddr
+        # these values were not being used previously
+	#DNSSEARCH=$new_domain_search
+	#NISDOMAIN=$new_nis_domain
+	#NISSERVERS=$new_nis_servers
+	#NTPSERVERS=$new_ntp_servers
+
+
+
+	GATEWAY=
+	for x in $new_routers; do
+		GATEWAY="$GATEWAY${GATEWAY:+,}$x"
+	done
+	DNS=
+	for x in $new_domain_name_servers; do
+		DNS="$DNS${DNS:+,}$x"
+	done
+
+	r="down"
+	case "$reason" in
+	RENEW|BOUND) r="up";;
+	REBOOT) r="new";;
+	esac
+
+	if [ "$r" != "down" ]; then
+		rm -f /var/lib/dhcpcd/dhcpcd-"$INTERFACE".info
+		for x in IPADDR NETWORK NETMASK BROADCAST MTU ROUTES GATEWAYS HOSTNAME DNSDOMAIN DNSSERVERS DHCPSID  \
+		LEASEDFROM LEASETIME RENEWALTIME REBINDTIME INTERFACE CLASSID CLIENTID DHCPCADDR; do
+			eval echo "$x=\'\$$x\'" >> /var/lib/dhcpcd/dhcpcd-"$INTERFACE".info
+		done
+
+		# call writeRED to create these files immediately!
+		writeRED $INTERFACE $IPADDR "$GATEWAYS" $NETMASK $DNSMASQ_DNS1 $DNSMASQ_DNS2
+	fi
+
+	set -- /var/lib/dhcpcd/dhcpcd-"$INTERFACE".info "$r"
+
+}
+
+
+echolog "$DEBUG" "" "$DEBUG_DHCPCD" "enter rc.updatered ($reason) [`date`]"
+
+# New dhcpcd debug block:
+# consider wrapping this in a DHCPCD_DEBUG conditional, perhaps add to $RED_DEV settings?
+# will also need to check the size (line count) of the /tmp/dhcpcd-debug-environs.txt file
+# and delete it after a set size limit to prevent the disk from being eaten! 
+# The debug logs have been very helpful and may be helpful for troubleshooting as more dhcp servers are encountered after update deployment.
+# try to exit this script under no-action scenarios with DHCP:
+
+# Changed. If new reasons appear, we'll see them in the log. But we really only
+#   care about BOUND, REBOOT, RENEW and STOP; we ignore all others.
+#   EXPIRE*|EXPIRE6*|NAK*|FAIL*|CARRIER*|NOCARRIER*|PREINIT*|DEPARTED*|TIMEOUT*)
+
+if [ "$RED_TYPE" == "DHCP" ]; then
+    case $reason in
+        BOUND|RENEW|STOP|REBOOT)
+          # Do nothing; we care about only these
+          ;;
+	*)
+          # Ignore all other reasons, known or not.
+          echolog "$DEBUG" "s" "$DEBUG_DHCPCD" "Ignore DHCPCD callback reason '$reason'"
+	  echolog "$DEBUG" "" "$DEBUG_DHCPCD" "exiting rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
+          exit 0
+          ;;
+   esac
+fi
+
+# users can enable dhcpcd debug logging by simply creating an empty debug log file:
+# touch "/tmp/dhcpcd-debug-environs.txt"
+DHCPCD_DEBUG_FILE="/tmp/dhcpcd-debug-environs.txt"
+DHCPCD_DEBUG=false
+
+if [ -f "$DHCPCD_DEBUG_FILE" ]; then
+        DHCPCD_DEBUG=true
+fi
+
+if [ "$RED_TYPE" == "DHCP" ] && [ "$DHCPCD_DEBUG" = true ]; then
+	if [ -f "$DHCPCD_DEBUG_FILE" ]; then
+ 		# truncate it if it is too long (~5000 lines should be plenty of history) disk usage arbitrary size limit. Each run through ~5.2K file size):
+                # (each event = 225 lines. 5400 lines = ~2 days of activity if lease is 1 hr and renewed @ leasetime/2)
+                maxdhcpcddebugfile_lines=5400 #<-- might want this one UI configurable too 
+                dhcpcddebugfile_lines=$(wc -l < "$DHCPCD_DEBUG_FILE")
+                # check the line count vs. max line count in the debug log file:
+		if [ "$dhcpcddebugfile_lines" -ge "$maxdhcpcddebugfile_lines" ]; then
+                        tail -n "$maxdhcpcddebugfile_lines" "$DHCPCD_DEBUG_FILE" > "$DHCPCD_DEBUG_FILE".tmp
+                        rm -f "$DHCPCD_DEBUG_FILE"
+                        cat "$DHCPCD_DEBUG_FILE".tmp > "$DHCPCD_DEBUG_FILE"
+                        rm -f "$DHCPCD_DEBUG_FILE".tmp
+		fi
+	fi
+
+	touch "$DHCPCD_DEBUG_FILE"
+	
+	(
+  	echo "As of `date`"
+  	echo "Positional params"
+  	for i in "$@"; do echo "  '$i'";done
+	
+	  echo "environment"
+	  set
+	  echo
+	  echo "Second Param: " $2
+	  echo "env reason: " $reason
+	) >> "$DHCPCD_DEBUG_FILE"
+fi
+# end dhcpcd debug logging block
+
 
 # Drop a trace
 logger -t updatered "Updating RED"
@@ -61,58 +216,69 @@ logger -t updatered "Updating RED"
 
 if [ "$RED_TYPE" == "DHCP" ]; then
 	# First up; when RED is DHCP
-	#
-	DNSMASQ_DNS1=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 1`
-	DNSMASQ_DNS2=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 2`
-	. /var/lib/dhcpcd/dhcpcd-${RED_DEV}.info
-	readRED DHCP
 
-	# Can't use if-else here; 'up' appears in first and default
+	case $reason in
+	  STOPPED)
+	    # Nothing to do; either the system is going down or networking is
+	    #   being stopped for restart. *Technically*, it might be more correct
+	    #   to stop the various services; but since they are re-started soon
+	    #   enough or the system halts, it might not matter.
 
-	# UP without changes
-	if [ "$2" == "up" -a \
-	     "$IPADDR" == "$RED_ADDRESS" -a \
-	     "$NETMASK" == "$RED_NETMASK" -a \
-	     "$GATEWAYS" == "$RED_GATEWAY" -a \
-	     "$DNSMASQ_DNS1" == "$RED_DNS1" -a \
-	     "$DNSMASQ_DNS2" == "$RED_DNS2" ]; then
-	  # Nothing changed, nothing to do
-	  logger -t updatered "DHCP lease renewed; no changes"
-	  exit 0
-	fi
+	    echolog "" "s" "" "DHCP lease lost; clear RED info"
+            echolog "$DEBUG" "" "$DEBUG_DHCPCD" "DHCP lease lost; clear RED info. exit rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
+	    writeRED
+	    rm -f $redDIR/active
+	    rm -f /var/lib/dhcpcd-"$INTERFACE".info
+	    # This might could get annoying if the lease changes often
+	    /usr/bin/sounds/offlinesound
+                echolog "$DEBUG" "" "$DEBUG_DHCPCD" "DHCP lease link-DOWN; Exiting rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
+	        echolog "" "s" "" "DHCP lease lost (system going down). Reason: ($reason)"
 
-	# DOWN
-	if [ "$2" == "down" ]; then
-		# Nothing to do; either the system is going down or networking is
-		#   being stopped for restart. *Technically*, it might be more correct
-		#   to stop the various services; but since they are re-started soon
-		#   enough or the system halts, it might not matter.
+	    exit 0
+	    ;;
 
-		logger -t updatered "DHCP lease lost; clearing RED info"
-		writeRED
-		rm -f $redDIR/active
+	  BOUND|RENEW)
+	    # UP with or without changes
+	    if [ "$new_ip_address" == "$old_ip_address" -a \
+	         "$new_subnet_mask" == "$old_subnet_mask" -a \
+	         "$new_routers" == "$old_routers" -a \
+	         "$new_domain_name_servers" == "$old_domain_name_servers" ]; then
+	      # Nothing changed, nothing to do
+	      echolog "$DEBUG" "" "$DEBUG_DHCPCD" "DHCP lease link-up; no changes. exiting rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
+	      echolog "" "s" "" "DHCP lease renewed; no changes"
+	      exit 0
+	    else
+	      # BOUND or RENEW with changes
+	      echolog "" "s" "" "DHCP lease renewed ($reason); WITH changes"
+	    fi
+	    # Fall through! (Obviously only if up with changes.)
+	    ;&
 
-		# This might could get annoying if the lease changes often
-		/usr/bin/sounds/offlinesound
+	  REBOOT)
+	    # new, or up with changes ($reason=BOUND|REBOOT|RENEW)
+	    echolog "" "s" "" "DHCP lease changed ($reason); updating RED info"
+            echolog "$DEBUG" "" "$DEBUG_DHCPCD" "DHCP lease changed ($reason); updating RED info. rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
+	    rm -f ${ethDIR}/bootUP
 
-		exit 0
-	fi
+	    # Tap Marples' shim under the corner to level it off.
+	    writeDHCPinfo
+	    DNSMASQ_DNS1=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 1`
+	    DNSMASQ_DNS2=`/usr/bin/smoothwall/getdnsfromdhcpc.pl 2`
+	    . /var/lib/dhcpcd/dhcpcd-${RED_DEV}.info
 
-	# NEW, or UP with changes
-	logger -t updatered "DHCP lease changed; updating RED info"
-	rm -f ${ethDIR}/bootUP
+	    writeRED $INTERFACE $IPADDR "$GATEWAYS" \
+		     $NETMASK $DNSMASQ_DNS1 $DNSMASQ_DNS2
 
-	writeRED $INTERFACE $IPADDR "$GATEWAYS" \
-	         $NETMASK $DNSMASQ_DNS1 $DNSMASQ_DNS2
-
-	# This might could get annoying if the lease changes often
-	/usr/bin/sounds/onlinesound
+	    # This might could get annoying if the lease changes often
+	    /usr/bin/sounds/onlinesound
+	    ;;
+	esac
 
 
 elif [ "$RED_TYPE" == "STATIC" ]; then
 	# Second up; when RED is static
 	#
-	logger -t updatered "Setting RED's static IP info"
+	echolog "" "s" "" "Setting RED's static IP info"
 	if [ "$DNS1_OVERRIDE" != "" -o "$DNS2_OVERRIDE" != "" ]; then
 		DNSMASQ_DNS1=$DNS1_OVERRIDE
 		DNSMASQ_DNS2=$DNS2_OVERRIDE
@@ -129,7 +295,7 @@ elif [ "$RED_TYPE" == "STATIC" ]; then
 else
 	# Last: everything else is PPP
 	#
-	logger -t updatered "PPP is active on $1; updating RED info"
+	echolog "" "s" "" "PPP is active on $1; updating RED info"
 
 	# Do nothing if it's already active
 	[ -e $redDIR/active ] && exit
@@ -154,10 +320,10 @@ fi
 
 # Restart/reset everything that depends on RED
 #
-crEcho "..DNSMasq"
+echolog "e" "s" "" "..DNSMasq (DNS1: " $DNSMASQ_DNS1 " DNS2: " $DNSMASQ_DNS2 ")"
 /usr/bin/smoothcom dnsproxyrestart $DNSMASQ_DNS1 $DNSMASQ_DNS2
 
-crEcho "..RED filtering"
+echolog "e" "s" "" "..RED filtering"
 /usr/bin/smoothcom setincoming
 
 /usr/bin/smoothcom setoutgoing
@@ -168,13 +334,16 @@ crEcho "..RED filtering"
 #  tput rmso
 #fi
 
-crEcho "..external access rules"
+echolog "e" "s" "" "..external access rules"
 /usr/bin/smoothcom setxtaccess
 
-crEcho "..snort, squid, upnpd, TC, DDNS, VPN (as enabled)"
+echolog "e" "s" "$DEBUG_DHCPCD" "..snort, squid, upnpd, TC, DDNS, VPN (as enabled)"
 /usr/bin/smoothcom snortrestart
+echolog "$DEBUG" "" "d" "....smoothcom: squidrestart  [`date`]"
 /usr/bin/smoothcom squidrestart
+echolog "$DEBUG" "" "d" "....smoothcom: upnpdrestart [`date`]"
 /usr/bin/smoothcom upnpdrestart
+echolog "$DEBUG" "" "d" "....smoothcom: trafficrestart [`date`]"
 /usr/bin/smoothcom trafficrestart
 
 /usr/bin/smoothwall/setddns.pl
@@ -182,7 +351,7 @@ crEcho "..snort, squid, upnpd, TC, DDNS, VPN (as enabled)"
 /etc/rc.d/rc.vpn.up
 
 # Adapted from Steve McNeill's ModInstall
-crEcho "..running mods' 'on RED up' scripts"
+echolog "e" "s" "" "..running mods' 'on RED up' scripts"
 # if any; limited to .../mods/*/etc/rc.d
 shopt -s nullglob
 for i in /var/smoothwall/mods/*/etc/rc.d/00rc.updatered; do
@@ -190,6 +359,18 @@ for i in /var/smoothwall/mods/*/etc/rc.d/00rc.updatered; do
 done
 shopt -u nullglob
 
-crEcho "..look for system updates; register system."
-/usr/bin/smoothwall/updatelists.pl
-/etc/rc.d/rc.machineregister
+# Check updates and register now if during operation. Otherwise, rc.sysinit handles it
+if [ "x$STARTSTOP" == "x" ]; then
+  # Only do the following the first time RED comes up; it might not be for a while after booting
+  #   in the case of PPP. Both must succeed for the flag to be deleted.
+  if [ -e /var/run/do_update_machreg ]; then
+    echolog "e" "s" "" "..look for system updates; register system."
+    /usr/bin/smoothwall/updatelists.pl &&
+      /etc/rc.d/rc.machineregister &&
+      rm -f /var/run/do_update_machreg
+  fi
+fi
+
+# exit rc.updatered:
+echolog "$DEBUG" "" "$DEBUG_DHCPCD" "exit rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
+

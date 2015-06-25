@@ -1,14 +1,24 @@
 #!/bin/sh
 
+. /etc/rc.d/inc.rc-functions
+
+# Initialize the system clock with the hardware clock ASAP
+echolog "e" "s" "" "Initialize the clock"
+/sbin/hwclock --hctosys --localtime
+
 . /var/smoothwall/main/settings
 
 . /var/smoothwall/ethernet/settings
 
 export STARTSTOP="startup"
 
+# This flag ensures that the check for updates and the machine registry happens only
+#   once per boot. The first time RED comes up, they will run and this will be deleted.
+touch /var/run/do_update_machreg
+
 umask 022
 
-echo "Setting hostname"
+echolog "e" "s" "" "Set hostname"
 hostname $HOSTNAME
 
 if [ "$KEYMAP" != "" ]; then
@@ -20,33 +30,32 @@ export PATH
 
 if [ -e /forcefsck ]; then FORCE=-f; fi
 
-echo -n "Checking root filesystem: "
 
 /sbin/fsck $FORCE -R -T -a -C /
 RC=$?  
 
 if [ "$RC" = "0" ]; then
-	echo "Success"
+	echolog "e" "s" "" "Check root filesystem: success"
 elif [ "$RC" = "1" ]; then
-	echo "Passed"
+	echolog "e" "s" "" "Check root filesystem: passed"
 fi
 
 # A return of 2 or higher means there were serious problems.
 if [ $RC -gt 1 ]; then
-	echo "  $STRING: Failed"
-	echo "  *** An error occurred during the file system check."
-	echo "  *** Dropping you to a shell; the system will reboot"
-	echo "  *** when you leave the shell."
+	echolog "e" "s" "" "  Check root filesystem: FAILED"
+	echolog "e" "" "" "  *** An error occurred during the file system check."
+	echolog "e" "" "" "  *** Dropping you to a shell; the system will reboot"
+	echolog "e" "" "" "  *** when you leave the shell."
 	export PS1="(Repair filesystem) \# # "
 	sulogin
-	echo "Unmounting filesystems"
+	echolog "e" "s" "" "Unmount filesystems"
 	umount -a
 	mount -n -o remount,ro /
-	echo "Automatic reboot in progress."
+	echolog "e" "s" "" "Automatic reboot in progress."
 	reboot -f
 fi
 
-echo "Mounting root read/write"
+echolog "e" "s" "" "Remount root read/write"
 mount -n -o remount,rw /
 
 # Are there one or more new NICs?
@@ -63,53 +72,54 @@ fi
 /sbin/udevadm trigger --attr-match=modalias
 /sbin/udevadm settle
 
-echo "Relinking mtab"
+echolog "e" "s" "" "Relink mtab"
 rm -f /etc/mtab
 ln -s /proc/mounts /etc/mtab
 
-echo -n "Checking other filesystems: "
+echolog "e" "s" "" "Check other filesystems: "
 /sbin/fsck $FORCE -R -T -a -C -A
 RC=$?  
 
 if [ "$RC" = "0" ]; then
-        echo "Success"
+	echolog "e" "s" "" "Check other filesystems: success"
 elif [ "$RC" = "1" ]; then
-        echo "Passed"
+	echolog "e" "s" "" "Check other filesystems: passed"
 fi
   
 # A return of 2 or higher means there were serious problems.
 if [ $RC -gt 1 ]; then
-        echo "  $STRING: Failed"
-        echo "  *** An error occurred during the file system check."
-  	echo "  *** Dropping you to a shell; the system will reboot"
-  	echo "  *** when you leave the shell."
+        echolog "e" "s" "" "  Check other filesystems: FAILED"
+        echolog "e" "" "" "  *** An error occurred during the file system check."
+  	echolog "e" "" "" "  *** Dropping you to a shell; the system will reboot"
+  	echolog "e" "" "" "  *** when you leave the shell."
   	export PS1="(Repair filesystem) \# # "
   	sulogin
-  	echo "Unmounting filesystems"
+  	echolog "e" "s" "" "Unmount filesystems"
   	umount -a
   	mount -n -o remount,ro /
-	echo "Automatic reboot in progress."
+	echolog "e" "s" "" "Automatic reboot in progress."
   	reboot -f
 fi
 
-echo "Mounting other filesystems"
+echolog "e" "s" "" "Mount other filesystems"
 mount /boot
 mount /var/log
 
 # Deal with potentially changed NICs
 /usr/sbin/compareMACs
 
-echo "Directing core dumps to /var/log"
+echolog "e" "s" "" "Direct core dumps to /var/log"
 mkdir -p /var/log/coredumps
 chmod 700 /var/log/coredumps
 echo "/var/log/coredumps/%e-%t-%s.%p" >/proc/sys/kernel/core_pattern
-echo "Turning on swap"
+
+echolog "e" "s" "" "Turn on swap"
 /sbin/swapon -a
 
-echo "Module dependencies"
+echolog "e" "s" "" "Redo module dependencies"
 /sbin/depmod -a
 
-echo "Clearing old files"
+echolog "e" "s" "" "Clear old files"
 chmod 660 /dev/ttyS*
 chmod 660 /dev/ttyI* >/dev/null 2>&1
 
@@ -127,76 +137,68 @@ rm -f /var/run/pppd*.tdb
 # Prepare red files
 . /etc/rc.d/inc.clearRED
 
-echo "Starting klogd"
+echolog "e" "s" "" "Start klogd"
 /usr/sbin/klogd
 
-if readlink /dev/harddisk | egrep "hd."; then
-  echo "Setting IDE drive params"
-  /sbin/hdparm -d 1 -c 1 -u 1 /dev/harddisk
-fi
-
-echo "Setting the clock"
-/sbin/hwclock --hctosys --localtime
-
 if [ ! -e /usr/etc/pango/pango.modules ]; then
-	echo "Collecting pango modules"
+	echolog "e" "s" "" "Collect pango modules"
         /usr/bin/pango-querymodules > /usr/etc/pango/pango.modules
 fi
 
-echo "Generating keys/certs..."
+echolog "e" "s" "" "Generate keys/certs as needed..."
 if [ ! -e /usr/etc/ssh_host_rsa_key ]; then
-        echo "  SSH RSA key.  This may take several minutes."
+        echolog "e" "s" "" "  SSH RSA key.  This may take several minutes."
 	/usr/bin/ssh-keygen -t rsa -f /usr/etc/ssh_host_rsa_key -N ""
 fi
 if [ ! -e /usr/etc/ssh_host_dsa_key ]; then
-        echo "  SSH DSA key.  This may take several minutes."
+        echolog "e" "s" "" "  SSH DSA key.  This may take several minutes."
 	/usr/bin/ssh-keygen -t dsa -f /usr/etc/ssh_host_dsa_key -N "" 
 fi
 if [ ! -e /usr/etc/ssh_host_ecdsa_key ]; then
-        echo "  SSH ECDSA key.  This may take several minutes."
+        echolog "e" "s" "" "  SSH ECDSA key.  This may take several minutes."
 	/usr/bin/ssh-keygen -t ecdsa -f /usr/etc/ssh_host_ecdsa_key -N "" 
 fi
 if [ ! -e /usr/etc/ssh_host_ed25519_key ]; then
-        echo "  SSH ED25519 key.  This may take several minutes."
+        echolog "e" "s" "" "  SSH ED25519 key.  This may take several minutes."
 	/usr/bin/ssh-keygen -t ed25519 -f /usr/etc/ssh_host_ed25519_key -N "" 
 fi
 
 if [ ! -e /etc/httpd/server.key ]; then
-        echo "  https server key."
+        echolog "e" "s" "" "  HTTPS server key."
         /usr/bin/openssl genrsa -rand \
 		/boot/vmlinuz-`uname -r`:/var/smoothwall/ethernet/settings:/var/log/dmesg -out \
 		/etc/httpd/server.key 1024
-        echo "  CSR"
+        echolog "e" "s" "" "  CSR"
         sed -e "6 s/Smoothwall/$HOSTNAME/" /etc/certparams | /usr/bin/openssl \
 		req -new -key /etc/httpd/server.key -out /etc/httpd/server.csr
-        echo "  Signing certificate"
+        echolog "e" "s" "" "  Signing certificate"
 	/usr/bin/openssl x509 -req -days 999999 -in \
 		/etc/httpd/server.csr -signkey /etc/httpd/server.key -out \
 		/etc/httpd/server.crt
 fi	
 
-echo "Hashing CA certs"
+echolog "e" "s" "" "Hash CA certs"
 /usr/bin/c_rehash >/dev/null
 
-echo "Creating security tokens"
+echolog "e" "s" "" "Create security tokens"
 grep root /etc/shadow | sha1sum | sed -e 's/ -$//' >/usr/etc/token1.sum
 grep admin /var/smoothwall/auth/users | sha1sum | sed -e 's/ -$//' >/usr/etc/token2.sum
 sha1sum < /usr/etc/ssh_host_rsa_key | sed -e 's/ -$//' >/usr/etc/token3.sum
 chgrp nobody /usr/etc/token[123].sum
 chmod g=r /usr/etc/token[123].sum
 
-echo "Generating UPNP UUID"
+echolog "e" "s" "" "Generate UPNP UUID"
 /usr/bin/uuidgen >/etc/miniupnpd.uuid
 
-echo "Starting syslogd"
+echolog "e" "s" "" "Start syslogd"
 /usr/sbin/syslogd -m 0
 
-echo "Loading filesystems"
+echolog "e" "s" "" "Load other filesystems"
 /sbin/modprobe msdos
 /sbin/modprobe vfat
 /sbin/modprobe nls_cp437
 # Adapted from Steve McNeill's ModInstall
-echo "Loading mods' modules"
+echolog "e" "s" "" "Load mods' modules"
 # if any; limited to .../mods/*/etc/rc.d, 00-09
 shopt -s nullglob
 for i in /var/smoothwall/mods/*/etc/rc.d/0[0-9]rc.sysinit; do
@@ -204,13 +206,13 @@ for i in /var/smoothwall/mods/*/etc/rc.d/0[0-9]rc.sysinit; do
 done
 shopt -u nullglob
 
-echo "Loading IPSEC"
+echolog "e" "s" "" "Load IPSEC"
 /sbin/modprobe ipsec
 
-echo "Starting smoothd"
+echolog "e" "s" "" "Start smoothd"
 /usr/sbin/smoothd
 
-echo "Rotating logs"
+echolog "e" "s" "" "Rotate logs"
 /usr/sbin/logrotate /etc/logrotate.conf
 # Adapted from Steve McNeill's ModInstall
 # and mods' log files, if any
@@ -219,31 +221,31 @@ find /var/smoothwall/mods/*/etc/logrotate.d -type f 2>/dev/null | while read i; 
 done
 
 echo
-echo "Initializing  networking"
+echolog "e" "s" "" "Initialize  networking"
 . /etc/rc.d/rc.network
 
 echo
-echo "Starting services and daemons"
-echo "  cron"
+echolog "e" "s" "" "Start services and daemons"
+echolog "e" "s" "" "  cron"
 rm -f /var/run/crond.reboot
 /usr/sbin/cron
-echo "  httpd"
+echolog "e" "s" "" "  httpd"
 /usr/sbin/httpd -DSSL
-echo "  sshd (if enabled)"
+echolog "e" "s" "" "  sshd (if enabled)"
 /usr/bin/smoothcom sshdrestart
-echo "  IMSpector (if enabled)"
+echolog "e" "s" "" "  IMSpector (if enabled)"
 /usr/bin/smoothcom imrestart
-echo "  SIP proxy (if enabled)"
+echolog "e" "s" "" "  SIP proxy (if enabled)"
 /usr/bin/smoothcom siprestart
-echo "  Clam Anti-Virus (if enabled)"
+echolog "e" "s" "" "  Clam Anti-Virus (if enabled)"
 /usr/bin/smoothcom clamavrestart
-echo "  POP3 scanner (if enabled)"
+echolog "e" "s" "" "  POP3 scanner (if enabled)"
 /usr/bin/smoothcom p3scanrestart
 #echo "  Guardian (if enabled)"
 #/usr/bin/smoothcom guardianrestart
 
 # Adapted from Steve McNeill's ModInstall
-echo "Running mods' run level scripts"
+echolog "e" "s" "" "Run mods' run level scripts"
 # if any; limited to .../mods/*/etc/rc.d, 10-89
 # FIXME: this should be ordered by number, then by mod; use an assoc. array.
 shopt -s nullglob
@@ -254,16 +256,21 @@ done
 shopt -u nullglob
 
 echo
-echo "Finishing startup"
-echo "  Silencing kernel, syslog output on tty12"
-echo "    View the log files in /var/log to trace errors."
+echolog "e" "s" "" "Finish startup"
+echolog "e" "s" "" "  Silence the kernel, syslog output on tty12"
+echolog "e" "s" "" "    (View the log files in /var/log to trace errors.)"
 echo "1 4 1 7" >/proc/sys/kernel/printk
 
 # Remove the policing barricades (delete the ingress qdiscs)
+echolog "e" "s" "" "  Remove policing barricades"
 . /etc/rc.d/inc.open-ingress
+
 # Up the links!
+echolog "e" "s" "" "  Bring the links up"
 . /etc/rc.d/inc.links-up
+
 # Restart TC in case it uses ingress policers
+echolog "e" "s" "" "  Start traffic control (QoS)"
 /usr/bin/smoothcom trafficrestart
 
 # Services here depend on the IFs being up.
@@ -281,17 +288,18 @@ while [ $i -lt 15 ]; do
   esac
   i=i+1
 done
-echo "  time service (if enabled)"
+
+echolog "e" "s" "" "  Set the system time; and start time service (if enabled)"
 ntpdate pool.ntp.org
 /sbin/hwclock --systohc --localtime
 /usr/bin/smoothcom ntpdrestart
-echo "  dhcpd (if enabled)"
+echolog "e" "s" "" "  dhcpd (if enabled)"
 /usr/bin/smoothcom dhcpdrestart
-echo "  squid (if enabled)"
+echolog "e" "s" "" "  squid (if enabled)"
 /usr/bin/smoothcom squidrestart
 
 # Adapted from Steve McNeill's ModInstall
-echo "Running mods' post-barricade run level scripts"
+echolog "e" "s" "" "Run mods' post-barricade run level scripts"
 # if any; limited to .../mods/*/etc/rc.d, 90-99
 # FIXME: this should be ordered by number, then by mod; use an assoc. array.
 shopt -s nullglob
@@ -302,13 +310,23 @@ done
 shopt -u nullglob
 
 #echo "  ntop"
-#/usr/bin/ntop -w 8080 -i eth0 -a /usr/var/ntop/access_log -m "$GREEN_NETWORK/$GREEN_NETMASK" -n 2 --w3c -d -L --skip-version-check --known-networks=$RED_NETWORK/$RED_NETMASK
+#/usr/bin/ntop -w 8080 -i eth0 -a /usr/var/ntop/access_log -m "$GREEN_NETWORK/$GREEN_NETMASK" \
+#  -n 2 --w3c -d -L --skip-version-check --known-networks=$RED_NETWORK/$RED_NETMASK
+
+# Do the following here during bootup IFF RED is active and the flag file exists.
+#   If RED is not active, leave it for the first time rc.updatered runs.
+if [ -e /var/smoothwall/red/active -a -e /var/run/do_update_machreg ]; then
+  echolog "e" "s" "" "..look for system updates; register system."
+  /usr/bin/smoothwall/updatelists.pl &&
+    /etc/rc.d/rc.machineregister &&
+      rm -f /var/run/do_update_machreg
+fi
 
 # Final startup steps.
-echo "  Saving dmesg buffer to /var/log/dmesg"
+echolog "e" "s" "" "  Save dmesg buffer to /var/log/dmesg"
 dmesg >/var/log/dmesg
 
-logger -t smoothwall "Smoothwall started."
+echolog "e" "s" "" "Smoothwall started."
 
 /usr/bin/sounds/startupsound
 
