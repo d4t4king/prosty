@@ -12,10 +12,6 @@ echolog "e" "s" "" "Initialize the clock"
 
 export STARTSTOP="startup"
 
-# This flag ensures that the check for updates and the machine registry happens only
-#   once per boot. The first time RED comes up, they will run and this will be deleted.
-touch /var/run/do_update_machreg
-
 umask 022
 
 echolog "e" "s" "" "Set hostname"
@@ -57,6 +53,11 @@ fi
 
 echolog "e" "s" "" "Remount root read/write"
 mount -n -o remount,rw /
+
+# This flag ensures that the check for updates and the machine registry happens only
+#   once per boot. The first time RED comes up, they will run and this will be deleted.
+#   Must be done *after* the R/W remount.
+touch /var/run/do_update_machreg
 
 # Are there one or more new NICs?
 PNR="70-persistent-net.rules"

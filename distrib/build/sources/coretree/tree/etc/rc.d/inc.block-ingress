@@ -6,10 +6,10 @@ if [ "x$STARTSTOP" != "x" ]; then
   echolog "e" "s" "" "Loading modules for temporary ingress policers"
   for i in sch_ingress cls_u32 act_police; do modprobe $i; done
 
-  echolog "e" "s" "" -n "Blocking non-DHCP traffic on"
+  echolog "e" "s" "" "Blocking non-DHCP traffic on"
   for i in "$GREEN_DEV" "$RED_DEV" "$ORANGE_DEV" "$PURPLE_DEV"; do
     if [ "$i" != "" ]; then
-      echo -n " $i"
+      echolog "e" "s" "" "  $i"
 
       # Delete it silently, Justin Case
       /usr/sbin/tc qdisc del dev $i handle ffff: ingress >/dev/null 2>&1
