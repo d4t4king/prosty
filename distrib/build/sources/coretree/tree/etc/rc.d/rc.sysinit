@@ -48,10 +48,10 @@ if [ $RC -gt 1 ]; then
 	echolog "e" "" "" "  *** when you leave the shell."
 	export PS1="(Repair filesystem) \# # "
 	sulogin
-	echolog "e" "s" "" "Unmount filesystems"
+	echolog "e" "s" "" "  Unmount filesystems"
 	umount -a
 	mount -n -o remount,ro /
-	echolog "e" "s" "" "Automatic reboot in progress."
+	echolog "e" "s" "" "  Automatic reboot in progress."
 	reboot -f
 fi
 
@@ -76,7 +76,6 @@ echolog "e" "s" "" "Relink mtab"
 rm -f /etc/mtab
 ln -s /proc/mounts /etc/mtab
 
-echolog "e" "s" "" "Check other filesystems: "
 /sbin/fsck $FORCE -R -T -a -C -A
 RC=$?  
 
@@ -88,16 +87,16 @@ fi
   
 # A return of 2 or higher means there were serious problems.
 if [ $RC -gt 1 ]; then
-        echolog "e" "s" "" "  Check other filesystems: FAILED"
+        echolog "e" "s" "" "Check other filesystems: FAILED"
         echolog "e" "" "" "  *** An error occurred during the file system check."
   	echolog "e" "" "" "  *** Dropping you to a shell; the system will reboot"
   	echolog "e" "" "" "  *** when you leave the shell."
   	export PS1="(Repair filesystem) \# # "
   	sulogin
-  	echolog "e" "s" "" "Unmount filesystems"
+  	echolog "e" "s" "" "  Unmount filesystems"
   	umount -a
   	mount -n -o remount,ro /
-	echolog "e" "s" "" "Automatic reboot in progress."
+	echolog "e" "s" "" "  Automatic reboot in progress."
   	reboot -f
 fi
 
@@ -258,7 +257,7 @@ shopt -u nullglob
 echo
 echolog "e" "s" "" "Finish startup"
 echolog "e" "s" "" "  Silence the kernel, syslog output on tty12"
-echolog "e" "s" "" "    (View the log files in /var/log to trace errors.)"
+echolog "e" "s" "" "  (View the log files in /var/log to trace errors.)"
 echo "1 4 1 7" >/proc/sys/kernel/printk
 
 # Remove the policing barricades (delete the ingress qdiscs)
@@ -293,13 +292,13 @@ echolog "e" "s" "" "  Set the system time; and start time service (if enabled)"
 ntpdate pool.ntp.org
 /sbin/hwclock --systohc --localtime
 /usr/bin/smoothcom ntpdrestart
-echolog "e" "s" "" "  dhcpd (if enabled)"
+echolog "e" "s" "" "  Start dhcpd (if enabled)"
 /usr/bin/smoothcom dhcpdrestart
-echolog "e" "s" "" "  squid (if enabled)"
+echolog "e" "s" "" "  Start squid (if enabled)"
 /usr/bin/smoothcom squidrestart
 
 # Adapted from Steve McNeill's ModInstall
-echolog "e" "s" "" "Run mods' post-barricade run level scripts"
+echolog "e" "s" "" "  Run mods' post-barricade run level scripts"
 # if any; limited to .../mods/*/etc/rc.d, 90-99
 # FIXME: this should be ordered by number, then by mod; use an assoc. array.
 shopt -s nullglob
@@ -316,14 +315,14 @@ shopt -u nullglob
 # Do the following here during bootup IFF RED is active and the flag file exists.
 #   If RED is not active, leave it for the first time rc.updatered runs.
 if [ -e /var/smoothwall/red/active -a -e /var/run/do_update_machreg ]; then
-  echolog "e" "s" "" "..look for system updates; register system."
+  echolog "e" "s" "" "  Look for system updates; register system."
   /usr/bin/smoothwall/updatelists.pl &&
     /etc/rc.d/rc.machineregister &&
       rm -f /var/run/do_update_machreg
 fi
 
 # Final startup steps.
-echolog "e" "s" "" "  Save dmesg buffer to /var/log/dmesg"
+echolog "e" "s" "" "Save dmesg buffer to /var/log/dmesg"
 dmesg >/var/log/dmesg
 
 echolog "e" "s" "" "Smoothwall started."
@@ -334,3 +333,5 @@ unset STARTSTOP
 
 # Start a shutdown daemon that waits for the power button to be pressed
 /usr/bin/smoothwall/powerButton.pl&
+
+exit 0

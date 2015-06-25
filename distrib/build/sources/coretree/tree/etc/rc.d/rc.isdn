@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. /etc/rc.d/inc.rc-functions
+
 . /var/smoothwall/isdn/settings
 
 if [ "$ENABLED" = "on" ]; then
@@ -10,5 +12,5 @@ if [ "$ENABLED" = "on" ]; then
 		modprobe hisax protocol=$PROTOCOL type=$TYPE $MODULE_PARAMS
 	fi
 else
-	echo "  No ISDN enabled"
+	echolog "e" "s" "" "  No ISDN enabled"
 fi

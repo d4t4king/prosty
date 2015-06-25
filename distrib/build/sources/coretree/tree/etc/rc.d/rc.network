@@ -2,7 +2,7 @@
 
 . /etc/rc.d/inc.rc-functions
 
-echolog "" "s" "d" "Prepare network"
+echolog "e" "s" "d" "Prepare network"
 
 . /var/smoothwall/ethernet/settings
 

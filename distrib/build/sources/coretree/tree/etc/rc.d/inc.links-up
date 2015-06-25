@@ -1,5 +1,7 @@
 #! /bin/bash
 
+. /etc/rc.d/inc.rc-functions
+
 # File: inc.links-up
 # The purpose of this is to delay bringing the NICs in service until the
 #   firewall is ready to process all traffic. It works in combination
@@ -33,7 +35,7 @@ done
 if [ $RED_TYPE != "DHCP" -a $RED_TYPE != "STATIC" ]; then
   . /var/smoothwall/ppp/settings
   if [ "$AUTOCONNECT" = "on" ]; then
-    echo "  Bringing up modem/ISDN link"
+    echolog "e" "s" "" "  Bringing up modem/ISDN link"
     /usr/bin/smoothcom updown UP
   fi
 fi
