@@ -1,23 +1,27 @@
 #!/bin/sh
 
+. /etc/rc.d/inc.rc-functions
+
+echolog "" "" "$DEBUG_DHCPCD" "entering rc.netaddress.up [`date`]"
+
 . /var/smoothwall/ethernet/settings
 
 # Block all inbound packets on all NICs. This mostly solves the DoS problem.
 . /etc/rc.d/inc.block-ingress
 
-echo "  firewall"
+echolog "e" "s" "" "  firewall"
 . /etc/rc.d/rc.firewall.up
-echo "  traffic stats collector"
+echolog "e" "s" "" "  traffic stats collector"
 /usr/sbin/trafficlogger
-echo "  DMZ pinholes"
+echolog "e" "s" "" "  DMZ pinholes"
 /usr/bin/smoothcom setinternal
-echo "  advanced networking features"
+echolog "e" "s" "" "  advanced networking features"
 /usr/bin/smoothcom setadvnet
-echo "  IP block"
+echolog "e" "s" "" "  IP block"
 /usr/bin/smoothcom setipblock
-echo "  Timed Access IPs"
+echolog "e" "s" "" "  Timed Access IPs"
 /usr/bin/smoothcom settimedaccess
-echo "Poking udev"
+echolog "e" "s" "" "Poking udev"
 /sbin/udevadm trigger
 /sbin/udevadm settle
 
@@ -30,7 +34,7 @@ if [ "$1" != "NOTGREEN" ]; then
 		/usr/sbin/ip addr add $GREEN_ADDRESS/$GREEN_NETMASK dev $GREEN_DEV
 		nicsToUp="$nicsToUp $GREEN_DEV"
 	else
-		echo "WARNING: No driver set for GREEN"
+		echolog "" "s" "" "WARNING: No driver set for GREEN"
 	fi
 fi
 
@@ -40,7 +44,7 @@ if [ "$CONFIG_TYPE" == "1" -o "$CONFIG_TYPE" == "3" -o "$CONFIG_TYPE" == "5" -o 
 		/usr/sbin/ip addr add $ORANGE_ADDRESS/$ORANGE_NETMASK dev $ORANGE_DEV
 		nicsToUp="$nicsToUp $ORANGE_DEV"
 	else
-		echo "WARNING: No driver set for ORANGE"
+		echolog "" "s" "" "WARNING: No driver set for ORANGE"
 	fi
 fi
 
@@ -50,16 +54,18 @@ if [ "$CONFIG_TYPE" == "4" -o "$CONFIG_TYPE" == "5" -o "$CONFIG_TYPE" == "6" -o 
 		/usr/sbin/ip addr add $PURPLE_ADDRESS/$PURPLE_NETMASK dev $PURPLE_DEV
 		nicsToUp="$nicsToUp $PURPLE_DEV"
 	else
-		echo "WARNING: No driver set for PURPLE"
+		echolog "" "s" "" "WARNING: No driver set for PURPLE"
 	fi
 fi
 	
 # RED
 if [ "$CONFIG_TYPE" == "2" -o "$CONFIG_TYPE" == "3" -o "$CONFIG_TYPE" == "6" -o "$CONFIG_TYPE" == "7" ]; then
 	if [ "$RED_DEV" != "" ]; then
+                
 		rm -f /var/lib/dhcpcd/*.info
 
 		if [ "$RED_TYPE" == "DHCP" ]; then
+                        echolog "" "" "$DEBUG_DHCPCD" "entering RED = DHCP BLOCK (rc.netaddress.up)"
 			# DHCPCD handles everything
 			if [ "$RED_IGNOREMTU" != "off" ]; then
 				IGNOREMTU=" -M"
@@ -74,7 +80,13 @@ if [ "$CONFIG_TYPE" == "2" -o "$CONFIG_TYPE" == "3" -o "$CONFIG_TYPE" == "6" -o 
 				  sed -e 's/.*address.=="//' -e 's/".*//'`
                                 /usr/sbin/ip link set dev $RED_DEV address $nativeMAC
                         fi
-			/usr/sbin/dhcpcd -h $RED_DHCP_HOSTNAME -R $RED_DEV -c /etc/rc.d/rc.updatered${IGNOREMTU}
+                        echolog "" "" "$DEBUG_DHCPCD" "invoking dhcpcd daemon: (rc.netaddress.up)"
+			/usr/sbin/dhcpcd -4 -A -L -q --nodev -t 0 -h $RED_DHCP_HOSTNAME \
+                          -c /etc/rc.d/rc.updatered $RED_DEV
+                       
+                        # TODO: MTU override will be handled via dhcpcd.conf.
+
+                        echolog "" "" "$DEBUG_DHCPCD" "exiting RED = DHCP BLOCK rc.netaddress.up [`date`]"
 
 		elif [ "$RED_TYPE" == "STATIC" ]; then
 			# We do it when static
@@ -88,7 +100,7 @@ if [ "$CONFIG_TYPE" == "2" -o "$CONFIG_TYPE" == "3" -o "$CONFIG_TYPE" == "6" -o 
 			nicsToUp="$nicsToUp $RED_DEV"
 		fi
 	else
-		echo "WARNING: No driver set for RED"
+		echolog "" "s" "" "WARNING: No driver set for RED"
 	fi
 fi
 
@@ -96,3 +108,5 @@ fi
 if [ "x$STARTSTOP" == "x" ]; then
 	. /etc/rc.d/inc.links-up
 fi
+
+echolog "$DEBUG" "" "$DEBUG_DHCPCD" "exiting rc.netaddress.up [`date`]"

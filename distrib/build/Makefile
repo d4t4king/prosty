@@ -231,8 +231,7 @@ update: crumbs/Final.built
 RELEASE = $(BASENAME)$(PRODUCT_EXTRA)-$(mTUPLE)
 mediaflashimg: 
 	@echo -e "\nMaking FLASH image..."; sleep 1
-	@+sudo su -c "RELEASE=$(RELEASE) toolcrib/make_flashimg"
-
+	@$(ARCHset) sudo su -c "RELEASE=$(RELEASE) toolcrib/make_flashimg"
 
 
 # prepare a bootable flash drive

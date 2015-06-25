@@ -1,18 +1,23 @@
 #!/bin/sh
+
+. /etc/rc.d/inc.rc-functions
+
+echolog "" "s" "d" "Prepare network"
+
 . /var/smoothwall/ethernet/settings
 
-echo "Setting up ISDN"
+echolog "e" "s" "" "  Set up ISDN"
 . /etc/rc.d/rc.isdn
-echo "Setting up ADSL"
+echolog "e" "s" "" "  Set up ADSL"
 . /etc/rc.d/rc.adsl
 
 /sbin/modprobe ppp_synctty
 /sbin/modprobe ppp_async
 
-echo "Setting up loopback"
+echolog "e" "s" "" "  Set up loopback"
 ifconfig lo localhost up
 
-echo "Loading QOS modules"
+echolog "e" "s" "" "  Load QOS modules"
 /sbin/modprobe cls_basic
 /sbin/modprobe cls_flow
 /sbin/modprobe cls_fw
@@ -30,7 +35,7 @@ echo "Loading QOS modules"
 /sbin/modprobe sch_tbf
 /sbin/modprobe sch_teql
 
-echo "Loading SPI modules"
+echolog "e" "s" "" "  Load SPI modules"
 /sbin/modprobe ip_tables
 /sbin/modprobe iptable_filter
 /sbin/modprobe iptable_nat
@@ -54,7 +59,7 @@ echo "Loading SPI modules"
 /sbin/modprobe xt_iprange
 /sbin/modprobe xt_time
 
-echo "Loading MASQ helper modules"
+echolog "e" "s" "" "  Load MASQ helper modules"
 /sbin/modprobe ip_conntrack_irc
 /sbin/modprobe ip_nat_irc
 /sbin/modprobe ip_conntrack_ftp
@@ -68,7 +73,7 @@ echo "Loading MASQ helper modules"
 . /etc/rc.d/inc.clearRED
 
 # Forwarding.  This is set here to shutup warnings from ipchains.
-echo "Configuring IPv4 for firewall/router"
+echolog "e" "s" "" "  Configure IPv4 for firewall/router"
 echo 1 > /proc/sys/net/ipv4/ip_forward
 echo 1 > /proc/sys/net/ipv4/ip_dynaddr
 echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
@@ -77,8 +82,9 @@ echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 echo 0 > /proc/sys/net/ipv4/tcp_ecn
 
 # enable conntrack accounting
+echolog "" "" "$DEBUG_DHCPCD" "  Enable conntrack accounting (rc.network) [`date`]"
 sysctl net.netfilter.nf_conntrack_acct=1 >/dev/null 2>&1
 
-echo
-echo "Bringing network up"
+echolog "e" "" "" ""
+echolog "" "" "$DEBUG_DHCPCD" "Bring network up (call rc.netaddress.up) in (rc.network)"
 . /etc/rc.d/rc.netaddress.up
