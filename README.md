@@ -23,7 +23,7 @@ Added so far:
 Version bumps:
 * ntp -> 4.2.8p2
 * glibc -> 2.21
-* I thought I bumped apache, but I could be mistaken.  Will double-check and update.
+* httpd -> 2.2.29
 
 Configuratin changes:
 * Added security HTTP headers to httpd.conf
