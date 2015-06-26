@@ -307,11 +307,13 @@ fi
 /sbin/iptables -t nat -A PREROUTING -j portfw
 
 # UPNP
-for chain in MINIUPNPD MINIUPNPD_PCP_PEER; do
-  /sbin/iptables -t nat -N $chain
-  for iface in $RED_DEV ppp0 ippp0; do
-    /sbin/iptables -t nat -A PREROUTING -i $iface -j $chain
-  done
+/sbin/iptables -t nat -N MINIUPNPD
+for iface in $RED_DEV ppp0 ippp0; do
+  /sbin/iptables -t nat -A PREROUTING -i $iface -j MINIUPNPD
+done
+/sbin/iptables -t nat -N MINIUPNPD-PCP-PEER
+for iface in $RED_DEV ppp0 ippp0; do
+  /sbin/iptables -t nat -A POSTROUTING -o $iface -j MINIUPNPD-PCP-PEER
 done
 
 # Web proxy
@@ -391,6 +393,9 @@ fi
 
 # adding MINIUPNPD chain to mangle
 /sbin/iptables -t mangle -N MINIUPNPD
+/sbin/iptables -t mangle -A PREROUTING -i ppp0 -j MINIUPNPD
+/sbin/iptables -t mangle -A PREROUTING -i ippp0 -j MINIUPNPD
+/sbin/iptables -t mangle -A PREROUTING -i $RED_DEV -j MINIUPNPD
 
 # Portforward bouncing
 /sbin/iptables -t mangle -N portfwb
@@ -412,10 +417,9 @@ fi
 /sbin/iptables -t mangle -A prerouting-2 -i ippp0 -j RETURN
 /sbin/iptables -t mangle -A postrouting-2 -o ippp0 -j RETURN
 
-if [ "$GREEN_DEV" != "" ]; then
-	/sbin/iptables -t mangle -A prerouting-1 -i $GREEN_DEV -j RETURN
-	/sbin/iptables -t mangle -A postrouting-1 -o $GREEN_DEV -j RETURN
-fi
+# GREEN always exists
+/sbin/iptables -t mangle -A prerouting-1 -i $GREEN_DEV -j RETURN
+/sbin/iptables -t mangle -A postrouting-1 -o $GREEN_DEV -j RETURN
 if [ "$ORANGE_DEV" != "" ]; then
 	/sbin/iptables -t mangle -A prerouting-1 -i $ORANGE_DEV -j RETURN
 	/sbin/iptables -t mangle -A postrouting-1 -o $ORANGE_DEV -j RETURN
@@ -425,9 +429,6 @@ if [ "$PURPLE_DEV" != "" ]; then
 	/sbin/iptables -t mangle -A postrouting-1 -o $PURPLE_DEV -j RETURN
 fi
 if [ "$RED_DEV" != "" ]; then
-# Is this right?
-        /sbin/iptables -t mangle -A PREROUTING -i $RED_DEV -j MINIUPNPD
-        #----
 	/sbin/iptables -t mangle -A prerouting-2 -i $RED_DEV -j RETURN
 	/sbin/iptables -t mangle -A postrouting-2 -o $RED_DEV -j RETURN
 fi

@@ -8,6 +8,15 @@
 # Console output expanded to dump to console, syslog (smoothwall) and/or
 #   syslog (dhcpcd debugging); Murphy/Jones, 2015
 
+# In addition to execution trace debugging, it is possible to dump this script's
+#   environment as passed from dhcpcd.
+#
+# To enable dhcpcd environment logging, create the debug_dhcpcdenv flag file:
+#   touch "/var/run/debug-dhcpcdenv"
+# To disable this logging, delete the file:
+#   rm -f "/var/run/debug-dhcpcdenv"
+
+
 # A bit of shorthand
 ethDIR="/var/smoothwall/ethernet"
 pppDIR="/var/smoothwall/ppp"
@@ -145,79 +154,37 @@ function writeDHCPinfo {
 
 echolog "$crDEBUG" "" "$DEBUG_DHCPCD" "..enter rc.updatered ($reason) [`date`]"
 
-# New dhcpcd debug block:
-# consider wrapping this in a DHCPCD_DEBUG conditional, perhaps add to $RED_DEV settings?
-# will also need to check the size (line count) of the /tmp/dhcpcd-debug-environs.txt file
-# and delete it after a set size limit to prevent the disk from being eaten! 
-# The debug logs have been very helpful and may be helpful for troubleshooting as more dhcp servers are encountered after update deployment.
-# try to exit this script under no-action scenarios with DHCP:
-
-# Changed. If new reasons appear, we'll see them in the log. But we really only
-#   care about BOUND, REBOOT, RENEW and STOP; we ignore all others.
-#   EXPIRE*|EXPIRE6*|NAK*|FAIL*|CARRIER*|NOCARRIER*|PREINIT*|DEPARTED*|TIMEOUT*)
-
-if [ "$RED_TYPE" == "DHCP" ]; then
-    case $reason in
-        BOUND|RENEW|STOP|STOPPED|REBOOT)
-          # Do nothing; we care about only these
-          ;;
-	*)
-          # Ignore all other reasons, known or not.
-          echolog "$crDEBUG" "s" "$DEBUG_DHCPCD" "..Ignore DHCPCD callback reason '$reason'"
-	  echolog "$crDEBUG" "" "$DEBUG_DHCPCD" "..exiting rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
-          exit 0
-          ;;
-   esac
-fi
-
-# users can enable dhcpcd debug logging by simply creating an empty debug log file:
-# touch "/tmp/dhcpcd-debug-environs.txt"
-DHCPCD_DEBUG_FILE="/tmp/dhcpcd-debug-environs.txt"
-DHCPCD_DEBUG=false
-
-if [ -f "$DHCPCD_DEBUG_FILE" ]; then
-        DHCPCD_DEBUG=true
-fi
-
-if [ "$RED_TYPE" == "DHCP" ] && [ "$DHCPCD_DEBUG" = true ]; then
-	if [ -f "$DHCPCD_DEBUG_FILE" ]; then
- 		# truncate it if it is too long (~5000 lines should be plenty of history) disk usage arbitrary size limit. Each run through ~5.2K file size):
-                # (each event = 225 lines. 5400 lines = ~2 days of activity if lease is 1 hr and renewed @ leasetime/2)
-                maxdhcpcddebugfile_lines=5400 #<-- might want this one UI configurable too 
-                dhcpcddebugfile_lines=$(wc -l < "$DHCPCD_DEBUG_FILE")
-                # check the line count vs. max line count in the debug log file:
-		if [ "$dhcpcddebugfile_lines" -ge "$maxdhcpcddebugfile_lines" ]; then
-                        tail -n "$maxdhcpcddebugfile_lines" "$DHCPCD_DEBUG_FILE" > "$DHCPCD_DEBUG_FILE".tmp
-                        rm -f "$DHCPCD_DEBUG_FILE"
-                        cat "$DHCPCD_DEBUG_FILE".tmp > "$DHCPCD_DEBUG_FILE"
-                        rm -f "$DHCPCD_DEBUG_FILE".tmp
-		fi
-	fi
-
-	touch "$DHCPCD_DEBUG_FILE"
-	
-	(
-  	echo "As of `date`"
-  	echo "Positional params"
-  	for i in "$@"; do echo "  '$i'";done
-	
-	  echo "environment"
-	  set
-	  echo
-	  echo "Second Param: " $2
-	  echo "env reason: " $reason
-	) >> "$DHCPCD_DEBUG_FILE"
-fi
-# end dhcpcd debug logging block
-
-
 # Drop a trace
-echolog "E" "s" "$crDEBUG_DHCPCD" "..Updating RED"
+echolog "$crDEBUG" "s" "$crDEBUG_DHCPCD" "..Update RED"
 
 
 if [ "$RED_TYPE" == "DHCP" ]; then
 	# First up; when RED is DHCP
 
+	# We only care about BOUND, REBOOT, RENEW, STOPPED and STOP; we ignore the rest:
+	#   EXPIRE*|EXPIRE6*|NAK*|FAIL*|CARRIER*|NOCARRIER*|PREINIT*|DEPARTED*|TIMEOUT*
+	# If new reasons appear, we'll see them in the log.
+
+	echolog "$crDEBUG" "s" "$DEBUG_DHCPCD" "..RED is DHCP"
+
+	# Special dhcpcd debug: maybe dump the environment to syslog (debug.log)
+	if [ -e "/var/run/debug-dhcpcdenv" ]; then
+		(
+	  	echo "As of `date`"
+	  	echo "Positional params"
+	  	for i in "$@"; do echo "  '$i'";done
+	
+		  echo "environment"
+		  set
+		  echo
+		  echo "Second Param: " $2
+		  echo "env reason: " $reason
+		) |& logger -t dhcpcdenv -p local6.debug
+	fi
+	# end dhcpcd environment debug logging block
+
+
+	# Why did you call me?
 	case $reason in
 	  STOP|STOPPED)
 	    # Nothing to do; either the system is going down or networking is
@@ -232,7 +199,7 @@ if [ "$RED_TYPE" == "DHCP" ]; then
 	    rm -f /var/lib/dhcpcd-"$INTERFACE".info
 	    # This might could get annoying if the lease changes often
 	    /usr/bin/sounds/offlinesound
-            echolog "$crDEBUG" "" "$DEBUG_DHCPCD" "..DHCP lease link-DOWN; Exiting rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
+            echolog "$crDEBUG" "" "$DEBUG_DHCPCD" "..DHCP lease link-DOWN; exit rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
 	    echolog "" "s" "" "..DHCP lease lost (links or system going down). Reason: ($reason)"
 
 	    exit 0
@@ -245,19 +212,21 @@ if [ "$RED_TYPE" == "DHCP" ]; then
 	         "$new_routers" == "$old_routers" -a \
 	         "$new_domain_name_servers" == "$old_domain_name_servers" ]; then
 	      # Nothing changed, nothing to do
-	      echolog "$crDEBUG" "" "$DEBUG_DHCPCD" "..DHCP lease link-up; no changes. exiting rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
+	      echolog "$crDEBUG" "" "$DEBUG_DHCPCD" "..DHCP lease link-up; no changes; exit rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
 	      echolog "" "s" "" "..DHCP lease renewed; no changes"
 	      exit 0
 	    else
 	      # BOUND or RENEW with changes
 	      echolog "" "s" "" "..DHCP lease renewed ($reason); WITH changes"
 	    fi
+	    #
 	    # Fall through! (Obviously only if up with changes.)
+	    #
 	    ;&
 
 	  REBOOT)
 	    # new, or up with changes ($reason=BOUND|REBOOT|RENEW)
-	    echolog "" "s" "" "..DHCP lease changed ($reason); updating RED info"
+	    echolog "E" "s" "" "..DHCP lease changed ($reason); update RED info"
             echolog "$crDEBUG" "" "$DEBUG_DHCPCD" "..DHCP lease changed ($reason); updating RED info. rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
 	    rm -f ${ethDIR}/bootUP
 
@@ -273,13 +242,20 @@ if [ "$RED_TYPE" == "DHCP" ]; then
 	    # This might could get annoying if the lease changes often
 	    /usr/bin/sounds/onlinesound
 	    ;;
+
+	  *)
+	    # Ignore all other reasons, known or not.
+	    echolog "$crDEBUG" "s" "$DEBUG_DHCPCD" "..Ignore DHCPCD callback reason '$reason'"
+	    echolog "$crDEBUG" "" "$DEBUG_DHCPCD" "..exit rc.updatered RED_TYPE [$RED_TYPE] ($reason) [`date`]"
+	    exit 0
+	    ;;
 	esac
 
 
 elif [ "$RED_TYPE" == "STATIC" ]; then
 	# Second up; when RED is static
 	#
-	echolog "" "s" "" "..Setting RED's static IP info"
+	echolog "" "s" "" "..RED is STATIC; set RED's IP info"
 	if [ "$DNS1_OVERRIDE" != "" -o "$DNS2_OVERRIDE" != "" ]; then
 		DNSMASQ_DNS1=$DNS1_OVERRIDE
 		DNSMASQ_DNS2=$DNS2_OVERRIDE
@@ -296,7 +272,7 @@ elif [ "$RED_TYPE" == "STATIC" ]; then
 else
 	# Last: everything else is PPP
 	#
-	echolog "" "s" "" "..PPP is active on $1; updating RED info"
+	echolog "" "s" "" "..RED is PPP and active on $1; update RED info"
 
 	# Do nothing if it's already active
 	[ -e $redDIR/active ] && exit 0
@@ -352,7 +328,7 @@ echolog "$crDEBUG" "" "$DEBUG_DHCPCD" "....smoothcom: trafficrestart [`date`]"
 /etc/rc.d/rc.vpn.up
 
 # Adapted from Steve McNeill's ModInstall
-echolog "E" "s" "" "..running mods' 'on RED up' scripts"
+echolog "E" "s" "" "..run mods' 'on RED up' scripts"
 # if any; limited to .../mods/*/etc/rc.d
 shopt -s nullglob
 for i in /var/smoothwall/mods/*/etc/rc.d/00rc.updatered; do
@@ -360,15 +336,19 @@ for i in /var/smoothwall/mods/*/etc/rc.d/00rc.updatered; do
 done
 shopt -u nullglob
 
-# Check updates and register now if during operation. Otherwise, rc.sysinit handles it
-if [ "x$STARTSTOP" == "x" ]; then
+# If we are here, RED *must* be up; no need to check.
+
+# Check updates and register now if not during system boot. Otherwise, rc.sysinit handles it.
+if [ ! -e /var/run/STARTSTOP ]; then
   # Only do the following the first time RED comes up; it might not be for a while after booting
   #   in the case of PPP. Both must succeed for the flag to be deleted.
   if [ -e /var/run/do_update_machreg ]; then
-    echolog "E" "s" "" "..look for system updates; register system."
+    echolog "E" "s" "" "..look for system updates; register system. (async)"
+    (
     /usr/bin/smoothwall/updatelists.pl &&
-      /etc/rc.d/rc.machineregister &&
-      rm -f /var/run/do_update_machreg
+        /etc/rc.d/rc.machineregister &&
+        rm -f /var/run/do_update_machreg
+    ) |& logger -t smoothwall &
   fi
 fi
 

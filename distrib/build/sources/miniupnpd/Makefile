@@ -20,7 +20,7 @@ CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
-PRECONFIGURE = CONFIG_OPTIONS="--portinuse --vendorcfg --leasefile --pcp-peer"
+PRECONFIGURE = CONFIG_OPTIONS="--portinuse --vendorcfg --leasefile --pcp-peer --igd2"
 
 configure: patch
 	cd $(DIR); $(PRECONFIGURE) make -f Makefile.linux config.h

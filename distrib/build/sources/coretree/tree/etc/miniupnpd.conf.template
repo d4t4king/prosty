@@ -42,7 +42,7 @@ min_lifetime=120
 max_lifetime=86400
 
 # Lease file location
-#lease_file=/var/log/upnp.leases
+lease_file=/usr/etc/upnp.leases
 
 # To enable the next few runtime options, see compile time
 # ENABLE_MANUFACTURER_INFO_CONFIGURATION (config.h)

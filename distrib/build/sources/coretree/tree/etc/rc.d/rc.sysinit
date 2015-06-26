@@ -10,8 +10,6 @@ echolog "e" "s" "" "Initialize the clock"
 
 . /var/smoothwall/ethernet/settings
 
-export STARTSTOP="startup"
-
 umask 022
 
 echolog "e" "s" "" "Set hostname"
@@ -58,6 +56,9 @@ mount -n -o remount,rw /
 #   once per boot. The first time RED comes up, they will run and this will be deleted.
 #   Must be done *after* the R/W remount.
 touch /var/run/do_update_machreg
+
+# This flag allows scripts to differentiate between normal operation and startup/shutdown.
+echo "bootup" > /var/run/STARTSTOP
 
 # Are there one or more new NICs?
 PNR="70-persistent-net.rules"
@@ -309,17 +310,15 @@ for i in /var/smoothwall/mods/*/etc/rc.d/9[0-9]rc.sysinit; do
 done
 shopt -u nullglob
 
-#echo "  ntop"
-#/usr/bin/ntop -w 8080 -i eth0 -a /usr/var/ntop/access_log -m "$GREEN_NETWORK/$GREEN_NETMASK" \
-#  -n 2 --w3c -d -L --skip-version-check --known-networks=$RED_NETWORK/$RED_NETMASK
-
 # Do the following here during bootup IFF RED is active and the flag file exists.
 #   If RED is not active, leave it for the first time rc.updatered runs.
 if [ -e /var/smoothwall/red/active -a -e /var/run/do_update_machreg ]; then
   echolog "e" "s" "" "  Look for system updates; register system."
+  (
   /usr/bin/smoothwall/updatelists.pl &&
-    /etc/rc.d/rc.machineregister &&
+      etc/rc.d/rc.machineregister &&
       rm -f /var/run/do_update_machreg
+  ) |& logger -t smoothwall &
 fi
 
 # Final startup steps.
@@ -330,9 +329,9 @@ echolog "e" "s" "" "Smoothwall started."
 
 /usr/bin/sounds/startupsound
 
-unset STARTSTOP
-
 # Start a shutdown daemon that waits for the power button to be pressed
 /usr/bin/smoothwall/powerButton.pl&
+
+rm -f /var/run/STARTSTOP
 
 exit 0

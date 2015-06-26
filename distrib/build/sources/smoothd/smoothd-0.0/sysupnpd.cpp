@@ -112,6 +112,8 @@ int start_upnpd(std::vector<std::string> & parameters, std::string & response)
 	args.push_back("/usr/sbin/miniupnpd");
 	args.push_back("-f");
 	args.push_back("/etc/miniupnpd.conf");
+
+	error = simplesecuresystemvector(args);
 	if (error)
 		response = "Can't start miniupnpd";
 	else

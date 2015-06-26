@@ -4,7 +4,7 @@
 
 . /var/smoothwall/ethernet/settings
 
-export STARTSTOP="shutdown"
+echo "shutdown" > /var/run/STARTSTOP
 
 echolog "e" "s" "" "Shutting down..."
 
@@ -23,14 +23,15 @@ echolog "e" "s" "" "Turning off swap"
 echolog "e" "s" "" "Unmounting others"
 umount -l /var/log
 umount -l /boot
+
+rm -f /var/run/STARTSTOP
+
 echolog "e" "s" "" "Remounting root RO"
 mount -n -o remount,ro /
 
 echo -ne \\a >/dev/console 
 
 /usr/bin/sounds/haltsound
-
-unset STARTSTOP
 
 if [ "$1" = "halt" ]; then
 	/sbin/halt -i -d -p
