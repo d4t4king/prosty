@@ -85,7 +85,7 @@ unless ($errormessage)
 		if ($cgiparams{'TOOL'} eq 'PING') {
 			system('/usr/bin/ping', '-n', '-c', '5', $addr); }
 		elsif ($cgiparams{'TOOL'} eq 'TRACEROUTE') {
-			system('/bin/traceroute', '-n', $addr); }
+			system('/usr/bin/traceroute', $addr); }
 		print "</PRE>\n";
 		&closebox();
 		}
