@@ -8,18 +8,18 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = squid
-VERSION = 3.3.13
+VERSION = 3.5.5
 
-BASE_URL = http://www.squid-cache.org/Versions/v3/3.3/
+BASE_URL = http://www.squid-cache.org/Versions/v3/3.5/
 
 #PATCH_FILE1 = ERR_ACCESS_DENIED.patch
 #PATCH_FILE2 = ERR_CACHE_ACCESS_DENIED.patch 
 #PATCH_FILE3 = ERR_TOO_BIG.patch
 
-CONFIG_OPTS += --enable-storeio="diskd,ufs" --enable-linux-netfilter \
+CONFIG_OPTS += --enable-storeio="aufs,diskd,ufs" --enable-linux-netfilter \
 	      --enable-removal-policies="heap,lru" --enable-delay-pools \
 	      --localstatedir=/var --with-dl --with-openssl \
-	      --enable-http-violations \
+	      --enable-http-violations --enable-icap-client \
 	      --with-large-files --with-libcap --disable-ipv6
 
 INSTALL_LANGUAGES = English
