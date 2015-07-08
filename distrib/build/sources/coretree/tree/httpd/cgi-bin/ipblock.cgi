@@ -214,18 +214,21 @@ my %render_settings = (
 				{ 
 					column => '1',
 					title  => "$tr{'source ip'}",
-					size   => 30,
+					size   => 5,
 					sort   => \&ipcompare,
 					tr     => {
 						'0.0.0.0/0' => 'N/A',
 					},					
-					valign => 'top',
-					maxrowspan => 2,
+				},
+				{ 
+					column => '5',
+					title => "$tr{'comment'}",
+					align => 'left',
 				},
 				{
 					column => '3',
 					title  => "$tr{'action'}", 
-					size   => 20,
+					rotate => 60,
 					tr     => {
 						'REJECT' => 'REJECT',
 						'DROP'   => 'DROP',
@@ -236,6 +239,7 @@ my %render_settings = (
 					column => '2',
 					title => "$tr{'log'}",
 					size   => 20,
+					rotate => 60,
 					tr     => 'onoff',
 					align  => 'center',
 				},
@@ -243,20 +247,16 @@ my %render_settings = (
 					column => '4',
 					title  => "$tr{'enabledtitle'}",
 					size   => 15,
+					rotate => 60,
 					tr     => 'onoff',
 					align  => 'center',
 				},
 				{
 					title  => "$tr{'mark'}", 
 					size   => 15,
+					rotate => 60,
 					mark   => ' ',
 				},
-				{ 
-					column => '5',
-					title => "$tr{'comment'}",
-					break => 'line',
-					spanadj => -1,
-				}
 			]
 			);
 

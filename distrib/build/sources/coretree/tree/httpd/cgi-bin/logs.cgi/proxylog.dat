@@ -8,6 +8,7 @@
 
 use lib "/usr/lib/smoothwall";
 use header qw( :standard );
+use smoothtype qw( :standard );
 use Time::Local qw( timelocal );
 
 my %cgiparams;
@@ -30,6 +31,8 @@ $cgiparams{'MONTH'} = $now[4];
 $cgiparams{'SOURCE_IP'} = 'ALL';
 $cgiparams{'FILTER'} = '';
 $cgiparams{'ENABLE_FILTER'} = 'off';
+$cgiparams{'COLUMN'} = 1;
+$cgiparams{'ORDER'} = "ascending";
 
 &getcgihash(\%cgiparams);
 
@@ -54,6 +57,8 @@ if ($ENV{'QUERY_STRING'} && $cgiparams{'ACTION'} ne $tr{'update'})
  	$cgiparams{'MONTH'} = $temp[1];
  	$cgiparams{'DAY'} = $temp[2];  
 	$cgiparams{'SOURCE_IP'} = $temp[3];
+	$cgiparams{'COLUMN'} = $temp[4];
+	$cgiparams{'ORDER'} = $temp[5];
 }
 
 if (!($cgiparams{'MONTH'} =~ /^(0|1|2|3|4|5|6|7|8|9|10|11)$/) ||
@@ -283,9 +288,9 @@ if ( $number_of_pages >= 2 )
 		
 		if ( $page >= $start_page and $page <= $end_page ){
 			if ( $i == $start ){
-				print "<td style='vertical-align: top;text-align: center;'><a style='color: red;' href='/cgi-bin/logs.cgi/proxylog.dat?$i,$cgiparams{'MONTH'},$cgiparams{'DAY'},$cgiparams{'SOURCE_IP'}'>o<br/><span style='color: #c0c0c0;'>$page</span></a></td>"
+				print "<td style='vertical-align: top;text-align: center;'><a style='color: red;' href='/cgi-bin/logs.cgi/proxylog.dat?$i,$cgiparams{'MONTH'},$cgiparams{'DAY'},$cgiparams{'SOURCE_IP'},$cgiparams{'COLUMN'},$cgiparams{'ORDER'}'>o<br/><span style='color: #c0c0c0;'>$page</span></a></td>"
 			} else {
-				print "<td style='vertical-align: top;text-align: center;'><a href='/cgi-bin/logs.cgi/proxylog.dat?$i,$cgiparams{'MONTH'},$cgiparams{'DAY'},$cgiparams{'SOURCE_IP'}'>o<br/><span style='color: #c0c0c0;'>$page</span></a></td>"
+				print "<td style='vertical-align: top;text-align: center;'><a href='/cgi-bin/logs.cgi/proxylog.dat?$i,$cgiparams{'MONTH'},$cgiparams{'DAY'},$cgiparams{'SOURCE_IP'},$cgiparams{'COLUMN'},$cgiparams{'ORDER'}'>o<br/><span style='color: #c0c0c0;'>$page</span></a></td>"
 			}
 		}
 	}
@@ -310,38 +315,71 @@ print <<END
 END
 ;
 
-print <<END
-<table class='centered'>
-<tr>
-	<th style='width: 10%;'>$tr{'time'}</th>
-	<th style='width: 15%;'>$tr{'source ip'}</th>
-	<th style='width: 75%;'>$tr{'website'}</th>
-</tr>
-END
-;
+my %render_settings =
+(
+        'url'     => "/cgi-bin/logs.cgi/proxylog.dat?$start,$cgiparams{'MONTH'},$cgiparams{'DAY'},$cgiparams{'SOURCE_IP'},[%COL%],[%ORD%]",
+        'columns' =>
+        [
+                {
+                        column => '1',
+                        title  => "Time",
+                        size   => 8,
+                        sort   => 'cmp',
+                },
+                {
+                        column => '2',
+                        title  => "Source IP",
+                        size   => 20,
+                        sort   => \&ipcompare,
 
-$lines = 0;
-foreach $_ (@slice)
+                },
 {
-	if ($lines % 2) {
-		print "<TR BGCOLOR='$table1colour'>\n"; }
-	else {
-		print "<TR BGCOLOR='$table2colour'>\n"; }
-	my ($time,$ip,$url) = split;
-	$url =~ /(^.{0,80})/;
-	my $part = $1;
-	unless (length($part) < 80) { $part = "${part}..."; }  
-	print <<END
-	<TD ALIGN='CENTER'>$time</TD>
-	<TD ALIGN='CENTER'>$ip</TD>
-	<TD ALIGN='LEFT'><A HREF='$url' TITLE='$url' TARGET='_new'>$part</A></TD>
-</TR>
-END
-	;
-	$lines++;
-}
+                        column => '3',
+                        title  => "Website/URL",
+                        size   => 72,
+                        sort   => 'cmp',
+                        align  => 'left',
+			tr     => 'url:80',
 
-print "</table>";
+                },
+
+        ]
+);
+
+&displaytable(\@slice, \%render_settings, $cgiparams{'ORDER'}, $cgiparams{'COLUMN'} );
+
+#print <<END
+#<table class='centered'>
+#<tr>
+#	<th style='width: 10%;'>$tr{'time'}</th>
+#	<th style='width: 15%;'>$tr{'source ip'}</th>
+#	<th style='width: 75%;'>$tr{'website'}</th>
+#</tr>
+#END
+#;
+#
+#$lines = 0;
+#foreach $_ (@slice)
+#{
+#	if ($lines % 2) {
+#		print "<TR BGCOLOR='$table1colour'>\n"; }
+#	else {
+#		print "<TR BGCOLOR='$table2colour'>\n"; }
+#	my ($time,$ip,$url) = split;
+#	$url =~ /(^.{0,80})/;
+#	my $part = $1;
+#	unless (length($part) < 80) { $part = "${part}..."; }  
+#	print <<END
+#	<TD ALIGN='CENTER'>$time</TD>
+#	<TD ALIGN='CENTER'>$ip</TD>
+#	<TD ALIGN='LEFT'><A HREF='$url' TITLE='$url' TARGET='_new'>$part</A></TD>
+#</TR>
+#END
+#	;
+#	$lines++;
+#}
+#
+#print "</table>";
 
 &closebox();
 

@@ -188,7 +188,6 @@ my %render_settings =
 			title  => "$tr{'protocol'}",
 			size   => 15,
 			tr     => { 'udp' => 'UDP', 'tcp' => 'TCP' },
-			valign => 'top',
 			maxrowspan => 2,
 			sort   => 'cmp',
 		},
@@ -215,12 +214,14 @@ my %render_settings =
 			column => '5',
 			title  => "$tr{'enabledtitle'}",
 			size   => 10,
+			rotate => 60,
 			tr     => 'onoff',
 			align  => 'center',
 		},
 		{
 			title  => "$tr{'mark'}", 
 			size   => 10,
+			rotate => 60,
 			mark   => ' ',
 		},
 		{ 

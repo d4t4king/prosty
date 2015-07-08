@@ -180,38 +180,41 @@ my %render_settings =
 		{ 
 			column => '1',
 			title  => "$tr{'protocol'}",
-			size   => 20,
+			size   => 5,
+			#rotate => 60,
 			tr     => { 'udp' => 'UDP', 'tcp' => 'TCP' },
 			sort   => 'cmp',
 		},
 		{
 			column => '2',
 			title  => "$tr{'source'}",
-			size   => 40,
+			size   => 10,
 			sort   => 'cmp',
 			tr     => { '0.0.0.0/0' => 'ALL' },
 		},
 		{
 			column => '3',
 			title  => "$tr{'destination port'}",
-			size   => 20,
+			rotate => 60,
+		},
+		{
+			title  => "$tr{'comment'}",
+			align => 'left',
+			column => '5',
 		},
 		{
 			column => '4',
 			title  => "$tr{'enabledtitle'}",
 			size   => 10,
+			rotate => 60,
 			tr     => 'onoff',
 			align  => 'center',
 		},
 		{
 			title  => "$tr{'mark'}", 
 			size   => 10,
+			rotate => 60,
 			mark   => ' ',
-		},
-		{
-			title  => "$tr{'comment'}",
-			break  => 'line',
-			column => '5',
 		},
 	]
 );

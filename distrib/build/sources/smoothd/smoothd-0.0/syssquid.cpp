@@ -62,9 +62,8 @@ int stop_squid(std::vector<std::string> & parameters, std::string & response)
 {
 	int error = 0;
 
-	//killunknownprocess("squid");
-	simplesecuresysteml("/usr/bin/squid", "-f", "/var/smoothwall/proxy/squid.conf", "-k", "shutdown", NULL);
-	sleep(2);
+	simplesecuresysteml("/usr/sbin/squid", "-f", "/var/smoothwall/proxy/squid.conf", "-k", "shutdown", NULL);
+	sleep(1);
 	response = "Squid Process Terminated";
 
 	return error;
@@ -92,6 +91,7 @@ int start_squid(std::vector<std::string> & parameters, std::string & response)
 	
 	if (settings["ENABLE"] == "on")
 	{ 
+		// Create missing cache dirs, then start squid.
 		simplesecuresysteml("/usr/sbin/squid", "-z", "-f", "/var/smoothwall/proxy/squid.conf", NULL);
 		simplesecuresysteml("/usr/sbin/squid", "-f", "/var/smoothwall/proxy/squid.conf", NULL);
 

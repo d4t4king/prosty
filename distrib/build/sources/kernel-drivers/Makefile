@@ -145,7 +145,9 @@ clean:
 	@rm -rf i40e-$(I40E_VER)
 	@rm -rf r8168-$(R8168_VER)
 	@rm -rf nct6775-$(NCT6775_VER)
-	@rm -rf $(PKG_ROOT)
+ifeq ($(BUILD_PHASE), Final)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+endif
 
 all: $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 

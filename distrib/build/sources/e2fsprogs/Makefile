@@ -3,9 +3,9 @@
 include ../Makefile.conf
 
 PACKAGE = e2fsprogs
-VERSION = 1.42.2
+VERSION = 1.42.13
 
-BASE_URL = http://hivelocity.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/v$(VERSION)/
+BASE_URL = http://downloads.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/v$(VERSION)/
 
 COMPILE_DIR = $(DIR)-compile
 
@@ -24,7 +24,7 @@ endif
 
 ifeq ($(BUILD_PHASE), Final)
 
-CONFIG_OPTS += --prefix=$(PKG_DIR) --with-root-prefix="" --enable-elf-shlibs \
+CONFIG_OPTS += --prefix="" --with-root-prefix="" --enable-elf-shlibs \
 	      --enable-verbose-makecmds
 
 PATCH = yes
@@ -36,8 +36,8 @@ patch: $(DIR)/
 INSTALL = yes
 install: compile
 	@mkdir -p $(PKG_ROOT)
-	make -C $(COMPILE_DIR) prefix=$(PKG_ROOT)$(PKG_DIR) root_prefix=$(PKG_ROOT) install
-	make -C $(COMPILE_DIR) prefix=$(PKG_ROOT)$(PKG_DIR) root_prefix=$(PKG_ROOT) install-libs
+	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
+	make -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install-libs
 	chmod -v u+w $(PKG_ROOT)$(PKG_DIR)/lib/{libblkid,libcom_err,libe2p,libext2fs,libss,libuuid}.a
 endif
 	

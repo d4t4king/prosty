@@ -88,10 +88,10 @@ cdrom/smoothwall.tgz:
 	mkdir -p distrib distrib/sys distrib-dev distrib-doc/usr/share/
 
 ifeq ($(BITS_64), yes)
-	cd distrib; ln -s lib lib64
-	cd distrib-dev; ln -s lib lib64
-	mkdir -p distrib/usr; cd distrib/usr; ln -s lib lib64
-	mkdir -p distrib-dev/usr; cd distrib-dev/usr; ln -s lib lib64
+	cd distrib; [ -e lib64 ] || ln -s lib lib64
+	cd distrib-dev; [ -e lib64 ] || ln -s lib lib64
+	mkdir -p distrib/usr; cd distrib/usr; [ -e lib64 ] || ln -s lib lib64
+	mkdir -p distrib-dev/usr; cd distrib-dev/usr; [ -e lib64 ] || ln -s lib lib64
 endif
 	
 	install -D runtimerootimage.gz distrib/boot/initrd-$(K_SWE_VERSION).gz
@@ -306,6 +306,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 clean:
 	@echo -n " $(PACKAGE)"
 	@rm -f Media.mediaISO.built
+	@rm -f Express-3.1-SP1-i586.img
 	@rm -rf cdrom cdrom-dev offroad distrib distrib-dev distrib-doc klibc temp
 	@make --no-print-directory -C cdromboot clean >/dev/null 2>&1
 	@make --no-print-directory -C installroot clean >/dev/null 2>&1

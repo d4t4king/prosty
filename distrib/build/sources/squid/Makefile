@@ -8,7 +8,7 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = squid
-VERSION = 3.5.5
+VERSION = 3.5.6
 
 BASE_URL = http://www.squid-cache.org/Versions/v3/3.5/
 

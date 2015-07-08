@@ -226,7 +226,6 @@ my %render_settings =
 			column => '1',
 			title  => "$tr{'service'}",
 			size   => 15,
-			valign => 'top',
 			maxrowspan => 2,
 			sort   => 'cmp',
 		},
@@ -245,27 +244,27 @@ my %render_settings =
 		{
 			column => '4',
 			title  => "$tr{'proxy'}",
+			rotate => 60,
 			tr     => 'onoff',
-			size   => 10,
 			align  => 'center',
 		},
 		{
 			column => '5',
 			title  => "$tr{'wildcards'}",
+			rotate => 60,
 			tr     => 'onoff',
-			size   => 10,
 			align  => 'center',
 		},
 		{
 			column => '8',
 			title  => "$tr{'enabledtitle'}",
-			size   => 10,
+			rotate => 60,
 			tr     => 'onoff',
 			align  => 'center',
 		},
 		{
 			title  => "$tr{'mark'}", 
-			size   => 10,
+			rotate => 60,
 			mark   => ' ',
 		},
 		{ 
@@ -273,6 +272,7 @@ my %render_settings =
 			title => "$tr{'comment'}",
 			break => 'line',
 			spanadj => -1,
+			align  => 'left',
 		},
 
 	]

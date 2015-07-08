@@ -436,12 +436,18 @@ if ($filtersettings{'ACTION'} eq $tr{'urlfilter update now'})
 	{
 		if ($filtersettings{'CUSTOM_UPDATE_URL'} eq '')
 		{
-			$errormessage .= $tr{'urlfilter custom url required'};
+			$errormessage .= $tr{'urlfilter custom url required<br />'};
 		} else {
-			system("${swbin}/autoupdate.pl $filtersettings{'CUSTOM_UPDATE_URL'} &");
+			if (not system("${swbin}/autoupdate.pl $filtersettings{'CUSTOM_UPDATE_URL'} &"))
+			{
+				$errormessage .= "Failed to download rules via your custom update URL.<br />";
+			}
 		}
 	} else {
-		system("${swbin}/autoupdate.pl $filtersettings{'UPDATE_SOURCE'} &");
+		if (not system("${swbin}/autoupdate.pl $filtersettings{'UPDATE_SOURCE'} &"))
+		{
+			$errormessage .= "Failed to download rules via $filtersettings{'UPDATE_SOURCE'}.<br />";
+		}
 	}
 }
 

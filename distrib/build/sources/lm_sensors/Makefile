@@ -35,7 +35,12 @@ clean:
 	@rm -rf $(DIR)
 	@rm -rf $(COMPILE_DIR)
 ifeq ($(BUILD_PHASE), Final)
-	@rm -rf $(PKG_ROOT)
+	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
+ifeq ($(BITS_64), yes)
+	mkdir -p $(PKG_ROOT)/{lib,usr/lib}
+	@cd $(PKG_ROOT); ln -s lib lib64
+	@cd $(PKG_ROOT)/usr; ln -s lib lib64
+endif
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
 endif
 

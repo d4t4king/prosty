@@ -163,34 +163,31 @@ my %render_settings =
 		{ 
 			column => '1',
 			title  => "$tr{'ip address'}",
-			size   => 15,
-			valign => 'top',
-			maxrowspan => 2,
+			size   => 5,
 			sort   => \&ipcompare,
 		},
 		{
 			column => '2',
 			title  => "$tr{'hostname'}",
-			size   => 20,
+			size   => 10,
 			sort   => 'cmp'
+		},
+		{ 
+			column => '4',
+			title => "$tr{'comment'}",
+			align   => 'left',
 		},
 		{
 			column => '3',
 			title  => "$tr{'enabledtitle'}",
-			size   => 10,
+			rotate => 60,
 			tr     => 'onoff',
 			align  => 'center',
 		},
 		{
 			title  => "$tr{'mark'}", 
-			size   => 10,
+			rotate => 60,
 			mark   => ' ',
-		},
-		{ 
-			column => '4',
-			title => "$tr{'comment'}",
-			break => 'line',
-			spanadj => -1,
 		},
 
 	]
