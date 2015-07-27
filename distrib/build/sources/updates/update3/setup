@@ -2,7 +2,18 @@
 
 echo "Update 3 installing."
 
+# Remove the old dhcpcd bin and symlink
+rm -f /sbin/dhcpcd /usr/sbin/dhcpcd
+
+# Remove /usr/share/errors; it'll replaced straightaway.
+rm -rf /usr/share/errors
+
+# Unpack the patch
 tar xvf patch.tar.gz -C /
 
+# Fix a couple existing programs that should be setuid
+chmod u+s /usr/bin/ping6 /usr/bin/traceroute
+
+# Leave this for a few generations, just in case.
 echo "Remove unused file 'acl'"
 rm -f /var/smoothwall/proxy/acl

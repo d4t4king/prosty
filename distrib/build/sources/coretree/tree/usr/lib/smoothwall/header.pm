@@ -438,8 +438,7 @@ END
    $span++;
 
    print <<END;
-   <td style='width=${remaining}px' class='endtab'>&nbsp;</td>
-   <td class='topend'></td>
+   <td style='width:${remaining}px' class='endtab'>&nbsp;</td>
 </tr>
 <tr>
    <td class='mainbody' colspan='$span'>
@@ -653,11 +652,6 @@ sub closepage
   {
     print <<END;
                 </td>
-                <td class='end'></td>
-              </tr>
-              <tr>
-                <td colspan='$span' class='bottom'></td>
-                <td class='bottomright'></td>
               </tr>
                   <!-- End of the Main Body -->
             </table>

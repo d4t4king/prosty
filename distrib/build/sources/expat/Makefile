@@ -15,6 +15,6 @@ INSTALL = yes
 
 install: compile
 	@mkdir -p $(PKG_ROOT)
-	@make -C $(COMPILE_DIR) install prefix=$(PKG_ROOT)$(PKG_DIR)
+	@make -C $(COMPILE_DIR) install DESTDIR=$(PKG_ROOT)
 
 include ../Makefile.rules

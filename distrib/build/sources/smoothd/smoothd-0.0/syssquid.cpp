@@ -62,8 +62,7 @@ int stop_squid(std::vector<std::string> & parameters, std::string & response)
 {
 	int error = 0;
 
-	simplesecuresysteml("/usr/sbin/squid", "-f", "/var/smoothwall/proxy/squid.conf", "-k", "shutdown", NULL);
-	sleep(1);
+	simplesecuresysteml("/usr/bin/smoothwall/stopsquid", "/var/smoothwall/proxy/squid.conf", NULL);
 	response = "Squid Process Terminated";
 
 	return error;

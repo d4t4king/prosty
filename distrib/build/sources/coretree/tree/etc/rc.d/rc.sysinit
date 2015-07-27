@@ -52,6 +52,10 @@ fi
 echolog "e" "s" "" "Remount root read/write"
 mount -n -o remount,rw /
 
+echolog "e" "s" "" "Make /dev/shm a tmpfs, mode 1777"
+mount -t tmpfs tmpfs /dev/shm
+chmod 1777 /dev/shm
+
 # This flag ensures that the check for updates and the machine registry happens only
 #   once per boot. The first time RED comes up, they will run and this will be deleted.
 #   Must be done *after* the R/W remount.
@@ -296,8 +300,10 @@ ntpdate pool.ntp.org
 /usr/bin/smoothcom ntpdrestart
 echolog "e" "s" "" "  Start dhcpd (if enabled)"
 /usr/bin/smoothcom dhcpdrestart
-echolog "e" "s" "" "  Start squid (if enabled)"
-/usr/bin/smoothcom squidrestart
+echolog "e" "s" "" "  APCupsd server (if enabled)"
+/usr/bin/smoothcom apcupsdrestart
+rm -f /etc/apcupsd/powerfail;
+rm -f /etc/nologin;
 
 # Adapted from Steve McNeill's ModInstall
 echolog "e" "s" "" "  Run mods' post-barricade run level scripts"

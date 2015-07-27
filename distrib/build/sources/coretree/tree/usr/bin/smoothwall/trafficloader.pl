@@ -68,26 +68,27 @@ my %deviceRates;
 if ( $netsettings{'GREEN_DEV'}) {
 	$devices[$i++] = $netsettings{'GREEN_DEV'};
 	my $tmp = &getLinkSpeed($netsettings{'GREEN_DEV'}, "number") * 10**6 * 0.95;
-	if ($tmp == 0) { $tmp = $download_speed + 1; }
+	if ( $tmp == 0) { $tmp = $internal_speed * 0.95; }
 	$deviceRates{$netsettings{'GREEN_DEV'}} = int ($tmp + 0.5);
 }
 if ( $netsettings{'ORANGE_DEV'}) {
 	$devices[$i++] = $netsettings{'ORANGE_DEV'};
 	my $tmp = &getLinkSpeed($netsettings{'ORANGE_DEV'}, "number") * 10**6 * 0.95;
-	if ($tmp == 0) { $tmp = $download_speed + 1; }
+	if ( $tmp == 0) { $tmp = $internal_speed * 0.95; }
 	$deviceRates{$netsettings{'ORANGE_DEV'}} = int ($tmp + 0.5);
 }
 if ( $netsettings{'PURPLE_DEV'}) {
 	$devices[$i++] = $netsettings{'PURPLE_DEV'};
 	my $tmp = &getLinkSpeed($netsettings{'PURPLE_DEV'}, "number") * 10**6 * 0.95;
-	if ($tmp == 0) { $tmp = $download_speed + 1; }
+	if ( $tmp == 0) { $tmp = $internal_speed * 0.95; }
 	$deviceRates{$netsettings{'PURPLE_DEV'}} = int ($tmp + 0.5);
 }
+# FIXME: this should handle RED_DEV--if set--when RED is PPPOE
 if ($netsettings{'RED_TYPE'} eq 'STATIC' or $netsettings{'RED_TYPE'} eq 'DHCP')
 {
 	$devices[$i++] = $netsettings{'RED_DEV'};
 	my $tmp = &getLinkSpeed($netsettings{'RED_DEV'}, "number") * 10**6 * 0.95;
-	if ($tmp == 0) { $tmp = $upload_speed; }
+	if ( $tmp == 0) { $tmp = $internal_speed * 0.95; }
 	$deviceRates{$netsettings{'RED_DEV'}} = int ($tmp + 0.5);
 } else {
 	# Must be PPP; get from PPPdevices (ppp0 or ippp0)

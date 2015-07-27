@@ -24,6 +24,19 @@ my $name = "";
 
 my %netsettings;
 
+my @colours=("rgba(0,0,0,.1)", "rgba(0,0,0,.03)");
+
+# Do some magic to align the columms.
+sub colAlign()
+{
+  my ($widVal, $widUnit, $colVal) = @_;
+  $colVal =~ s#$#</p>#;
+  $colVal =~ s# #\<\/p\>\<p style='display:inline-block; margin:0; width:$widUnit; min-width:$widUnit; text-align:left'>#;
+  $colVal =~ s#^#<p style='display:inline-block; width:$widVal; min-width:$widVal; margin:0 .25em 0 0; text-align:right'>#;
+
+  return $colVal;
+}
+
 &readhash("${swroot}/ethernet/settings", \%netsettings);
 
     
@@ -199,68 +212,86 @@ foreach my $addr (keys %addrstats) {
 &openbox("Traffic statistics - ${timestamp}:");
 
 print <<END
-<table class='centered'>
-<tr>
-<th style='width: 10%;'>$tr{'traffic stats interface'}</th>
-<th style='width: 15%;'>$tr{'traffic stats period'}</th>
-<th style='width: 11%;'>$tr{'traffic stats direction'}</th>
-<th style='width: 15%;'>$tr{'traffic stats current rate'}</th>
-<th style='width: 12%;'>$tr{'traffic stats hour'}</th>
-<th style='width: 12%;'>$tr{'traffic stats day'}</th>
-<th style='width: 12%;'>$tr{'traffic stats week'}</th>
-<th style='width: 12%;'>$tr{'traffic stats month'}</th>
+<div style="margin:1.5em auto; width:95%; max-height:400px; overflow:auto">
+<table class='list'>
+<TR>
+<th class='list' style='width: 15%;'>$tr{'traffic stats interface'}</th>
+<th class='list' style='width: 9%;'>$tr{'traffic stats period'}</th>
+<th class='list' style='width: 11%;'>$tr{'traffic stats direction'}</th>
+<th class='list' style='width: 15%;'>$tr{'traffic stats current rate'}</th>
+<th class='list' style='width: 12%;'>$tr{'traffic stats hour'}</th>
+<th class='list' style='width: 12%;'>$tr{'traffic stats day'}</th>
+<th class='list' style='width: 12%;'>$tr{'traffic stats week'}</th>
+<th class='list' style='width: 12%;'>$tr{'traffic stats month'}</th>
 </tr>
 END
 ;
 
+my $widV = "3.5em";
+my $widU = "2.5em";
+
+my $rowCount = -1;
+
 foreach my $row ( sort { $a->{'Interface'} cmp $b->{'Interface'} } @details )
 {
-	print <<END
-<TR>
-<TD>$row->{ 'Interface' }</TD>
-<TD>$tr{'traffic stats current'}</TD>
-<TD>$tr{'traffic stats in'}</TD>
-<TD>$row->{ 'cur_inc_rate' }</TD>
-<TD>$row->{ 'this_hour_inc_total' }</TD>
-<TD>$row->{ 'this_day_inc_total' }</TD>
-<TD>$row->{ 'this_week_inc_total' }</TD>
-<TD>$row->{ 'this_month_inc_total' }</TD>
-</TR>
-<TR>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-<TD>$tr{'traffic stats out'}</TD>
-<TD>$row->{ 'cur_out_rate' }</TD>
-<TD>$row->{ 'this_hour_out_total' }</TD>
-<TD>$row->{ 'this_day_out_total' }</TD>
-<TD>$row->{ 'this_week_out_total' }</TD>
-<TD>$row->{ 'this_month_out_total' }</TD>
-</TR>
-<TR>
-<TD>&nbsp;</TD>
-<TD>$tr{'traffic stats previous'}</TD>
-<TD>$tr{'traffic stats in'}</TD>
-<TD>&nbsp;</TD>
-<TD>$row->{ 'prev_hour_inc_total' }</TD>
-<TD>$row->{ 'prev_day_inc_total' }</TD>
-<TD>$row->{ 'prev_week_inc_total' }</TD>
-<TD>$row->{ 'prev_month_inc_total' }</TD>
-</TR>
-<TR>
-<TD>&nbsp;</TD>
-<TD>&nbsp;</TD>
-<TD>$tr{'traffic stats out'}</TD>
-<TD>&nbsp;</TD>
-<TD>$row->{ 'prev_hour_out_total' }</TD>
-<TD>$row->{ 'prev_day_out_total' }</TD>
-<TD>$row->{ 'prev_week_out_total' }</TD>
-<TD>$row->{ 'prev_month_out_total' }</TD>
-</TR>
+	$rowCount++;
+	print <<END;
+<TR style="background-color:$colours[$rowCount%2]">
+  <TD class='list' >$row->{ 'Interface' }</TD>
+  <TD class='list' >$tr{'traffic stats current'}</TD>
+  <TD class='list' >$tr{'traffic stats in'}</TD>
 END
-	;
+
+	printf "  <TD class='list' >%s</TD>\n", &colAlign("4.0em", "4.0em", $row->{ 'cur_inc_rate' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_hour_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_day_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_week_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_month_inc_total' });
+
+print<<END;
+</TR>
+<TR style="background-color:$colours[$rowCount%2]">
+<TD class='list' >&nbsp;</TD>
+<TD class='list' >&nbsp;</TD>
+<TD class='list' >$tr{'traffic stats out'}</TD>
+END
+
+	printf "  <TD class='list' >%s</TD>\n", &colAlign("4.0em", "4.0em", $row->{ 'cur_out_rate' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_hour_out_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_day_out_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_week_out_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_month_out_total' });
+
+print <<END;
+</TR>
+<TR style="background-color:$colours[$rowCount%2]">
+<TD class='list' >&nbsp;</TD>
+<TD class='list' >$tr{'traffic stats previous'}</TD>
+<TD class='list' >$tr{'traffic stats in'}</TD>
+<TD class='list' >&nbsp;</TD>
+END
+
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_hour_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_day_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_week_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_month_inc_total' });
+
+print<<END;
+</TR>
+<TR style="background-color:$colours[$rowCount%2]">
+<TD class='list' >&nbsp;</TD>
+<TD class='list' >&nbsp;</TD>
+<TD class='list' >$tr{'traffic stats out'}</TD>
+<TD class='list' >&nbsp;</TD>
+END
+
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_hour_out_total' });
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_day_out_total' });
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_week_out_total' });
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_month_out_total' });
 }
 
-print "</TABLE>";
+print "</TABLE></div>";
 
 &closebox();
 # now per address stats
@@ -269,65 +300,79 @@ print "</TABLE>";
 &openbox("Traffic address statistics - ${timestamp}:");
 
 print <<END
-<table class='centered'>
-<tr>
-<th style='width: 10%;'>Address</th>
-<th style='width: 15%;'>$tr{'traffic stats period'}</th>
-<th style='width: 11%;'>$tr{'traffic stats direction'}</th>
-<th style='width: 15%;'>$tr{'traffic stats current rate'}</th>
-<th style='width: 12%;'>$tr{'traffic stats hour'}</th>
-<th style='width: 12%;'>$tr{'traffic stats day'}</th>
-<th style='width: 12%;'>$tr{'traffic stats week'}</th>
-<th style='width: 12%;'>$tr{'traffic stats month'}</th>
+<div style="margin:1.5em auto; width:95%; max-height:600px; overflow:auto">
+<table class='list'>
+<TR>
+<th class='list'  style='width: 15%;'>Address</th>
+<th class='list'  style='width: 9%;'>$tr{'traffic stats period'}</th>
+<th class='list'  style='width: 11%;'>$tr{'traffic stats direction'}</th>
+<th class='list'  style='width: 15%;'>$tr{'traffic stats current rate'}</th>
+<th class='list'  style='width: 12%;'>$tr{'traffic stats hour'}</th>
+<th class='list'  style='width: 12%;'>$tr{'traffic stats day'}</th>
+<th class='list'  style='width: 12%;'>$tr{'traffic stats week'}</th>
+<th class='list'  style='width: 12%;'>$tr{'traffic stats month'}</th>
 </tr>
 END
 ;
 
+my $rowCount = -1;
 foreach my $row ( sort { $a->{'Address'} cmp $b->{'Address'} } @addr_details )
 {
-	print <<END
-<TR>
-<TD valign='top' rowspan=4>$row->{ 'Address' }</TD>
-<TD>$tr{'traffic stats current'}</TD>
-<TD>$tr{'traffic stats in'}</TD>
-<TD>$row->{ 'cur_inc_rate' }</TD>
-<TD>$row->{ 'this_hour_inc_total' }</TD>
-<TD>$row->{ 'this_day_inc_total' }</TD>
-<TD>$row->{ 'this_week_inc_total' }</TD>
-<TD>$row->{ 'this_month_inc_total' }</TD>
-</TR>
-<TR>
-<TD>&nbsp;</TD>
-<TD>$tr{'traffic stats out'}</TD>
-<TD>$row->{ 'cur_out_rate' }</TD>
-<TD>$row->{ 'this_hour_out_total' }</TD>
-<TD>$row->{ 'this_day_out_total' }</TD>
-<TD>$row->{ 'this_week_out_total' }</TD>
-<TD>$row->{ 'this_month_out_total' }</TD>
-</TR>
-<TR>
-<TD>$tr{'traffic stats previous'}</TD>
-<TD>$tr{'traffic stats in'}</TD>
-<TD>&nbsp;</TD>
-<TD>$row->{ 'prev_hour_inc_total' }</TD>
-<TD>$row->{ 'prev_day_inc_total' }</TD>
-<TD>$row->{ 'prev_week_inc_total' }</TD>
-<TD>$row->{ 'prev_month_inc_total' }</TD>
-</TR>
-<TR>
-<TD>&nbsp;</TD>
-<TD>$tr{'traffic stats out'}</TD>
-<TD>&nbsp;</TD>
-<TD>$row->{ 'prev_hour_out_total' }</TD>
-<TD>$row->{ 'prev_day_out_total' }</TD>
-<TD>$row->{ 'prev_week_out_total' }</TD>
-<TD>$row->{ 'prev_month_out_total' }</TD>
-</TR>
+	$rowCount++;
+	print <<END;
+<TR style="background-color:$colours[$rowCount%2]">
+<TD class='list'  valign='top' rowspan=4>$row->{ 'Address' }</TD>
+<TD class='list' >$tr{'traffic stats current'}</TD>
+<TD class='list' >$tr{'traffic stats in'}</TD>
 END
-	;
+
+	printf "  <TD class='list' >%s</TD>\n", &colAlign("4.0em", "4.0em", $row->{ 'cur_inc_rate' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_hour_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_day_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_week_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_month_inc_total' });
+
+print<<END;
+</TR>
+<TR style="background-color:$colours[$rowCount%2]">
+<TD class='list' >&nbsp;</TD>
+<TD class='list' >$tr{'traffic stats out'}</TD>
+END
+
+	printf "<TD class='list' >%s</TD>\n", &colAlign("4.0em", "4.0em", $row->{ 'cur_out_rate' });
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_hour_out_total' });
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_day_out_total' });
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_week_out_total' });
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'this_month_out_total' });
+
+print <<END;
+</TR>
+<TR style="background-color:$colours[$rowCount%2]">
+<TD class='list' >$tr{'traffic stats previous'}</TD>
+<TD class='list' >$tr{'traffic stats in'}</TD>
+<TD class='list' >&nbsp;</TD>
+END
+
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_hour_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_day_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_week_inc_total' });
+	printf "  <TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_month_inc_total' });
+
+print<<END;
+</TR>
+<TR style="background-color:$colours[$rowCount%2]">
+<TD class='list' >&nbsp;</TD>
+<TD class='list' >$tr{'traffic stats out'}</TD>
+<TD class='list' >&nbsp;</TD>
+END
+
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_hour_out_total' });
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_day_out_total' });
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_week_out_total' });
+	printf "<TD class='list' >%s</TD>\n", &colAlign($widV, $widU, $row->{ 'prev_month_out_total' });
 }
 
-print "</TABLE>";
+print "</TABLE></div>";
 
 &closebox();
 

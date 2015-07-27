@@ -32,7 +32,8 @@ EXCLUDE_DRIVERS = bluetooth connector gpu infiniband mfd misc mtd parport \
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
 SWE_PKGS = $(UDEV) kmod grub pciutils bash reiserfsprogs util-linux pcmciautils \
-	   sysfsutils parted readline inotify-tools mtools device-ids kbd
+	   sysfsutils parted readline inotify-tools mtools device-ids kbd \
+	   e2fsprogs
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 GZIP_PKGS = gunzip
 
@@ -52,6 +53,7 @@ bin:
 	mkdir -pv tmp/bin tmp/lib tmp/usr/lib/klibc/bin
 	cp -a ../../../buildroot/dialog/usr/bin/dialog tmp/bin
 	mkdir -p tmp/sbin
+	cp -av /sbin/* tmp/sbin
 	cp -aR /build/buildroot/$(UDEV)/sbin/* tmp/sbin/
 	cp -aR /build/target/install-0.0-$(mARCH) tmp/bin/install
 	cp -aR /build/sources/coretree/tree/usr/bin/installer tmp/bin/
@@ -147,7 +149,7 @@ all: clean bin lib klibc
 	(cd tmp; mkdir -p local; cd local; \
 	  tar xfz /build/target/smoothwall-gzip.tar.gz)
 
-	cd tmp; [ -l sbin ] || (mv sbin/* bin; ln -s bin sbin)
+	cd tmp; [ -l sbin ] || (mv sbin/* bin; rmdir sbin; ln -s bin sbin)
 
 ifeq ($(BITS_64), yes)
 	(cd tmp; [ -e lib64 ] || ln -s lib lib64)

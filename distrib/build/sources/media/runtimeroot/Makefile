@@ -13,7 +13,7 @@ BB = /opt/busybox
 BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
 	  chattr chgrp chmod chown chroot chvt clear cmp cp cpio cut date dd \
 	  df diff dirname dmesg du echo ed egrep eject env expr false fdisk find \
-	  findfs fsck grep gunzip gzip halt hdparm head ifconfig init insmod \
+	  findfs fsck grep gunzip gzip halt hdparm head ifconfig init insmod ip \
 	  ipcrm ipcs kill killall less ln ls lsattr lsmod mdev microcom \
 	  mkdir mkdosfs mkfifo mkfs.vfat mknod mkswap mktemp modprobe \
 	  more mount mv nohup od patch pipe_progress poweroff ps pwd \
@@ -23,7 +23,9 @@ BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
 	  true tty umount uname uniq unzip usleep vi wc wget which yes zcat
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
-SWE_PKGS = $(UDEV) kmod grub pciutils bash reiserfsprogs
+SWE_PKGS = $(UDEV) kmod grub pciutils bash reiserfsprogs util-linux pcmciautils \
+	   sysfsutils parted readline inotify-tools mtools device-ids kbd \
+	   e2fsprogs
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 
 # Stuff that shouldn't be needed in the initramfs
@@ -40,9 +42,9 @@ NOT_USR = include info man
 
 bin:
 	mkdir -p tmp/bin tmp/lib tmp/usr/lib/klibc/bin
+	mkdir -p tmp/sbin
 	cp -aR /sbin/* tmp/bin
-	#cp -aRv /build/target/install tmp/bin/install
-	#strip tmp/bin/*
+	strip tmp/bin/*
 
 lib:
 	mkdir -p tmp/lib tmp/usr/lib/klibc/lib
@@ -61,7 +63,6 @@ klibc:
 all: clean bin lib klibc
 	@mkdir -p tmp/sys tmp/run
 	@for i in $(ROOTDIRS); do mkdir -p tmp/$$i; done
-	@ln -s bin tmp/sbin
 	@cp -aR $(BB)/bin/busybox tmp/bin
 	@cd tmp/bin; for FILE in $(BBPROGS); do ln -s busybox $$FILE; done
 	#@cd tmp; ln -sv /bin/busybox init
@@ -103,6 +104,9 @@ all: clean bin lib klibc
 	  #ln -sf proc/self/fd/1 /lib/udev/devices/stdout; \
 	  #ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
 	#
+	
+	cd tmp; [ -l sbin ] || (mv sbin/* bin; rmdir sbin; ln -s bin sbin)
+	cd tmp/usr; [ -l sbin ] || (mv sbin/* bin; rmdir sbin; ln -s bin sbin)
 	
 ifeq ($(BITS_64), yes)
 	cd tmp; [ -e lib64 ] || ln -s lib lib64

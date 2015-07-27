@@ -491,8 +491,6 @@ print <<END
 END
 ;
 
-&closebox();
-
 &openbox('DHCP:');
 
 print <<END
@@ -567,7 +565,13 @@ if ($display_dhcplease eq 'yes'){
 	'url'     => "/cgi-bin/dhcp.cgi?$dhcpsettings{'COLUMN_ONE'},$dhcpsettings{'ORDER_ONE'},[%COL%],[%ORD%],$subnet",
 	'columns' =>
 	[
-    {
+		{
+			column => '6',
+			title  => "Hostname",
+			size   => 20,
+			align  => 'cmp',
+		},
+    		{
 			column => '2',
 			title  => "IP Address",
 			size   => 15,
@@ -588,12 +592,6 @@ if ($display_dhcplease eq 'yes'){
 		{
 			column => '5',
 			title  => "MAC Address",
-			size   => 20,
-			align  => 'cmp',
-		},
-		{
-			column => '6',
-			title  => "Hostname",
 			size   => 20,
 			align  => 'cmp',
 		},
@@ -647,42 +645,42 @@ my %render_settings =
 	'columns' => 
 	[
 		{ 
-			column => '1',
-			title  => "$tr{'hostname'}",
-			size   => 25,
-			valign => 'top',
+			column     => '1',
+			title      => "$tr{'hostname'}",
+			size       => 25,
 			maxrowspan => 2,
-			sort   => 'cmp',
+			sort       => 'cmp',
 		},
 		{
-			column => '3',
-			title  => "$tr{'ip address'}",
-			size   => 25,
-			sort   => \&ipcompare,
+			column     => '3',
+			title      => "$tr{'ip address'}",
+			size       => 20,
+			sort       => \&ipcompare,
 		},
 		{
-			column => '2',
-			title  => "$tr{'mac address'}",
-			size   => 20,
-			sort   => 'cmp',
+			column     => '2',
+			title      => "$tr{'mac address'}",
+			size       => 20,
+			sort       => 'cmp',
 		},
 		{
-			column => '5',
-			title  => "$tr{'enabledtitle'}",
-			size   => 10,
-			tr     => 'onoff',
-			align  => 'center',
+			column     => '5',
+			title      => "$tr{'enabledtitle'}",
+			rotate     => '60',
+			tr         => 'onoff',
+			align      => 'center',
 		},
 		{
-			title  => "$tr{'mark'}", 
-			size   => 10,
-			mark   => ' ',
+			title      => "$tr{'mark'}", 
+			rotate     => '60',
+			mark       => ' ',
 		},
 		{ 
-			column => '4',
-			title => "$tr{'description'}",
-			break => 'line',
-			spanadj => -1,
+			column     => '4',
+			title      => "$tr{'description'}",
+			break      => 'line',
+			align      => 'left',
+			spanadj    => -1,
 		}
 	]
 );
@@ -713,6 +711,8 @@ if (-e "${swroot}/dhcp/uptodate") {
 END
 	&closebox();
 }
+
+&closebox();
 
 &alertbox('add','add');
 

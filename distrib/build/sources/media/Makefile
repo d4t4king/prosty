@@ -196,7 +196,8 @@ endif
 	  /build/toolcrib/securetree distrib; \
 	  /build/toolcrib/securetree distrib-dev; \
 	  /build/toolcrib/securetree distrib-doc; \
-	  chmod u+s distrib/usr/bin/ping; \
+	  chmod u+s distrib/usr/bin/ping{,6}; \
+	  chmod u+s distrib/usr/bin/traceroute; \
 	  chmod u+s distrib/usr/sbin/listtables; \
 	  chown root:nobody distrib/usr/bin/setuids/*; \
 	  chmod 4750 distrib/usr/bin/setuids/*; \

@@ -7,9 +7,11 @@
 include ../Makefile.conf
 
 PACKAGE = findutils
-VERSION = 4.5.4
+VERSION = 4.5.9
 
 BASE_URL = ftp://alpha.gnu.org/gnu/findutils/
+
+PATCH_FILE1 = stdio.h.patch
 
 ifneq ($(BUILD_PHASE),Final)
 CONFIG_OPTS += --prefix=/tools

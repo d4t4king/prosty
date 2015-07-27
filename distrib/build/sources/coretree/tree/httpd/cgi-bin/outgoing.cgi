@@ -18,6 +18,13 @@ my $machineconfig = "${swroot}/outgoing/machineconfig";
 
 my $errormessage = '';
 
+my %backgroundColor = (
+	'GREEN'  => 'rgba(0,255,0,.2',
+	'ORANGE' => 'rgba(255,160,0,.4',
+	'PURPLE' => 'rgba(179,0,255,.2',
+	'RED'    => '#ffaaaa',
+);
+
 &showhttpheaders();
 
 $cgiparams{'COLUMN_ONE'} = 1;
@@ -255,37 +262,55 @@ if ( defined $cgiparams{'MACHINEACTION'} and $cgiparams{'MACHINEACTION'} eq $tr{
 
 &openbox($tr{'filtered interfaces'} . ':');
 print "<form method='post'>\n";
-print '<table style=\'width: 100%;\'>' . "\n";
-print '<tr>' . "\n";
+print "<table class='list' style='width:45%; margin:6pt auto;' >\n";
 
 my $unused = 6;
 my $width = 90 / $unused;
+
+print <<END;
+	<tr>
+		<td class='list' style='width: 50%; border-bottom:1px solid #b0b0b0; background-color:(0,0,0,.03)'>$tr{'traffic is 1'}</td>
+		<td class='list' style='width: 50%; border-bottom:1px solid #b0b0b0; background-color:rgba(0,0,0,.03)'>$tr{'traffic is 4'}</td>
+	</tr>
+END
+
 foreach $interface (keys(%interfaces))
 {
 	if ($interfaces{$interface} eq '') { next; }
 	
-	print qq{
+	print <<END;
 	<tr>
-	<td class='base' style='width: 30%;'>$tr{'traffic is 1'}$interface$tr{'traffic is 2'}</td>
-	<td style='width: 30%;'>
-		<select name=\"$interface\">
+	<td class='list' style='width:50%; border-bottom:1px solid #b0b0b0; background-color:$backgroundColor{$interface}'>
+          <p style="margin:.1em 0; text-align:right; display:inline-block; width:7em"><b>$interface</b>$tr{'traffic is 2'}:</p>
+	  <select id="outPolicy${interface}" style="margin:.1em 0" name="$interface" onclick="
+		if (document.getElementById('outPolicy${interface}').value == 'REJECT')
+		{
+			document.getElementById('outPolicyExceptions${interface}').innerHTML = '<b>$tr{'block'}</b>';
+		}
+		else
+		{
+			document.getElementById('outPolicyExceptions${interface}').innerHTML = '<b>$tr{'allow'}</b>';
+		};">
 			<option $selected{"$interface"}{'REJECT'} value='REJECT'>$tr{'allowed'}</option>
 			<option $selected{"$interface"}{'ACCEPT'} value='ACCEPT'>$tr{'blocked'}</option>
-		</select>
+	  /select>
 	</td>
-	<td style='width: 50%;'></td>
-	</tr>
-	};
+	<td class='list' id='outPolicyExceptions${interface}' style='width:50%; border-bottom:1px solid #b0b0b0; background-color:$backgroundColor{$interface}'>
+END
+
+	if ($cgiparams{"$interface"} eq 'REJECT') { print "<b>$tr{'block'}</b>" };
+	if ($cgiparams{"$interface"} eq 'ACCEPT') { print "<b>$tr{'allow'}</b>" };
+
 }
 
-print qq{
-	<tr>
-	<td colspan='3' style='text-align: center;'>
-		<input type="submit" name="ACTION" value="$tr{'save'}">
-	</td></tr>
+print <<END;
 </table>
+<p class='list' style='padding-top:1em; text-align: center'>
+		<input type="submit" name="ACTION" value="$tr{'save'}">
+</p>
 </form>
-};
+END
+
 print "</form>\n";
 
 &closebox();

@@ -6,8 +6,8 @@ cache_effective_group squid
 cache_swap_high 100
 cache_swap_low 80
 
-cache_mem 8 MB
-maximum_object_size_in_memory 32 KB
+cache_mem 256 MB
+maximum_object_size_in_memory 512 KB
 
 cache_replacement_policy heap GDSF
 memory_replacement_policy heap GDSF

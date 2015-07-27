@@ -40,6 +40,8 @@ export PERL_MODS = \
 		Net-IPv4Addr \
 	    Net-Netmask \
 		Net-Nslookup \
+	    Net-SMTPS \
+	    Net-SMTP-SSL \
 	    NetAddr-IP \
 	    RRD-Simple \
 	    Set-IntSpan \

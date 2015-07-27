@@ -24,6 +24,11 @@ CONFIG_OPTS += --enable-storeio="aufs,diskd,ufs" --enable-linux-netfilter \
 
 INSTALL_LANGUAGES = English
 
+CONFIGURE = yes
+
+configure: patch
+	@/bin/sh -c "ulimit -n 8192; cd $(DIR); ./configure $(CONFIG_OPTS) --prefix=/$(PKG_DIR)"
+
 BUILDTARBALL = yes
 
 SQUID_BITS = ./usr/bin/ ./usr/libexec/ ./usr/sbin/squid \
@@ -32,10 +37,5 @@ SQUID_BITS = ./usr/bin/ ./usr/libexec/ ./usr/sbin/squid \
 $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz: install
 	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) $(SQUID_BITS)
 	@tar -xvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C /
-
-CONFIGURE = yes
-
-configure: $(DIR)/
-	@/bin/sh -c "ulimit -n 8192; cd $(DIR); ./configure $(CONFIG_OPTS) --prefix=/$(PKG_DIR)"
 
 include ../Makefile.rules
