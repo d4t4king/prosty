@@ -15,13 +15,13 @@ BASE_URL = ftp://ftp.cpan.org/pub/CPAN/src/5.0/
 #
 ifeq ($(BUILD_PHASE), Stage_3)
 #PATCH_FILE1 = perl-5.14.2-libc-1.patch
+PATCH_FILE1 = perl-5.14.4-gdbm_compat-hack.patch
 
 # Seems stage 3 perl won't build if it's for i486`
 CONFIG_OPTS = -des -Dprefix=/tools -Dcc=gcc -A ccflags="$${CFLAGS/486/586}"
 
 CONFIGURE = yes
 configure: patch
-	@echo $(CONFIG_OPTS)
 	@cd $(COMPILE_DIR); sed -i -e 's/gdbm dbm db/dbm/' Configure
 	@cd $(COMPILE_DIR); sh Configure $(CONFIG_OPTS)
 
