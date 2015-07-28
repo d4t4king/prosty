@@ -1,0 +1,21 @@
+/var/log/squid/access.log {
+    su squid squid
+    weekly
+    rotate 4
+    copytruncate
+    notifempty
+    missingok
+    nocompress
+}
+/var/log/squid/cache.log {
+    su squid squid
+    weekly
+    rotate 4
+    copytruncate
+    compress
+    notifempty
+    missingok
+    postrotate
+      /usr/sbin/squid -k rotate -f /var/smoothwall/proxy/squid.conf
+    endscript
+}

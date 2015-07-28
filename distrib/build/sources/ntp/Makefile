@@ -14,7 +14,7 @@ PATCH_FILE1 = mod_nano.patch
 CONFIG_OPTS += --prefix=${PKG_DIR} --sysconfdir=/etc \
 		--with-binsubdir=sbin
 
-BASE_URL = http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/
+BASE_URL = http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-4.2
 
 INSTALL = yes
 

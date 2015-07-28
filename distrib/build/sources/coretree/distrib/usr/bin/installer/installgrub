@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# Always install the boot loader whether installing, restoring var or
+#   doing a total restore
+
+cat<<END >/harddisk/tmp/grub.cmds
+device (hd0) /dev/harddisk
+root (hd0,0) 
+setup (hd0) 
+quit
+END
+
+/sbin/chroot /harddisk /usr/sbin/grub --batch </harddisk/tmp/grub.cmds || exit 1
