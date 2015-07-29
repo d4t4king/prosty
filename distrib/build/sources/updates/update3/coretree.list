@@ -1,5 +1,6 @@
 ./etc/apcupsd/apcupsd.conf
 ./etc/apcupsd/apcupsd.conf.template
+./etc/inittab
 ./etc/logrotate.d/debug
 ./etc/logrotate.d/snort
 ./etc/miniupnpd.conf.template
@@ -39,12 +40,14 @@
 ./httpd/cgi-bin/xtaccess.cgi
 ./httpd/html/help/apcupsd.cgi.html.en
 ./httpd/html/ui/css/style.css
+./httpd/html/ui/bear-teeth.png
 ./httpd/html/ui/img/urlfilter/adblock.gif
 ./httpd/html/ui/img/urlfilter/adblock.png
 ./httpd/html/ui/img/urlfilter/adblock.xcf
 ./httpd/html/ui/js/script.js
 ./usr/bin/smoothwall/apcupsdkillpower.pl
 ./usr/bin/smoothwall/smoothinfo.pl
+./usr/bin/smoothwall/stopsquid
 ./usr/bin/smoothwall/trafficloader.pl
 ./usr/bin/smoothwall/writeapcupsdconf.pl
 ./usr/bin/smoothwall/writeupnp
@@ -59,3 +62,4 @@
 ./var/smoothwall/apcupsd/events
 ./var/smoothwall/apcupsd/settings
 ./var/smoothwall/proxy/cache
+./var/smoothwall/proxy/squid.conf

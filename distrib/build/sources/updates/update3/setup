@@ -14,6 +14,13 @@ tar xvf patch.tar.gz -C /
 # Fix a couple existing programs that should be setuid
 chmod u+s /usr/bin/ping6 /usr/bin/traceroute
 
+# Ensure apcupsd can work
+pushd /etc
+mkdir -p apcupsd/scripts
+chown root:root scripts
+chmod 755 scripts
+popd
+
 # Leave this for a few generations, just in case.
 echo "Remove unused file 'acl'"
 rm -f /var/smoothwall/proxy/acl

@@ -223,6 +223,7 @@ endif
 	@find distrib -name .gitignore -exec rm -f {} \;
 	@ln -s /var/smoothwall/vpn/ipsec.conf distrib/etc/ipsec.conf
 	@cd distrib; chown -R root:root usr/share/ntop usr/etc/ntop
+	@cd distrib/etc; mkdir -p apcupsd/scripts && chown root:root apcupsd/scripts && chmod 755 apcupsd/scripts
 	@cd distrib-doc; chown -R root:root .
 	
 	@echo "      copy to Dev ..." >>$(MEDIA_BUILD_OUT)
