@@ -12,15 +12,12 @@ VERSION = 3.5.6
 
 BASE_URL = http://www.squid-cache.org/Versions/v3/3.5/
 
-#PATCH_FILE1 = ERR_ACCESS_DENIED.patch
-#PATCH_FILE2 = ERR_CACHE_ACCESS_DENIED.patch 
-#PATCH_FILE3 = ERR_TOO_BIG.patch
-
 CONFIG_OPTS += --enable-storeio="aufs,diskd,ufs" --enable-linux-netfilter \
 	      --enable-removal-policies="heap,lru" --enable-delay-pools \
 	      --localstatedir=/var --with-dl --with-openssl \
 	      --enable-http-violations --enable-icap-client \
-	      --with-large-files --with-libcap --disable-ipv6
+	      --with-large-files --with-libcap --disable-ipv6 \
+	      --enable-ssl-crtd
 
 INSTALL_LANGUAGES = English
 
@@ -29,10 +26,23 @@ CONFIGURE = yes
 configure: patch
 	@/bin/sh -c "ulimit -n 8192; cd $(DIR); ./configure $(CONFIG_OPTS) --prefix=/$(PKG_DIR)"
 
+
+INSTALL = yes
+
+install: compile
+	mkdir -p $(PKG_ROOT)
+	+$(MAKE) -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
+	mkdir -p $(PKG_ROOT)/var/smoothwall/proxy
+	touch $(PKG_ROOT)/var/smoothwall/proxy/squid.conf
+	chown nobody:nobody $(PKG_ROOT)/var/smoothwall/proxy/squid.conf
+	chown 664 $(PKG_ROOT)/var/smoothwall/proxy/squid.conf
+	ln -s $(PKG_ROOT)/usr/etc/squid.conf /var/smoothwall/proxy/squid.conf
+
+
 BUILDTARBALL = yes
 
 SQUID_BITS = ./usr/bin/ ./usr/libexec/ ./usr/sbin/squid \
-             ./usr/etc/mime.conf ./usr/share/
+             ./usr/etc/mime.conf ./usr/share/ ./var/smoothwall/proxy/squid.conf
 
 $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz: install
 	@tar -zcvf $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz -C $(PKG_ROOT) $(SQUID_BITS)

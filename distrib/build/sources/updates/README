@@ -3,7 +3,7 @@ update. It is left to the maintainer to determine where uploaded update files
 are found (there are only two places).
 
 The update build now uses the main build system to compile pkgs and prepare
-their 'release' tarballs. The update assembly generally dertemines which files
+their 'release' tarballs. The update assembly generally determines which files
 will be included in the patch.
 
 The update build can now use a 'pkg'.list file for each pkg to control which
