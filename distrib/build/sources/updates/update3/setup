@@ -17,8 +17,8 @@ chmod u+s /usr/bin/ping6 /usr/bin/traceroute
 # Ensure apcupsd can work
 pushd /etc
 mkdir -p apcupsd/scripts
-chown root:root scripts
-chmod 755 scripts
+chown root:root apcupsd/scripts
+chmod 755 apcupsd/scripts
 popd
 
 # Leave this for a few generations, just in case.

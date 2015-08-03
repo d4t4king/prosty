@@ -412,7 +412,7 @@ sub displaytable
 				if ( $colourcolumn != 0 ){
 					$text = "<span class='$colourtranslations->{$cols[$colourcolumn]}'>$text</span>";
 				}
-				print "<td$rowspan class='list' style='$colour$styles[$entry]; padding:.1em .5em' onclick=\"toggle_mark('R${id}_$cols[0]');\" ><p style='margin:0'>$text</p</td>\n";
+				print "<td$rowspan class='list' style='$colour$styles[$entry]; padding:.1em .5em' onclick=\"toggle_mark('R${id}_$cols[0]');\" ><p style='margin:0'>$text</p></td>\n";
 				# Single use!
 				$rowspan = "";
 
@@ -706,7 +706,7 @@ sub dispaliastab
 				if ( $colourcolumn != 0 ){
 					$text = "<span class='$colourtranslations->{$cols[$colourcolumn]}'>$text</span>";
 				}
-				print "<td$rowspan class='list' style='$colour$styles[$entry]; padding:.1em .5em' onclick=\"toggle_mark('R${id}_$cols[0]');\" ><p style='margin:0'>$text</p</td>\n";
+				print "<td$rowspan class='list' style='$colour$styles[$entry]; padding:.1em .5em' onclick=\"toggle_mark('R${id}_$cols[0]');\" ><p style='margin:0'>$text</p></td>\n";
 				# Single use!
 				$rowspan = "";
 

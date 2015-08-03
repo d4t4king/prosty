@@ -40,7 +40,7 @@
 ./httpd/cgi-bin/xtaccess.cgi
 ./httpd/html/help/apcupsd.cgi.html.en
 ./httpd/html/ui/css/style.css
-./httpd/html/ui/bear-teeth.png
+./httpd/html/ui/img/bear-teeth.png
 ./httpd/html/ui/img/urlfilter/adblock.gif
 ./httpd/html/ui/img/urlfilter/adblock.png
 ./httpd/html/ui/img/urlfilter/adblock.xcf

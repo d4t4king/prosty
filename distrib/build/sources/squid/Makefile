@@ -14,7 +14,7 @@ BASE_URL = http://www.squid-cache.org/Versions/v3/3.5/
 
 CONFIG_OPTS += --enable-storeio="aufs,diskd,ufs" --enable-linux-netfilter \
 	      --enable-removal-policies="heap,lru" --enable-delay-pools \
-	      --localstatedir=/var --with-dl --with-openssl \
+	      --localstatedir=/var --with-dl --with-openssl --libdir=/usr/lib \
 	      --enable-http-violations --enable-icap-client \
 	      --with-large-files --with-libcap --disable-ipv6 \
 	      --enable-ssl-crtd --with-logdir=/var/log/squid \

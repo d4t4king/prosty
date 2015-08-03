@@ -2,7 +2,7 @@
 
 . /etc/rc.d/inc.rc-functions
 
-if [ "x$STARTSTOP" != "x" ]; then
+if [ -f /var/run/STARTSTOP ]; then
   echolog "e" "s" "" "Loading modules for temporary ingress policers"
   for i in sch_ingress cls_u32 act_police; do modprobe $i; done
 
