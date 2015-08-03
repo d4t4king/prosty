@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # This only does something if squid is running
-if [ -f /var/run/squid.pid -a -d /proc/`cat /var/run/squid.pid` ]; then
+if [ -f /var/run/squid.pid ] && [ -d /proc/`cat /var/run/squid.pid` ]; then
 
   # Get the conf file location
   SQUID_CONF="$1"

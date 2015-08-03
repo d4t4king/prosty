@@ -28,6 +28,7 @@ export PERL_MODS = \
 		Sub-Uplevel \
 		Test-Exception \
 	    Date-Calc \
+	    Digest-SHA1 \
 	    GD \
 	    GDTextUtil \
 	    GDGraph \
@@ -45,6 +46,7 @@ export PERL_MODS = \
 	    NetAddr-IP \
 	    RRD-Simple \
 	    Set-IntSpan \
+	    TimeDate \
 	    URI \
 	    libnet \
 	    libwww-perl \
