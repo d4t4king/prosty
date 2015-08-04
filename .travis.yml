@@ -3,6 +3,7 @@ language: c
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y inotify-tools bash
+  - sudo distrib/build/toolcrib/host_debian_inst
 
 install: cd distrib/build; make predownload
 
