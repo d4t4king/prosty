@@ -1,5 +1,7 @@
 language: c
 
-install: cd distrib/build; make predownload
+install:
+  - apt-get install -y inotifywait
+  - cd distrib/build; make predownload
 
 script: cd distrib/build; make build
