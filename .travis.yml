@@ -2,7 +2,7 @@ language: c
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y inotifywait bash sudo
+  - sudo apt-get install -y inotifywait bash
 
 install: cd distrib/build; make predownload
 
