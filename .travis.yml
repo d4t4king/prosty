@@ -1,5 +1,5 @@
 language: c
 
-before_script: cd distrib/build; make predownload
+install: cd distrib/build; make predownload
 
 script: make build
