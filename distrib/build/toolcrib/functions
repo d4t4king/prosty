@@ -139,7 +139,9 @@ function build_tc_stage_3() {
   buildenv make 1
   buildenv patch 1
   buildenv gdbm 1
+  JOBS=$JOBS_UP
   buildenv perl 1
+  JOBS=$JOBS_MP
   buildenv openssl 1
   buildenv sed 1
   buildenv tar 1

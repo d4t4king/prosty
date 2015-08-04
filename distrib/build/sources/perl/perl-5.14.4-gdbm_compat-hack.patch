@@ -1,0 +1,13 @@
+--- perl-5.14.4/hints/linux.sh.orig	2015-06-26 13:25:48.000000000 -0700
++++ perl-5.14.4/hints/linux.sh	2015-06-26 13:26:43.000000000 -0700
+@@ -58,7 +58,9 @@
+ libswanted="$*"
+ 
+ # Debian 4.0 puts ndbm in the -lgdbm_compat library.
+-libswanted="$libswanted gdbm_compat"
++# Rough hack to see if it fixes the ndbm issue in Off-the-wall
++#libswanted="$libswanted gdbm_compat"
++libswanted="$libswanted"
+ 
+ # If you have glibc, then report the version for ./myconfig bug reporting.
+ # (Configure doesn't need to know the specific version since it just uses
