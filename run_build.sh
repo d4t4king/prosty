@@ -1,4 +1,4 @@
-#!/bin/basj
+#!/bin/bash
 
 set -ev
 
