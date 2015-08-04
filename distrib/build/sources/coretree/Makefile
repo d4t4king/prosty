@@ -66,8 +66,10 @@ all: distrib
 
 clean:
 	@echo -n " $(PACKAGE)"
+ifeq ($(BUILD_PHASE), Final)
 	@rm -rf distrib
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
+endif
 
 download:
 	@true

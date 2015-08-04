@@ -13,7 +13,7 @@ BB = /opt/busybox
 BBPROGS = [ [[ ar ash awk basename bbconfig blkid bunzip2 bzcat bzip2 cat \
 	  chattr chgrp chmod chown chroot chvt clear cmp cp cut date dd \
 	  df diff dirname dmesg du echo ed egrep eject env expr false fdisk find \
-	  findfs fsck grep gunzip halt hdparm head ifconfig init insmod \
+	  findfs fsck grep gunzip halt hdparm head ifconfig init insmod ip \
 	  ipcrm ipcs kill killall less ln ls lsattr lsmod mdev microcom \
 	  mkdir mkdosfs mkfifo mkfs.vfat mknod mkswap mktemp modprobe \
 	  more mount mv nohup od patch pipe_progress poweroff ps pwd \
@@ -32,7 +32,8 @@ EXCLUDE_DRIVERS = bluetooth connector gpu infiniband mfd misc mtd parport \
 
 SBINPROGS = /sbin/mke2fs /sbin/sfdisk /sbin/depmod
 SWE_PKGS = $(UDEV) kmod grub pciutils bash reiserfsprogs util-linux pcmciautils \
-	   sysfsutils parted readline inotify-tools mtools device-ids kbd
+	   sysfsutils parted readline inotify-tools mtools device-ids kbd \
+	   e2fsprogs
 ROOTDIRS = cdrom dev etc harddisk proc sys tmp usr run
 GZIP_PKGS = gunzip
 
@@ -51,9 +52,9 @@ NOT_USR = include info man
 bin:
 	mkdir -pv tmp/bin tmp/lib tmp/usr/lib/klibc/bin
 	cp -a ../../../buildroot/dialog/usr/bin/dialog tmp/bin
-	ln -sv /bin tmp/sbin
-	cp -aR /sbin/* tmp/bin
-	cp -aR /build/buildroot/$(UDEV)/sbin/* tmp/bin/
+	mkdir -p tmp/sbin
+	cp -av /sbin/* tmp/sbin
+	cp -aR /build/buildroot/$(UDEV)/sbin/* tmp/sbin/
 	cp -aR /build/target/install-0.0-$(mARCH) tmp/bin/install
 	cp -aR /build/sources/coretree/tree/usr/bin/installer tmp/bin/
 
@@ -148,9 +149,11 @@ all: clean bin lib klibc
 	(cd tmp; mkdir -p local; cd local; \
 	  tar xfz /build/target/smoothwall-gzip.tar.gz)
 
+	cd tmp; [ -l sbin ] || (mv sbin/* bin; rmdir sbin; ln -s bin sbin)
+
 ifeq ($(BITS_64), yes)
-	(cd tmp; ln -s lib lib64)
-	(cd tmp/usr; ln -s lib lib64)
+	(cd tmp; [ -e lib64 ] || ln -s lib lib64)
+	(cd tmp/usr; [ -e lib64 ] || ln -s lib lib64)
 endif
 
 	touch tmp/cdrominstall

@@ -7,7 +7,7 @@
 include ../../../Makefile.conf
 
 PACKAGE = Test-Exception
-VERSION = 0.35
+VERSION = 0.40
 
 BASE_URL = http://search.cpan.org/CPAN/authors/id/E/EX/EXODIST/
 

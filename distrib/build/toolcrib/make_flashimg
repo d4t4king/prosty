@@ -7,8 +7,6 @@ if [ $UID -ne 0 ]; then
   exit 1
 fi
 
-cd build
-
 # Find the next available drive node name
 for i in a b c d e f g h i j k l m n o p q r s t u v w x y z; do
   [ -e /dev/sd$i ] && continue;
@@ -60,7 +58,7 @@ tput smso; echo "..Use '$isoname'"; tput rmso;
 BAUD=115200
 
 echo
-tput smso; echo "..Set 11520 baud rate"; tput rmso;
+tput smso; echo "..Set 115200 baud rate"; tput rmso;
 
 echo
 tput smso; echo "..Create 7GiB image file"; tput rmso;
@@ -131,7 +129,7 @@ echo
 tput smso; echo "..Copy"; tput rmso;
 
 # Copy the ISO contents to flash
-cp -arv $CD/* $FL
+cp -a $CD/* $FL
 
 echo
 tput smso; echo "..Wrench"; tput rmso;

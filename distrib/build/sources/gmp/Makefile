@@ -12,9 +12,9 @@ VERSION = $(GMP_VER)
 
 BASE_URL = http://www.gnu.org/software/gmp/
 
-ifeq ($(BITS_32), yes)
-PRE_CONFIGURE = ABI=32
-endif
+#ifeq ($(BITS_32), yes)
+#PRE_CONFIGURE = ABI=32
+#endif
 
 EXTENSION = .tar.bz2
 

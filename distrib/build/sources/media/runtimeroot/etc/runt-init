@@ -47,10 +47,7 @@ udevadm control --exit
 
 echo "1 4 1 7" >/proc/sys/kernel/printk
 
-/bin/umount /dev/pts
-/bin/mount -n -o move /dev /harddisk/dev
-/bin/mkdir -p /harddisk/dev/pts
-/bin/mount -t devpts -o gid=5,mode=620 devpts /harddisk/dev/pts
+/bin/mount -n --move /dev /harddisk/dev
 
 PNR="/etc/udev/rules.d/70-persistent-net.rules"
 if [ -f "$PNR" ]; then
@@ -60,7 +57,7 @@ fi
 /usr/lib/klibc/bin/nuke /dev
 /bin/ln -s /harddisk/dev /dev
 
-/bin/mount -n -o move /sys /harddisk/sys
-/bin/mount -n -o move /proc /harddisk/proc
+/bin/mount -n --move /sys /harddisk/sys
+/bin/mount -n --move /proc /harddisk/proc
 
 exec /usr/lib/klibc/bin/run-init /harddisk /sbin/init </harddisk/dev/console >/harddisk/dev/console 2>&1

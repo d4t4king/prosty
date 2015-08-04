@@ -88,10 +88,10 @@ cdrom/smoothwall.tgz:
 	mkdir -p distrib distrib/sys distrib-dev distrib-doc/usr/share/
 
 ifeq ($(BITS_64), yes)
-	cd distrib; ln -s lib lib64
-	cd distrib-dev; ln -s lib lib64
-	mkdir -p distrib/usr; cd distrib/usr; ln -s lib lib64
-	mkdir -p distrib-dev/usr; cd distrib-dev/usr; ln -s lib lib64
+	cd distrib; [ -e lib64 ] || ln -s lib lib64
+	cd distrib-dev; [ -e lib64 ] || ln -s lib lib64
+	mkdir -p distrib/usr; cd distrib/usr; [ -e lib64 ] || ln -s lib lib64
+	mkdir -p distrib-dev/usr; cd distrib-dev/usr; [ -e lib64 ] || ln -s lib lib64
 endif
 	
 	install -D runtimerootimage.gz distrib/boot/initrd-$(K_SWE_VERSION).gz
@@ -196,7 +196,8 @@ endif
 	  /build/toolcrib/securetree distrib; \
 	  /build/toolcrib/securetree distrib-dev; \
 	  /build/toolcrib/securetree distrib-doc; \
-	  chmod u+s distrib/usr/bin/ping; \
+	  chmod u+s distrib/usr/bin/ping{,6}; \
+	  chmod u+s distrib/usr/bin/traceroute; \
 	  chmod u+s distrib/usr/sbin/listtables; \
 	  chown root:nobody distrib/usr/bin/setuids/*; \
 	  chmod 4750 distrib/usr/bin/setuids/*; \
@@ -222,6 +223,7 @@ endif
 	@find distrib -name .gitignore -exec rm -f {} \;
 	@ln -s /var/smoothwall/vpn/ipsec.conf distrib/etc/ipsec.conf
 	@cd distrib; chown -R root:root usr/share/ntop usr/etc/ntop
+	@cd distrib/etc; mkdir -p apcupsd/scripts && chown root:root apcupsd/scripts && chmod 755 apcupsd/scripts
 	@cd distrib-doc; chown -R root:root .
 	
 	@echo "      copy to Dev ..." >>$(MEDIA_BUILD_OUT)
@@ -306,6 +308,7 @@ all: cdrom cdrom/smoothwall.tgz extracontent
 clean:
 	@echo -n " $(PACKAGE)"
 	@rm -f Media.mediaISO.built
+	@rm -f Express-3.1-SP1-i586.img
 	@rm -rf cdrom cdrom-dev offroad distrib distrib-dev distrib-doc klibc temp
 	@make --no-print-directory -C cdromboot clean >/dev/null 2>&1
 	@make --no-print-directory -C installroot clean >/dev/null 2>&1

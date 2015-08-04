@@ -20,7 +20,7 @@ LIBS = -L. -ldl -lsmoothd -lxtables -lip4tc
 BIN = smoothd
 
 MODULES = sysshutdown sysinstall sysim sysp3scan sysalcatel sysdhcpd sysdnsproxy \
-	sysntpd syssnort syssquid syssshd sysupnpd sysadvnet sysipblock \
+	sysntpd syssnort syssquid syssshd sysupnpd sysadvnet sysapcupsd sysipblock \
 	sysxtaccess sysupdown sysipsec systimeset sysiptables systraffic syssip sysclamav \
 	systimedaccess syssmoothinfo syssquidguard
 
@@ -44,6 +44,8 @@ clean:
 	rm -f $(OBJS) $(BIN) *.o *.so modules smoothcom
 
 sysadvnet : libsmoothd.so $(OBJS)  
+	$(CXX) $(MODULEFLAGS)
+sysapcupsd : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)
 sysalcatel : libsmoothd.so $(OBJS)  
 	$(CXX) $(MODULEFLAGS)

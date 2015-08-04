@@ -105,7 +105,7 @@ if [ "$CONFIG_TYPE" == "2" -o "$CONFIG_TYPE" == "3" -o "$CONFIG_TYPE" == "6" -o 
 fi
 
 # Bring the links up now if during operation. Otherwise, rc.sysinit handles it
-if [ "x$STARTSTOP" == "x" ]; then
+if [ ! -f /var/run/STARTSTOP ]; then
 	. /etc/rc.d/inc.links-up
 fi
 

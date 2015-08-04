@@ -22,8 +22,10 @@ all: install
 
 clean:
 	@echo -n " $(PACKAGE)"
+ifeq ($(BUILD_PHASE), Final)
 	@rm -rf $(PKG_ROOT)
 	@rm -f $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz
+endif
 
 download:
 	@true

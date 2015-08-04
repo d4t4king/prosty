@@ -38,3 +38,4 @@ Other:
 * Also incorporated some changes that help to tidy up the UI.
 * Most of the UI pages are now "strict-ified".  If you don't know what that means, accept it as "cleaner code".
 
+Hoping to add Travis CI build badges.

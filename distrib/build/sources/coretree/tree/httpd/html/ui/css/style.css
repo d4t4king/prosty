@@ -162,7 +162,6 @@ td.endtab {
 
 	background-position: bottom left;
 	background-repeat: no-repeat;
-	background-image: url( '/ui/img/endtab.jpg' ); 
 }
 
 
@@ -171,8 +170,8 @@ td.mainbody {
 	font-weight: normal;
 	font-family: Arial, Helvetica, sans-serif;
 	background-color: #f7f7f7;
-	background-image: url( '/ui/img/bear.jpg' );
-	background-position: top right;
+	background-image: url( '/ui/img/bear.jpg' ),url( '/ui/img/bear-teeth.png' );
+	background-position: top right,bottom left;
 	background-repeat: no-repeat;
 	border: none;
 	border-left:   solid 1px #5548a2;
@@ -186,6 +185,9 @@ table.box {
 	margin-left: auto;
 	margin-right: auto;
 	border: solid 1px #d7d7d7;
+	box-shadow: 0px 0px 6px 0px rgba(138,92,15,0.3);
+	-webkit-box-shadow: 0px 0px 6px 0px rgba(138,92,15,0.3);
+	-moz-box-shadow: 0px 0px 6px 0px rgba(138,92,15,0.3);
 }
 
 table.warning {
@@ -239,6 +241,9 @@ table.list {
 	margin-right: auto;
 	border: solid 1px #c0c0c0;
 	border-collapse: collapse;
+	box-shadow: inset 0px 0 6px 0 rgba(138,120,90,0.4);
+	-webkit-box-shadow: inset 0px 0px 6px 0px rgba(138,120,90,0.4);
+	-moz-box-shadow: inset 0px 0px 6px 0px rgba(138,120,90,0.4);
 }
 
 th.list {
@@ -246,7 +251,7 @@ th.list {
 	border-width: 0px; 
 	border-right: 1px; 
 	border-color: #b0b0b0; 
-	background-color: #dedede;
+	background-color: rgba(0,0,0,.03);
 	border-style: solid;
 }
 
@@ -254,7 +259,7 @@ th.listcomment {
 	width: 30%; 
 	border-width: 0px; 
 	border-right: 1px; 
-	border-color: #b0b0b0; 
+	border-color: #d0d0d0; 
 	background-color: #eeeeee;
 	border-style: solid;
 }
@@ -262,7 +267,8 @@ th.listcomment {
 tr.list {
 	border-width: 0px; 
 	border-top: 1px;
-	border-color: #c0c0c0;
+	border-color: #b0b0b0; 
+	background-color: rgba(0,0,0,.03);
 	border-style: solid;
 }
 
@@ -277,7 +283,7 @@ td.list {
 td.listcomment {
 	border-width: 0px; 
 	border-top: 1px;
-	border-color: #b0b0b0;
+	border-color: #d0d0d0; 
 	border-style: solid;
 	text-align: center;
 }
