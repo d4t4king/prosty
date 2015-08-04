@@ -1,5 +1,7 @@
 language: c
 
-before_script: make predownload
+before_script: 
+  - cd d4t4king/off-the-wall/distrib/build
+  - make predownload
 
 script: make build
