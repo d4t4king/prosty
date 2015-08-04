@@ -9,6 +9,4 @@ addons:
 before_install:
   - sudo bash distrib/build/toolcrib/host_debian_inst
 
-install: cd distrib/build && make predownload
-
-script: cd distrib/build && make build
+script: ./run_build.sh
