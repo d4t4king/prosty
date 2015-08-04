@@ -1,0 +1,5 @@
+language: c
+
+before_script: make predownload
+
+script: make build
