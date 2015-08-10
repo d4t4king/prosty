@@ -23,7 +23,7 @@ our @_validation_items;
                     validip validmask validipormask validipandmask validport
                     validportrange validmac validhostname validcomment
                     basename connectedstate %tr @_validation_items getsystemid
-                    outputfile getLinkSpeed);
+                    outputfile getLinkSpeed requireConditional %filters %optionText);
 %EXPORT_TAGS  = (
       standard   => [@EXPORT_OK],
       );

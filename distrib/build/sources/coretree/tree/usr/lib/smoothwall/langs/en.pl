@@ -1597,6 +1597,7 @@
 'Turn off UPS on shutdown' => 'Turn off UPS on Shutdown',
 'UPS Killpower Incompatible Slave' => '<B>UPS Killpower on shutdown</B> is not compatible with SLAVE mode.<br />&nbsp;&nbsp;&nbsp;&nbsp;It is only available for MASTER mode (i.e., when directly connected via USB or Serial)',
 'UPS Name (8 Char Max.)' => 'UPS Name (8 Char Max.)',
+'UPS Status' => 'UPS Status',
 'UPS Type' => 'Type',
 'Username Not Required' => 'User name not required unless using PCNET',
 'Wait before responding to On Battery alert for' => 'Wait before responding to On Battery alert for',

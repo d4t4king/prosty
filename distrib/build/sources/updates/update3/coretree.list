@@ -31,6 +31,7 @@
 ./httpd/cgi-bin/ipinfo.cgi
 ./httpd/cgi-bin/iptools.cgi
 ./httpd/cgi-bin/logs.cgi/proxylog.dat
+./httpd/cgi-bin/logs.cgi/log.dat
 ./httpd/cgi-bin/outgoing.cgi
 ./httpd/cgi-bin/portfw.cgi
 ./httpd/cgi-bin/smoothinfo.cgi
