@@ -39,10 +39,10 @@ echo -ne \\a >/dev/console
 
 /usr/bin/sounds/haltsound
 
-if [ "$1" = "halt" ]; then
+if [ "$1" == "halt" ]; then
 	unset ENABLE KILLPOWER
 	. /var/smoothwall/apcupsd/settings
-	if [ $ENABLE == "on" -a $KILLPOWER == "on" -a -f "/etc/apcupsd/powerfail" ]; then
+	if [ "$ENABLE" == "on" -a "$KILLPOWER" == "on" -a -f "/etc/apcupsd/powerfail" ]; then
 		# This is a powerfail situation, so turn off the UPS.
 		/usr/sbin/apcupsd --killpower
 	fi
