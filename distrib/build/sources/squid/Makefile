@@ -8,17 +8,27 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = squid
-VERSION = 3.5.6
+VERSION = 3.5.7
 
 BASE_URL = http://www.squid-cache.org/Versions/v3/3.5/
 
-CONFIG_OPTS += --enable-storeio="aufs,diskd,ufs" --enable-linux-netfilter \
-	      --enable-removal-policies="heap,lru" --enable-delay-pools \
-	      --localstatedir=/var --with-dl --with-openssl --libdir=/usr/lib \
-	      --enable-http-violations --enable-icap-client \
-	      --with-large-files --with-libcap --disable-ipv6 \
-	      --enable-ssl-crtd --with-logdir=/var/log/squid \
-	      --with-swapdir=/var/spool/squid
+CONFIG_OPTS += --disable-arch-native \
+	       --disable-ipv6 \
+	       --enable-delay-pools \
+	       --enable-http-violations \
+	       --enable-icap-client \
+	       --enable-linux-netfilter \
+	       --enable-removal-policies="heap,lru" \
+	       --enable-ssl-crtd \
+	       --enable-storeio="aufs,diskd,ufs" \
+	       --libdir=/usr/lib \
+	       --localstatedir=/var \
+	       --with-dl \
+	       --with-large-files \
+	       --with-libcap \
+	       --with-logdir=/var/log/squid \
+	       --with-openssl \
+	       --with-swapdir=/var/spool/squid
 
 INSTALL_LANGUAGES = English
 

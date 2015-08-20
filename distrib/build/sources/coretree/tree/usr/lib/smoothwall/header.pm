@@ -23,7 +23,7 @@ our @_validation_items;
                     validip validmask validipormask validipandmask validport
                     validportrange validmac validhostname validcomment
                     basename connectedstate %tr @_validation_items getsystemid
-                    outputfile getLinkSpeed);
+                    outputfile getLinkSpeed requireConditional %filters %optionText);
 %EXPORT_TAGS  = (
       standard   => [@EXPORT_OK],
       );
@@ -545,6 +545,7 @@ sub openpage
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
   $extrahead
   <title>($hostname) $title - Smoothwall Express</title>
   <script type="text/javascript" src='/ui/js/script.js'></script>
@@ -584,15 +585,15 @@ END
 <table class='frame' cellpadding='0' cellspacing='0'>
   <tr style="margin:0">
     <td style="background-image:url(/ui/img/top-left.png); max-height:4px; height:4px;
-               min-height:4px; max-width:4px; min-width:4px; background-repeat:none"></td>
+               min-height:4px; max-width:6px; min-width:6px; background-repeat:none"></td>
     <td style="background-image:url(/ui/img/top.png); max-height:4px; height:4px;
                min-height:4px; background-repeat:repeat-x"></td>
     <td style="background-image:url(/ui/img/top-right.png); max-height:4px; height:4px;
                min-height:4px; max-width:4px; width:4px; min-width:4px; background-repeat:none"></td>
   </tr>
   <tr style="margin:0">
-    <td style="background-image:url(/ui/img/left.png); max-width:4px; width:4px;
-               min-width:4px; background-repeat:repeat-y">
+    <td style="background-image:url(/ui/img/left.png); max-width:6px; width:6px;
+               min-width:6px; background-repeat:repeat-y">
     </td>
     <td>
 
@@ -693,19 +694,19 @@ sub closepage
 </script>
 
     </td>
-    <td style="background-image:url(/ui/img/right.png); max-width:6px; width:6px;
-               min-width:6px; background-repeat:repeat-y">
+    <td style="background-image:url(/ui/img/right.png); max-width:4px; width:4px;
+               min-width:4px; background-repeat:repeat-y">
     </td>
   </tr>
   <tr>
     <td style="background-image:url(/ui/img/bottom-left.png); max-height:6px; height:6px;
-               min-height:6px; max-width:4px; min-width:4px; background-repeat:none">
+               min-height:6px; max-width:6px; min-width:6px; background-repeat:none">
     </td>
     <td style="background-image:url(/ui/img/bottom.png); max-height:6px; height:6px;
                min-height:6px; background-repeat:repeat-x">
     </td>
     <td style="background-image:url(/ui/img/bottom-right.png); max-height:6px; height:6px;
-               min-height:6px; max-width:6px; width:6px; min-width:6px; background-repeat:none">
+               min-height:6px; max-width:4px; width:4px; min-width:4px; background-repeat:none">
     </td>
   </tr>
 </table>

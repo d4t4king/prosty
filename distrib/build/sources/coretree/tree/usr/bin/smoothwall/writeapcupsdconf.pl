@@ -6,8 +6,9 @@
 
 use lib ('/usr/lib/smoothwall');
 use header qw ( :standard );
+use strict;
 
-my %settings, %netsettings, %hostsettings;
+my (%settings, %netsettings, %hostsettings);
 
 readhash("/var/smoothwall/apcupsd/settings", \%settings);
 readhash("${swroot}/ethernet/settings", \%netsettings);
@@ -188,7 +189,6 @@ if ($settings{NOLOGINTYPE} eq '3') {
         print FILE "NOLOGON always\n";
 }
 
-
 close FILE;
 
 
@@ -199,34 +199,19 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGONBATTERY} eq 'on') {
 #
 # UPS on battery alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Utility Power Failure! UPS running on batteries."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="ONBATTERY"
+export SUBJECT="Utility Power Failure! UPS running on batteries."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Onbattery Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/onbattery") {
+  close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/onbattery") {
 	unlink("/etc/apcupsd/scripts/onbattery");
 }
-close FILE;
-
 
 if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGOFFBATTERY} eq 'on') {
 	open (FILE, ">/etc/apcupsd/scripts/offbattery");
@@ -235,30 +220,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGOFFBATTERY} eq 'on') {
 #
 # Utility power returned alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Utility Power Failure! UPS no longer running on batteries."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="OFFBATTERY"
+export SUBJECT="Utility Power Failure! UPS no longer running on batteries."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Offbattery Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/offbattery") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/offbattery") {
 	unlink("/etc/apcupsd/scripts/offbattery");
 }
 
@@ -269,30 +241,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGCOMMFAILURE} eq 'on') {
 #
 # Communication with UPS lost alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Communication with UPS lost."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="COMMFAILURE"
+export SUBJECT="Communication with UPS lost."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Commfailure Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/commfailure") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/commfailure") {
 	unlink("/etc/apcupsd/scripts/commfailure");
 }
 
@@ -303,30 +262,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGCOMMOK} eq 'on') {
 #
 # Communication with UPS restored alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Communication with UPS restored."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="COMMOK  "
+export SUBJECT="Communication with UPS restored."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Commok Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/commok") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/commok") {
 	unlink("/etc/apcupsd/scripts/commok");
 }
 
@@ -337,30 +283,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGCHANGEME} eq 'on') {
 #
 # UPS battery replacement required alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: UPS batteries require replacement."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="CHANGEME"
+export SUBJECT="UPS batteries require replacement."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Changeme Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/changeme") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/changeme") {
 	unlink("/etc/apcupsd/scripts/changeme");
 }
 
@@ -371,31 +304,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGANNOY} eq 'on') {
 #
 # Annoyme alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Power problems with UPS."
-//sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="ANNOY   "
+export SUBJECT="Power problems with UPS"
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Annoyme Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-#system(" 0755 /etc/apcupsd/scripts/annoyme");
-} elsif (-f "/etc/apcupsd/scripts/annoyme") {
+close FILE;
+} 
+elsif (-f "/etc/apcupsd/scripts/annoyme") {
 	unlink("/etc/apcupsd/scripts/annoyme");
 }
 
@@ -406,30 +325,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGBATTATTACH} eq 'on') {
 #
 # Battattach alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: UPS Battery has been reconnected."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="BATTATTACH"
+export SUBJECT="UPS Battery has been reconnected."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Battattach Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/battattach") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/battattach") {
 	unlink("/etc/apcupsd/scripts/battattach");
 }
 
@@ -440,30 +346,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGBATTDETACH} eq 'on') {
 #
 # Battdetach alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: UPS Battery has been disconnected."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="BATTDETACH"
+export SUBJECT="UPS Battery has been disconnected."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Battdetach Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/battdetach") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/battdetach") {
 	unlink("/etc/apcupsd/scripts/battdetach");
 }
 
@@ -474,30 +367,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGDOSHUTDOWN} eq 'on') {
 #
 # Doshutdown alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: UPS initiating Shutdown Sequence."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="DOSHUTDOWN"
+export SUBJECT="UPS initiating Shutdown Sequence."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Doshutdown Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/doshutdown") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/doshutdown") {
 	unlink("/etc/apcupsd/scripts/doshutdown");
 }
 
@@ -508,30 +388,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGEMERGENCY} eq 'on') {
 #
 # Emergency alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Emergency Shutdown. Possible battery failure on UPS."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="EMERGENCY"
+export SUBJECT="Emergency Shutdown. Possible battery failure on UPS."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Emergency Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/emergency") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/emergency") {
 	unlink("/etc/apcupsd/scripts/emergency");
 }
 
@@ -542,30 +409,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGENDSELFTEST} eq 'on') {
 #
 # Endselftest alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: UPS Self Test ended."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="ENDSELFTEST"
+export SUBJECT="UPS Self Test ended."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Endselftest Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/endselftest") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/endselftest") {
 	unlink("/etc/apcupsd/scripts/endselftest");
 }
 
@@ -576,30 +430,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGFAILING} eq 'on') {
 #
 # Battery failing alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Battery power exhaused on UPS. Doing shutdown."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="FAILING "
+export SUBJECT="Battery power exhausted on UPS. Doing shutdown."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Failing Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/failing") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/failing") {
 	unlink("/etc/apcupsd/scripts/failing");
 }
 
@@ -610,30 +451,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGKILLPOWER} eq 'on') {
 #
 # UPS killpower alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Apccontrol doing: /sbin/apcupsd --killpower on UPS!"
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="KILLPOWER"
+export SUBJECT="Apccontrol doing: /sbin/apcupsd --killpower on UPS!"
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Killpower Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/killpower") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/killpower") {
 	unlink("/etc/apcupsd/scripts/killpower");
 }
 
@@ -644,30 +472,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGLOADLIMIT} eq 'on') {
 #
 # Loadlimit alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Remaining battery charge below limit on UPS. Doing shutdown."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="LOADLIMIT"
+export SUBJECT="Remaining battery charge below limit on UPS. Doing shutdown."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Loadlimit Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/loadlimit") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/loadlimit") {
 	unlink("/etc/apcupsd/scripts/loadlimit");
 }
 
@@ -678,30 +493,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGPOWERBACK} eq 'on') {
 #
 # Mainsback alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Utility Power Restored!"
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="MAINSBACK"
+export SUBJECT="Utility Power Restored!"
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Mainsback Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/mainsback") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/mainsback") {
 	unlink("/etc/apcupsd/scripts/mainsback");
 }
 
@@ -712,30 +514,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGPOWEROUT} eq 'on') {
 #
 # Powerout alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Utility Power Failure!"
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="POWEROUT"
+export SUBJECT="Utility Power Failure!"
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Powerout Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/powerout") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/powerout") {
 	unlink("/etc/apcupsd/scripts/powerout");
 }
 
@@ -746,30 +535,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGREMOTEDOWN} eq 'on') {
 #
 # Remotedown alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Remote Shutdown. Beginning Shutdown Sequence."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="REMOTEDOWN"
+export SUBJECT="Remote Shutdown. Beginning Shutdown Sequence."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Remotedown Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/remotedown") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/remotedown") {
 	unlink("/etc/apcupsd/scripts/remotedown");
 }
 
@@ -780,30 +556,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGRUNLIMIT} eq 'on') {
 #
 # Runlimit alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Remaining battery runtime below limit on UPS. Doing shutdown."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="RUNLIMIT"
+export SUBJECT="Remaining battery runtime below limit on UPS. Doing shutdown."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Runlimit Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/runlimit") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/runlimit") {
 	unlink("/etc/apcupsd/scripts/runlimit");
 }
 
@@ -814,30 +577,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGSTARTSELFTEST} eq 'on') {
 #
 # Startselftest alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: UPS Self Test started."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="STARTSELFTEST"
+export SUBJECT="UPS Self Test started."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Startselftest Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/startselftest") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/startselftest") {
 	unlink("/etc/apcupsd/scripts/startselftest");
 }
 
@@ -848,30 +598,17 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGTIMEOUT} eq 'on') {
 #
 # Timeout alert script
 #
-#
-HOSTNAME=$hostsettings{HOSTNAME}
-MSG="\$HOSTNAME: Battery time limit exceeded on UPS. Doing shutdown."
-/sbin/apcaccess status $netsettings{'GREEN_ADDRESS'} > /var/log/apcupsd
-#
-(
-        echo "\$MSG"
-        echo " "
-        cat /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC1ADDR} $settings{ALERTADDR}
 
-(
-	echo "\$MSG"
-	echo " "
-	grep TIMELEFT /var/log/apcupsd
-	grep STATUS /var/log/apcupsd
-	grep BCHARGE /var/log/apcupsd
-)| /sbin/smtp -f $settings{FROMADDR} -h $settings{MAILSVR} -s "\$MSG" $settings{CC2ADDR}
+export NOTIFYTYPE="TIMEOUT "
+export SUBJECT="Battery time limit exceeded on UPS. Doing shutdown."
+export UPSNAME=\$(hostname)
+/etc/apcupsd/scripts/notify.pl
 
-echo `date +%Y-%m-%d%t%T%t%z` " Timeout Alert email sent to: $settings{CC1ADDR} $settings{CC2ADDR} $settings{ALERTADDR}" >> /var/smoothwall/apcupsd/events
 exit 0
 END
-
-} elsif (-f "/etc/apcupsd/scripts/timeout") {
+close FILE;
+}
+elsif (-f "/etc/apcupsd/scripts/timeout") {
 	unlink("/etc/apcupsd/scripts/timeout");
 }
 
@@ -880,7 +617,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{OPMODE} eq 'testing') {
 	print FILE <<END;
 #!/bin/sh
 #
-# Copyright (C) 1999-2002 Riccardo Facchetti <riccardo@master.oasi.gpa.it>
+# Copyright (C) 1999-2002 Riccardo Facchetti <riccardo\@master.oasi.gpa.it>
 #
 #  for apcupsd release 3.14.10 (13 September 2011)
 #
@@ -984,16 +721,15 @@ case "\$1" in
     ;;
 esac
 END
-
+close FILE;
 }
 
 if ($settings{OPMODE} eq 'full') {
-
 	open (FILE, ">/etc/apcupsd/scripts/apccontrol");
 	print FILE <<END;
 #!/bin/sh
 #
-# Copyright (C) 1999-2002 Riccardo Facchetti <riccardo@master.oasi.gpa.it>
+# Copyright (C) 1999-2002 Riccardo Facchetti <riccardo\@master.oasi.gpa.it>
 #
 #  for apcupsd release 3.14.10 (13 September 2011)
 #
@@ -1097,7 +833,7 @@ case "\$1" in
     ;;
 esac
 END
-
+close FILE;
 }
 
 system("chmod -R 0755 /etc/apcupsd/scripts/");

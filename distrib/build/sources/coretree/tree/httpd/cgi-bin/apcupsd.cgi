@@ -8,11 +8,10 @@ use lib "/usr/lib/smoothwall";
 use header qw( :standard );
 use smoothd qw( message );
 use smoothtype qw( :standard );
+use strict;
 
-my $version = "1.0.0";
-
-my %apcupsdsettings;
-my %checked; my %selected;
+my (%apcupsdsettings, %checked, %selected);
+my $refresh;
 
 sub validemailaddr() {
 	my ($email) = @_;
@@ -27,17 +26,17 @@ sub validemailaddr() {
 &showhttpheaders();
 
 $apcupsdsettings{'ACTION'} = '';
-$apcupsdsettings{'ALERTADDR'} = '';
+$apcupsdsettings{'EMAIL'} = '';
 $apcupsdsettings{'ANNOY'} = '300';
 $apcupsdsettings{'BATTDELAY'} = '10';
 $apcupsdsettings{'BATTLEVEL'} = '15';
-$apcupsdsettings{'CC1ADDR'} = '';
-$apcupsdsettings{'CC2ADDR'} = '';
+$apcupsdsettings{'CC'} = '';
+$apcupsdsettings{'SMSEMAIL'} = '';
 $apcupsdsettings{'ENABLE'} = 'off';
 $apcupsdsettings{'ENABLEALERTS'} = 'off';
-$apcupsdsettings{'FROMADDR'} = '';
+$apcupsdsettings{'FROM'} = '';
 $apcupsdsettings{'KILLPOWER'} = 'off';
-$apcupsdsettings{'MAILSVR'} = '';
+$apcupsdsettings{'SMTPSERVER'} = '';
 $apcupsdsettings{'MSGANNOY'} = 'off';
 $apcupsdsettings{'MSGBATTATTACH'} = 'off';
 $apcupsdsettings{'MSGBATTDETACH'} = 'off';
@@ -71,6 +70,12 @@ $apcupsdsettings{'UPSNAME'} = '';
 $apcupsdsettings{'UPSPORT'} = '';
 $apcupsdsettings{'UPSUSER'} = '';
 $apcupsdsettings{'VALID'} = '';
+$apcupsdsettings{'PORT'} = 25;
+$apcupsdsettings{'ENABLEAUTH'} = '';
+$apcupsdsettings{'SMTPS'} = '';
+$apcupsdsettings{'STARTTLS'} = '';
+$apcupsdsettings{'USER'} = '';
+$apcupsdsettings{'EMAIL_PASSWORD'} = '';
 
 &getcgihash(\%apcupsdsettings);
 
@@ -78,22 +83,22 @@ my $errormessage = '';
 
 if ($apcupsdsettings{'ACTION'} eq $tr{'save and restart'}) {
 	# First, validate all entry fields for blank or valid content
-	if ($apcupsdsettings{'ALERTADDR'} ne "" and ! &validemailaddr($apcupsdsettings{'ALERTADDR'})) {
+	if ($apcupsdsettings{'EMAIL'} ne "" and ! &validemailaddr($apcupsdsettings{'EMAIL'})) {
 		$errormessage .= $tr{"apc invalid alert addr"} ."<br />";
 	}
 	if ($apcupsdsettings{'ANNOY'} !~ /[0-9]+/ ) { $errormessage .= $tr{"apc invalid annoy time"} ."<br />"; }
 	if ($apcupsdsettings{'BATTDELAY'} !~ /[0-9]+/ ) { $errormessage .= $tr{"apc invalid batt delay"} ."<br />"; }
 	if ($apcupsdsettings{'BATTLEVEL'} !~ /[0-9]+/ ) { $errormessage .= $tr{"apc invalid batt level"} ."<br />"; }
-	if ($apcupsdsettings{'CC1ADDR'} ne "" and ! &validemailaddr($apcupsdsettings{'CC1ADDR'})) {
+	if ($apcupsdsettings{'CC'} ne "" and ! &validemailaddr($apcupsdsettings{'CC'})) {
 		$errormessage .= $tr{"apc invalid cc1 addr"} ."<br />";
 	}
-	if ($apcupsdsettings{'CC2ADDR'} ne "" and ! &validemailaddr($apcupsdsettings{'CC2ADDR'})) {
+	if ($apcupsdsettings{'SMSEMAIL'} ne "" and ! &validemailaddr($apcupsdsettings{'SMSEMAIL'})) {
 		$errormessage .= $tr{"apc invalid cc2 addr"} ."<br />";
 	}
-	if ($apcupsdsettings{'FROMADDR'} ne "" and ! &validemailaddr($apcupsdsettings{'FROMADDR'})) {
+	if ($apcupsdsettings{'FROM'} ne "" and ! &validemailaddr($apcupsdsettings{'FROM'})) {
 		$errormessage .= $tr{"apc invalid from addr"} ."<br />";
 	}
-	if ($apcupsdsettings{'MAILSVR'} ne "" and !&validip($apcupsdsettings{'MAILSVR'}) and ! &validhostname($apcupsdsettings{'MAILSVR'})) {
+	if ($apcupsdsettings{'SMTPSERVER'} ne "" and !&validip($apcupsdsettings{'SMTPSERVER'}) and ! &validhostname($apcupsdsettings{'SMTPSERVER'})) {
 		$errormessage .= $tr{"apc invalid svr addr"} ."<br />";
 	}
 	if ($apcupsdsettings{'NISPORT'} ne "" and not &validport($apcupsdsettings{'NISPORT'}) ) {
@@ -254,31 +259,31 @@ if ($apcupsdsettings{'ACTION'} eq $tr{'save and restart'}) {
 	# Don't validate email addrs, etc., if notifications are not enabled
 	if ($apcupsdsettings{'ENABLEALERTS'} eq 'on')
 	{
-		if (! &validemailaddr($apcupsdsettings{'FROMADDR'}))
+		if (! &validemailaddr($apcupsdsettings{'FROM'}))
 		{
 		$errormessage .= 'Please enter a valid From address<br />';
 		}
 	
-		if (! &validemailaddr($apcupsdsettings{'ALERTADDR'}))
+		if (! &validemailaddr($apcupsdsettings{'EMAIL'}))
 		{
-		$errormessage .= 'Please enter a valid Alert address<br />';
+		$errormessage .= 'Please enter a valid Alert To<br />';
 		}
 	
-		if ($apcupsdsettings{'CC1ADDR'} ne '') {
-			unless ($apcupsdsettings{'CC1ADDR'} =~ (/^[A-z0-9_\-\.]+[@][A-z0-9_\-.]+[A-z]{2,}$/))
+		if ($apcupsdsettings{'CC'} ne '') {
+			unless ($apcupsdsettings{'CC'} =~ (/^[A-z0-9_\-\.]+[@][A-z0-9_\-.]+[A-z]{2,}$/))
 			{
-			$errormessage .= 'Please enter a valid Alert2 address<br />';
+			$errormessage .= 'Please enter a valid And To address<br />';
 			}
 		}
 	
-		if ($apcupsdsettings{'CC2ADDR'} ne '') {
-			unless ($apcupsdsettings{'CC2ADDR'} =~ (/^[A-z0-9_\-\.]+[@][A-z0-9_\-.]+[A-z]{2,}$/))
+		if ($apcupsdsettings{'SMSEMAIL'} ne '') {
+			unless ($apcupsdsettings{'SMSEMAIL'} =~ (/^[A-z0-9_\-\.]+[@][A-z0-9_\-.]+[A-z]{2,}$/))
 			{
-			$errormessage .= 'Please enter a valid Alert3 address<br />';
+			$errormessage .= 'Please enter a valid SMSemail address<br />';
 		 	}
 		}
 	
-		if ($apcupsdsettings{'MAILSVR'} eq '')
+		if ($apcupsdsettings{'SMTPSERVER'} eq '')
 		{
 		$errormessage .= 'Please enter valid mailserver<br />';
 		}
@@ -328,10 +333,11 @@ ERROR:
 			$errormessage = $tr{'smoothd failure'} .": apcupsdwrite";
 		}
 		$success = message("apcupsdrestart");
-		
+		$errormessage = $success;
 		if (not defined $success) {
 			$errormessage = $tr{'smoothd failure'} .": apcupsdrestart";
 		}
+		$refresh = "<META HTTP-EQUIV='refresh' CONTENT='2; URL=apcupsd.cgi'>";
 	}
 }
 
@@ -351,9 +357,11 @@ if ($apcupsdsettings{'ACTION'} eq $tr{'restart'})
 	&log("APCupsd service restarted.");
 
 	my $success = message("apcupsdrestart");
+	$errormessage = $success;
 	if (not defined $success) {
 		$errormessage = $tr{'smoothd failure'};
 	}
+	$refresh = "<META HTTP-EQUIV='refresh' CONTENT='2; URL=apcupsd.cgi'>";
 }
 
 if ($apcupsdsettings{'ACTION'} eq $tr{'stop'})
@@ -361,9 +369,20 @@ if ($apcupsdsettings{'ACTION'} eq $tr{'stop'})
 	&log("APCupsd service stopped.");
 
 	my $success = message("apcupsdstop");
+	$errormessage = $success;
 	if (not defined $success) {
 		$errormessage = $tr{'smoothd failure'};
 	}
+	$refresh = "<META HTTP-EQUIV='refresh' CONTENT='2; URL=apcupsd.cgi'>";
+}
+
+if ($apcupsdsettings{'ACTION'} eq $tr{'mail-test'}) {
+	system ("/usr/bin/smoothwall/upsd-notify.pl", "APCUPSD Test Message.");
+	if (-e "/dev/shm/upsd-notify_failed") {
+		$errormessage = $tr{'unsuccesful mail'};
+		unlink ("/dev/shm/upsd-notify_failed");
+	}
+	&readhash("/var/smoothwall/apcupsd/settings", \%apcupsdsettings);
 }
 
 $checked{'ENABLE'}{'off'} = '';
@@ -497,15 +516,86 @@ $checked{'MSGBATTDETACH'}{'off'} = '';
 $checked{'MSGBATTDETACH'}{'on'} = '';
 $checked{'MSGBATTDETACH'}{$apcupsdsettings{'MSGBATTDETACH'}} = 'CHECKED';
 
-&openpage('apcupsd', 1, '', 'services');
+$checked{'ENABLEAUTH'}{'off'} = '';
+$checked{'ENABLEAUTH'}{'on'} = '';
+$checked{'ENABLEAUTH'}{$apcupsdsettings{'ENABLEAUTH'}} = 'CHECKED';
+
+$checked{'SMTPS'}{'off'} = '';
+$checked{'SMTPS'}{'on'} = '';
+$checked{'SMTPS'}{$apcupsdsettings{'SMTPS'}} = 'CHECKED';
+
+$checked{'STARTTLS'}{'off'} = '';
+$checked{'STARTTLS'}{'on'} = '';
+$checked{'STARTTLS'}{$apcupsdsettings{'STARTTLS'}} = 'CHECKED';
+
+&openpage('apcupsd', 1, "$refresh", 'services');
 
 print <<END
-<FORM METHOD='POST' action='$END{'SCRIPT_NAME'}'>
+<FORM METHOD='POST' action='?' name='myform'>
 
 <script type="text/javascript">
+
 function ffoxSelectUpdate(elmt)
 {
     if(!document.all) elmt.style.cssText = elmt.options[elmt.selectedIndex].style.cssText;
+}
+
+function CheckAuth()
+{
+	if(document.myform.SMTPS.checked == true)
+	{
+	document.myform.ENABLEAUTH.checked = true;
+	document.myform.STARTTLS.checked = false;
+	document.myform.PORT.value = '465';
+	document.myform.USER.disabled = false;
+	document.myform.USER.style.backgroundColor = '#FFDDDD';
+	document.myform.EMAIL_PASSWORD.disabled = false;
+	document.myform.EMAIL_PASSWORD.style.backgroundColor = '#FFDDDD';
+	}
+	else
+	{
+	document.myform.PORT.value = '25';
+	}
+}
+
+function UncheckSMTPS()
+{
+	if (document.myform.ENABLEAUTH.checked == false)
+	{
+	document.myform.SMTPS.checked = false;
+	document.myform.STARTTLS.checked = false;
+	document.myform.PORT.value = '25';
+	document.myform.USER.disabled = true;
+	document.myform.USER.style.backgroundColor = '';
+	document.myform.EMAIL_PASSWORD.disabled = true;
+	document.myform.EMAIL_PASSWORD.style.backgroundColor = '';
+	}
+	else
+	{
+	document.myform.USER.disabled = false;
+	document.myform.USER.style.backgroundColor = '#FFDDDD';
+	document.myform.EMAIL_PASSWORD.disabled = false;
+	document.myform.EMAIL_PASSWORD.style.backgroundColor = '#FFDDDD';	
+	}
+}
+
+function CheckSTARTTLS()
+{
+	if(document.myform.STARTTLS.checked == true)
+	{
+	document.myform.ENABLEAUTH.checked = true;
+	document.myform.SMTPS.checked = false;
+	document.myform.STARTTLS.checked = true;
+	document.myform.PORT.value = '587';
+	document.myform.USER.disabled = false;
+	document.myform.USER.style.backgroundColor = '#FFDDDD';
+	document.myform.EMAIL_PASSWORD.disabled = false;
+	document.myform.EMAIL_PASSWORD.style.backgroundColor = '#FFDDDD';
+	}
+	else
+	{
+	document.myform.PORT.value = '25';
+	}
 }
 
 </script>
@@ -647,22 +737,52 @@ print <<END
 	<TD style='width:20%'></td>
 </TR>
 <TR>
-	<TD CLASS='base'></td>
-	<TD></td>
-	<TD CLASS='base'>$tr{'Send Alerts To'}:</TD>
-	<TD><INPUT TYPE='text'NAME='ALERTADDR' VALUE='$apcupsdsettings{'ALERTADDR'}'></TD>
+	<TD class='base'>$tr{'Send Alerts To'}:</TD>
+	<TD COLSPAN='2'><INPUT TYPE='text' NAME='EMAIL' style='width: 220px;' VALUE='$apcupsdsettings{'EMAIL'}'></TD>
+	<TD class='base' style='width: 90px;'>$tr{'Send Alerts From'}:</TD>
+       <TD COLSPAN='2'><INPUT TYPE='text' NAME='FROM' style='width: 220px;' VALUE='$apcupsdsettings{'FROM'}'></TD>
 </TR>
 <TR>
-	<TD CLASS='base'>$tr{'Mail Server'}:</TD>
-	<TD ><INPUT TYPE='text'NAME='MAILSVR' VALUE='$apcupsdsettings{'MAILSVR'}'></TD>
-	<TD CLASS='base'>$tr{'And To'}:</TD>
-	<TD><INPUT TYPE='text'NAME='CC1ADDR' VALUE='$apcupsdsettings{'CC1ADDR'}'></TD>
+	<TD class='base'><IMG SRC='/ui/img/blob.gif' ALT='*'>&nbsp;$tr{'And To'}:</TD>
+	<TD COLSPAN='2'><INPUT TYPE='text' NAME='CC' style='width: 220px;' VALUE='$apcupsdsettings{'CC'}'></TD>
+	<TD class='base'><IMG SRC='/ui/img/blob.gif' ALT='*'>&nbsp;$tr{'SMS Email Address'}:</TD>
+	<TD COLSPAN='2'><INPUT TYPE='text' NAME='SMSEMAIL' style='width: 220px;' VALUE='$apcupsdsettings{'SMSEMAIL'}'></TD>
 </TR>
 <TR>
-	<TD CLASS='base'>$tr{'Send Alerts From'}:</TD>
-	<TD><INPUT TYPE='text'NAME='FROMADDR' VALUE='$apcupsdsettings{'FROMADDR'}'></TD>
-	<TD CLASS='base'>$tr{'SMS Email Address'}:</TD>
-	<TD><INPUT TYPE='text'NAME='CC2ADDR' VALUE='$apcupsdsettings{'CC2ADDR'}'></TD>
+	<TD class='base'>$tr{'Mail Server'}:</TD>
+	<TD COLSPAN='2'><INPUT TYPE='text' NAME='SMTPSERVER' style='width: 220px;' VALUE='$apcupsdsettings{'SMTPSERVER'}'></TD>
+	<TD class='base'>Port:</TD>
+	<TD COLSPAN='2'><INPUT TYPE='text' NAME='PORT' style='width: 50px;' VALUE='$apcupsdsettings{'PORT'}'></TD>
+</TR>
+<TR style='height: 20px;'>
+	<TD>
+	</TD>
+</TR>
+</TABLE>
+<TABLE style='width: 100%; border: none; margin:1em auto 0 auto'>
+<TR>
+	<TD class='base'>$tr{'smtp-authc'}</TD>
+	<TD style='width: 2em;'><INPUT TYPE='checkbox' NAME='ENABLEAUTH' $checked{'ENABLEAUTH'}{'on'} onClick='javaScript:UncheckSMTPS();'></TD>
+	<TD class='base' style='width: 10em;'>$tr{'ssl-smtpsc'}</TD>
+	<TD><INPUT TYPE='checkbox' NAME='SMTPS' $checked{'SMTPS'}{'on'} onClick='javaScript:CheckAuth();'></TD>
+	<TD class='base' style='width:10em'>User:</TD>
+	<TD ><INPUT TYPE='text' NAME='USER' style='width: 15em;' VALUE='$apcupsdsettings{'USER'}'></TD>
+</TR>
+<TR>
+	<TD class='base' colspan='2'></TD>
+	<TD class='base'>$tr{'starttlsc'}</TD>
+	<TD><INPUT TYPE='checkbox' NAME='STARTTLS' $checked{'STARTTLS'}{'on'} onClick='javaScript:CheckSTARTTLS();'></TD>
+	<TD class='base'>Password:</TD>
+	<TD ><INPUT TYPE='password' NAME='EMAIL_PASSWORD' style='width: 15em;' VALUE='$apcupsdsettings{'EMAIL_PASSWORD'}'></TD>
+</TR>
+</TABLE>
+END
+;
+
+print <<END
+<TABLE style='width: 30%; border: none; margin:1em auto'>
+<TR>
+	<TD style='text-align: center;'><INPUT TYPE='submit' NAME='ACTION' TITLE='$tr{'email-test-tip'}' VALUE='$tr{'mail-test'}'></TD>
 </TR>
 </TABLE>
 END
@@ -757,6 +877,19 @@ print <<END;
 </TABLE>
 </FORM>
 END
+
+
+if ( $apcupsdsettings{'ENABLE'} eq 'on' and -f "/var/run/apcupsd.pid" )
+{
+	&openbox("$tr{'UPS Status'}:");
+
+	print "<div class='list' style='padding:.2em 1.25em; margin:1em'><pre>\n";
+	system ("/sbin/apcaccess");
+	print "</pre></div>\n";
+
+	&closebox();
+}
+
 
 &alertbox('add', 'add');
 

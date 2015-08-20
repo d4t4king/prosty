@@ -31,6 +31,7 @@
 ./httpd/cgi-bin/ipinfo.cgi
 ./httpd/cgi-bin/iptools.cgi
 ./httpd/cgi-bin/logs.cgi/proxylog.dat
+./httpd/cgi-bin/logs.cgi/log.dat
 ./httpd/cgi-bin/outgoing.cgi
 ./httpd/cgi-bin/portfw.cgi
 ./httpd/cgi-bin/smoothinfo.cgi
@@ -44,8 +45,15 @@
 ./httpd/html/ui/img/urlfilter/adblock.gif
 ./httpd/html/ui/img/urlfilter/adblock.png
 ./httpd/html/ui/img/urlfilter/adblock.xcf
+./httpd/html/ui/img/bottom-left.png
+./httpd/html/ui/img/bottom-right.png
+./httpd/html/ui/img/left.png
+./httpd/html/ui/img/right.png
+./httpd/html/ui/img/top-left.png
+./httpd/html/ui/img/top-right.png
 ./httpd/html/ui/js/script.js
 ./usr/bin/smoothwall/apcupsdkillpower.pl
+./usr/bin/smoothwall/upsd-notify.pl
 ./usr/bin/smoothwall/smoothinfo.pl
 ./usr/bin/smoothwall/stopsquid
 ./usr/bin/smoothwall/trafficloader.pl
@@ -59,6 +67,7 @@
 ./usr/lib/smoothwall/menu/2000_Services/8000_ups.list
 ./usr/lib/smoothwall/smoothnet.pm
 ./usr/lib/smoothwall/smoothtype.pm
+./var/smoothwall/apcupsd
 ./var/smoothwall/apcupsd/events
 ./var/smoothwall/apcupsd/settings
 ./var/smoothwall/proxy/cache

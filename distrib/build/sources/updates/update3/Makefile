@@ -4,6 +4,7 @@ UPDATE_PACKAGES = \
 		  c_icap_modules \
 		  clamav \
 		  coretree \
+		  daq \
 		  device-ids \
 		  dhcpcd \
 		  expat \
@@ -15,6 +16,7 @@ UPDATE_PACKAGES = \
 		  perl-mods \
 		  qemu \
 		  smoothd \
+		  snort \
 		  squid \
 		  squidclamav \
 		  tar \
