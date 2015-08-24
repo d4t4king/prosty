@@ -1,5 +1,12 @@
 language: c
 
-before_script: cd distrib/build; make predownload
+addons:
+  apt:
+    packages:
+      - inotify-tools
+      - bash
 
-script: make build
+before_install:
+  - sudo bash distrib/build/toolcrib/host_debian_inst
+
+script: ./run_build.sh

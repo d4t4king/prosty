@@ -7,8 +7,8 @@
 include ../Makefile.conf
 
 PACKAGE = glibc
-#VERSION = 2.18
-VERSION = 2.21
+VERSION = 2.18
+#VERSION = 2.21
 
 EXTENSION = .tar.bz2
 
@@ -53,7 +53,7 @@ else
 endif
 endif
 	cd $(DIR); sed -i -e 's/static __m128i/inline &/' sysdeps/x86_64/multiarch/strstr.c
-	cd $(DIR); sed -i -e 's/3\.79/4.0* | 3.79/' configure
+	cd $(DIR); sed -i -e 's/3\.79/4.[01]* | 3.79/' configure
 
 
 COMPILE = yes
