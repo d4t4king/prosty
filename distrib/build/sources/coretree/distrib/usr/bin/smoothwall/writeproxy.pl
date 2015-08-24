@@ -65,6 +65,10 @@ if ($netsettings{'PURPLE_DEV'})
 }
 
 print FILE "http_access deny all\n";
+
+# forward-proxy (intercept) port for Squid info (serve error pages, badges, icons, etc.)
+print FILE "http_port 3127\n\n";
+
 print FILE "http_port $netsettings{'GREEN_ADDRESS'}:800";
 if ($proxysettings{'TRANSPARENT'} eq 'on') {
 	print FILE " intercept"; 
@@ -102,7 +106,6 @@ if ($netsettings{'PURPLE_DEV'})
 }
 print FILE "http_port 127.0.0.1:800 intercept\n";
 print FILE <<END
-icp_port 7
 
 
 END
