@@ -9,4 +9,4 @@ addons:
       - bash
 before_install:
   - sudo bash distrib/build/toolcrib/host_debian_inst
-script: make build
+script: cd distrib/build; make build
