@@ -269,6 +269,7 @@ fi
       build beep2
       build tcpdump
       build dosfstools
+      build cracklib
 
 	  # sqlite should probably be built before DBD-SQLite in perl-mods
       build sqlite
