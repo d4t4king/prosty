@@ -24,6 +24,11 @@ if (-e "${swroot}/urlfilter/settings") {
 	&readhash("${swroot}/urlfilter/settings", \%filtersettings);
 }
 
+foreach $key ("MAX_OUTGOING_SIZE", "MAX_INCOMING_SIZE", "MIN_SIZE", "MAX_SIZE", "CACHE_SIZE")
+{
+    $proxysettings{$key} = 0 if ($proxysettings{$key} eq "");
+}
+
 open(FILE, ">/${swroot}/proxy/squid.conf") or die "Unable to write squid.conf file";
 flock(FILE, 2);
 print FILE <<END

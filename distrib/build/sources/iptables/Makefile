@@ -12,7 +12,6 @@ BASE_URL = http://www.netfilter.org/projects/iptables/files
 CONFIG_OPTS += --prefix=/usr --mandir=/usr/man --docdir=/usr/doc \
 	        --enable-devel --enable-libipq
 
-PATCH_FILE1 = ipt-rest.patch
 
 CONFIGURE = yes
 COMPILE = yes

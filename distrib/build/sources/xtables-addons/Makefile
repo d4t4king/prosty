@@ -9,7 +9,7 @@ VERSION =  $(XTABLES_ADDONS_VER)
 
 EXTENSION = .tar.xz
 
-BASE_URL = http://downloads.sourceforge.net/project/xtables-addons/Xtables-addons/$(VERSION)
+BASE_URL = http://downloads.sourceforge.net/project/xtables-addons/Xtables-addons
 
 PATCH_FILE1 = 64-bit-counters.patch
 

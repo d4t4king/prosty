@@ -1,0 +1,73 @@
+#!/bin/sh
+
+KERNEL_VERSION=3.4.108
+
+echo "Update 4 installing."
+
+# Unpack the patch
+/usr/bin/tar xvf patch.tar.gz -C /
+
+# Verify squid.conf symlink
+pushd /usr/etc
+/bin/rm -f squid.conf
+/bin/ln -s /var/smoothwall/proxy/squid.conf
+popd
+
+# Fix 'lost' ttyS0 getty
+pushd /etc
+/bin/grep -q "default 1" /boot/grub/grub.conf && sed -i -e '/^S0/s/off/respawn/' inittab
+/sbin/init q
+popd
+
+# Leave this for a few generations, just in case.
+echo "Remove unused file 'acl'"
+/bin/rm -f /var/smoothwall/proxy/acl
+
+# Fix /var/run
+chmod 1777 /var/run
+
+# Update the new initramfs
+mkdir /root/upd4-initramfs-unpack
+pushd /root/upd4-initramfs-unpack
+
+# Unpack
+/usr/bin/zcat /boot/initrd-${KERNEL_VERSION}.gz | /bin/cpio -id
+
+# Copy the disk/NIC rules
+pushd etc/udev/rules.d
+rm *
+/bin/cp /etc/udev/rules.d/* .
+popd
+
+# Copy the root mount info
+/bin/grep harddisk4 /etc/fstab | /usr/bin/sed -e 's=[ \t]*/[ \t]*=\t/harddisk\t=' > etc/fstab
+
+# Archive and remove old kernels, as needed
+pushd /lib/modules >/dev/null
+
+/bin/ls -dC1 [0-9.]* | \
+  /usr/bin/sed -e 's/\./ /g' -e 's=/$==' | \
+  /bin/sort -n -r -k 1 -k 2 -k 3 | \
+  /usr/bin/sed -e 's/ /./g' | \
+  /usr/bin/tail -n +3 | \
+  while read a; do
+    echo "Archiving and deleting old kernel $a"
+    pushd / >/dev/null
+    /usr/bin/find ./lib/modules/$a ./boot/initrd-$a.gz ./boot/vmlinuz-$a | \\
+        /bin/cpio -o -H newc | \\
+        /usr/bin/gzip > /root/linux-$a-archive.cpio.gz
+    /bin/rm -rf /lib/modules/$a
+    /bin/rm -f /boot/initrd-$a.gz
+    /bin/rm -f /boot/vmlinuz-$a
+    popd >/dev/null
+  done
+
+popd >/dev/null
+
+# Repack
+/usr/bin/find . | /bin/cpio -o -H newc | /usr/bin/gzip > /boot/initrd-${KERNEL_VER}.gz
+
+popd >/dev/null
+
+# Update grub
+/usr/bin/perl update-grub-kernel.pl

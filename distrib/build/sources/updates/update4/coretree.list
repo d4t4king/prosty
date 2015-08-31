@@ -1,0 +1,4 @@
+./httpd/cgi-bin/status.cgi
+./usr/bin/smoothwall/writeproxy.pl
+./usr/bin/smoothwall/gettime.pl
+./usr/lib/smoothwall/smoothtype.pm

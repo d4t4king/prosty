@@ -268,7 +268,7 @@ do_iptables(int argc, char* argv[])
 		return 0;
 
 #ifdef IP6T
-	ret = do_command6(argc, argv, &table, &current_table->handle);
+	ret = do_command6(argc, argv, &table, &current_table->handle, true);
 
 	if (!ret)
 	{
@@ -284,7 +284,7 @@ do_iptables(int argc, char* argv[])
 		}
 	}
 #else
-        ret = do_command4(argc, argv, &table, &current_table->handle);
+        ret = do_command4(argc, argv, &table, &current_table->handle, true);
 
 	if (!ret)
 	{
