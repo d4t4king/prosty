@@ -47,6 +47,6 @@ while ((<presentConf>))
 close(presentConf);
 
 # Let the admin choose the old kernel if desired
-print newConf "## Old Kernel\ntitle Boot Old kernel [$oldkern]\nfile /boot/grub/oldkernel.conf\n";
+print newConf "## Old Kernel\ntitle Boot Old kernel [$oldkern]\nconfigfile /grub/oldkernel.conf\n";
 
 rename "/boot/grub/newkernel.conf", "/boot/grub/grub.conf";

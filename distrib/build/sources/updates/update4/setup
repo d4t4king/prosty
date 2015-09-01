@@ -1,5 +1,6 @@
 #!/bin/sh
 
+OLD_KERNEL=3.4.104
 KERNEL_VERSION=3.4.108
 
 echo "Update 4 installing."
@@ -15,7 +16,7 @@ popd
 
 # Fix 'lost' ttyS0 getty
 pushd /etc
-/bin/grep -q "default 1" /boot/grub/grub.conf && sed -i -e '/^S0/s/off/respawn/' inittab
+/bin/grep -q "default 1" /boot/grub/grub.conf && /usr/bin/sed -i -e '/^S0/s/off/respawn/' inittab
 /sbin/init q
 popd
 
@@ -35,12 +36,12 @@ pushd /root/upd4-initramfs-unpack
 
 # Copy the disk/NIC rules
 pushd etc/udev/rules.d
-rm *
+rm -f *
 /bin/cp /etc/udev/rules.d/* .
 popd
 
 # Copy the root mount info
-/bin/grep harddisk4 /etc/fstab | /usr/bin/sed -e 's=[ \t]*/[ \t]*=\t/harddisk\t=' > etc/fstab
+/bin/grep harddisk4 /etc/fstab | /usr/bin/sed -e 's=[ \t][ \t]*/[ \t][ \t]*= /harddisk =' > etc/fstab
 
 # Archive and remove old kernels, as needed
 pushd /lib/modules >/dev/null
@@ -65,9 +66,10 @@ pushd /lib/modules >/dev/null
 popd >/dev/null
 
 # Repack
-/usr/bin/find . | /bin/cpio -o -H newc | /usr/bin/gzip > /boot/initrd-${KERNEL_VER}.gz
+/usr/bin/find . | /bin/cpio -o -H newc | /usr/bin/gzip > /boot/initrd-${KERNEL_VERSION}.gz
+chmod 644 /boot/initrd-${KERNEL_VERSION}.gz
 
 popd >/dev/null
 
 # Update grub
-/usr/bin/perl update-grub-kernel.pl
+/usr/bin/perl update-grub-kernel.pl $OLD_KERNEL $KERNEL_VERSION

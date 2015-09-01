@@ -15,10 +15,13 @@ distrib:
 	@cp -avR tree/* distrib
 
 	@chown -R root:root distrib/
+
 	@chmod -v 700 distrib/root
 	@chmod -v 1777 distrib/tmp
 	@chmod -v 600 distrib/etc/shadow
 	@chmod -v 644 distrib/etc/crontab
+	@chmod -v 644 distrib/etc/logrotate.conf
+	@chmod -v 644 distrib/etc/logrotate.d/*
 
 	@chown -R nobody:nobody distrib/var/smoothwall
 	@chown -R nobody:nobody distrib/var/smoothwall-*

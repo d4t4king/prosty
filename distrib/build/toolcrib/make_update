@@ -1,4 +1,4 @@
-#! /tools/bin/bash +h
+#! /bin/bash +h
 #
 # SmoothWall Build system.
 #
