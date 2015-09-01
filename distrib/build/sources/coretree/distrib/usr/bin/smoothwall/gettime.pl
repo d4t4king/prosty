@@ -10,7 +10,9 @@ my $count;
 
 &readhash("${swroot}/time/settings", \%timesettings);
 
-if ($timesettings{'ENABLED'} ne 'on' and $timesettings{'NTP_METHOD'} ne $tr{'time method periodic'})
+# If the service is off, or if the service is 'on' but the method is not 'Automatic', exit.
+if ( $timesettings{'ENABLED'} ne 'on' or 
+    ($timesettings{'ENABLED'} eq 'on' and $timesettings{'NTP_METHOD'} ne $tr{'time method periodic'}))
 {
 	exit 0;
 }

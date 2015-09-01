@@ -6,8 +6,8 @@
 
 include ../Makefile.conf
 
-PACKAGE = cracklib
-VERSION = 2.9.5
+PACKAGE = aide
+VERSION = 0.15.1
 
 BASE_URL = http://iweb.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/$(VERSION)
 
