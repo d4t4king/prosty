@@ -226,6 +226,7 @@ endif
 	@cd distrib; chown -R root:root usr/share/ntop usr/etc/ntop
 	@cd distrib/etc; mkdir -p apcupsd/scripts && chown root:root apcupsd/scripts && chmod 755 apcupsd/scripts
 	@cd distrib-doc; chown -R root:root .
+	@cd /bin; ln -s /usr/bin/gzip gzip
 	
 	@echo "      copy to Dev ..." >>$(MEDIA_BUILD_OUT)
 	@mkdir cdrom-dev

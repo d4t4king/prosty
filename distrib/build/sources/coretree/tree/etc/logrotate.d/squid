@@ -5,7 +5,7 @@
     copytruncate
     notifempty
     missingok
-    nocompress
+    compress
 }
 /var/log/squid/cache.log {
     su squid squid
