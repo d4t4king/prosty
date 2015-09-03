@@ -50,11 +50,12 @@ INST_PKGS = glibc libsmooth+setup libgcc freetype libpng libdnet \
 	    ibod dhcpcd eciadsl-synch_bin eciadsl-usermode dhcp snort \
 	    oinkmaster openswan wireless_tools imspector diffutils clamav \
 	    p3scan siproxd which miniupnpd ez-ipupdate noip cdrtools \
-	    suricata smartmontools at dosfstools e2fsprogs grub linux-atm \
+	    smartmontools at dosfstools e2fsprogs grub linux-atm \
 	    mtools nano reiserfsprogs parted xtables-addons cpio dialog \
 	    $(UDEV) lm_sensors xz pcmciautils qemu sysfsutils db squidGuard \
 	    apcupsd cacert-bundle setkerneltz htop curl iptraf-ng \
-	    kernel-drivers ruby cracklib aide \
+	    kernel-drivers ruby cracklib libgpg-error libgcrypt libksba \
+	    libassuan linux-pam aide \
 	    coretree $(ADV_PKGS) device-ids
 
 # INST_PKGS notes.

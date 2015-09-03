@@ -6,11 +6,10 @@
 
 include ../Makefile.conf
 
-PACKAGE = aide
-VERSION = 0.15.1
+PACKAGE = libgpg-error
+VERSION = 1.20
 
-BASE_URL = http://iweb.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/$(VERSION)
-
-CONFIG_OPTS = --prefix=$(PKG_DIR) --disable-static
+EXTENSION = .tar.bz2
+BASE_URL = https://www.gnupg.org/ftp/gcrypt/$(PACKAGE)
 
 include ../Makefile.rules

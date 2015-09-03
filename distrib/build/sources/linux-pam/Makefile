@@ -6,11 +6,11 @@
 
 include ../Makefile.conf
 
-PACKAGE = aide
-VERSION = 0.15.1
+PACKAGE = Linux-PAM
+VERSION = 1.2.1
 
-BASE_URL = http://iweb.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/$(VERSION)
+BASE_URL = http://linux-pam.org/library/
 
-CONFIG_OPTS = --prefix=$(PKG_DIR) --disable-static
+EXTENSION = tar.bz2
 
 include ../Makefile.rules

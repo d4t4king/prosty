@@ -6,11 +6,12 @@
 
 include ../Makefile.conf
 
-PACKAGE = aide
-VERSION = 0.15.1
+PACKAGE = libgcrypt
+VERSION = 1.6.3
 
-BASE_URL = http://iweb.dl.sourceforge.net/project/$(PACKAGE)/$(PACKAGE)/$(VERSION)
+EXTENSION = .tar.bz2
+BASE_URL = https://www.gnupg.org/ftp/gcrypt/$(PACKAGE)
 
-CONFIG_OPTS = --prefix=$(PKG_DIR) --disable-static
+CONFIG_OPTS = --prefix=$(PKG_DIR) --enable-random=linux
 
 include ../Makefile.rules
