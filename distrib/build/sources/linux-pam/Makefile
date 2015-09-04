@@ -11,6 +11,6 @@ VERSION = 1.2.1
 
 BASE_URL = http://linux-pam.org/library/
 
-EXTENSION = tar.bz2
+EXTENSION = .tar.bz2
 
 include ../Makefile.rules
