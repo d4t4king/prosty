@@ -6,5 +6,4 @@ pushd distrib/build
 make predownload
 #make build
 #make media
-popd
-
+#popd
