@@ -2,7 +2,7 @@ off-the-wall
 ============
 Smoothwall Express 3.1.....plus some.
 
-https://travis-ci.org/d4t4king/off-the-wall.svg?branch=master
+[img]https://travis-ci.org/d4t4king/off-the-wall.svg?branch=master[/img]
 
 Added so far:
 * AIDE (and supporting libs)
