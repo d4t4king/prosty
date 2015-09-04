@@ -40,7 +40,7 @@ function set_build_environment() {
 
   # DISTRIB_PATH is the 'root' of the build tree; it is the same for building
   #   the tool chain and for the final build.
-  export DISTRIB_PATH=`pwd | sed -e 's=\(wall\)/build.*=\1='`
+  export DISTRIB_PATH=`pwd | sed -e 's=\(distrib\)/build.*=\1='`
 
   # Now get the toolchain lib path
   case $BUILD_PHASE in
