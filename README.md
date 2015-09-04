@@ -2,7 +2,16 @@ off-the-wall
 ============
 Smoothwall Express 3.1.....plus some.
 
+![Travis-CI Build Status Image](https://travis-ci.org/d4t4king/off-the-wall.svg?branch=master)
+
 Added so far:
+* AIDE (and supporting libs)
+	* libgpg-error
+	* libgcrypt
+	* libskba
+	* libassuan
+* cracklib
+* linux-pam
 * ruby -- the newest addition. I find myself scripting with it more and more, it'd just be really handy to have it on SWE.
 * iptraf-ng
 * curl
