@@ -105,8 +105,8 @@ all: clean bin lib klibc
 	  #ln -sf proc/self/fd/2 /lib/udev/devices/stderr; \
 	#
 	
-	cd tmp; [ -l sbin ] || (mv sbin/* bin; rmdir sbin; ln -s bin sbin)
-	cd tmp/usr; [ -l sbin ] || (mv sbin/* bin; rmdir sbin; ln -s bin sbin)
+	cd tmp; [ -L sbin ] || (mv sbin/* bin; rmdir sbin; ln -s bin sbin)
+	cd tmp/usr; [ -L sbin ] || (mv sbin/* bin; rmdir sbin; ln -s bin sbin)
 	
 ifeq ($(BITS_64), yes)
 	cd tmp; [ -e lib64 ] || ln -s lib lib64

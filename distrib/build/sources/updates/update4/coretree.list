@@ -1,4 +1,7 @@
+./etc/crontab
 ./etc/logrotate.d/squid
+./etc/rc.d/backupscript
+./etc/rc.d/restorescript
 ./httpd/cgi-bin/status.cgi
 ./usr/bin/smoothwall/writeproxy.pl
 ./usr/bin/smoothwall/gettime.pl

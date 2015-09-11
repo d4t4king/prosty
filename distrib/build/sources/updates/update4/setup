@@ -16,8 +16,9 @@ popd >/dev/null 2>&1
 
 echo "  Compress squid log files as needed"
 pushd /var/log/squid >/dev/null 2>&1
-ls -1 {access,cache}.log.[0-9] 2>/dev/null | while read a; do
-  gzip "$a"
+ls -1s {access,cache}.log.[0-9] 2>/dev/null | egrep -v "^total" | while read size a; do
+  # Force compression in case the respective .gz exists (from an earlier failed attempt)
+  gzip -f "$a"
 done
 popd >/dev/null 2>&1
 

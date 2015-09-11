@@ -13,7 +13,7 @@ TARGET_DIR = ../../../target
 
 OUTPUT_FILENAME = $(BASENAME)-$(UPDATE_NAME)-$(mARCH).tar.gz
 
-all: clean $(OUTPUT_FILENAME) updateinfo
+all: clean updateinfo $(OUTPUT_FILENAME)
 
 patch.tar.gz: ../../../crumbs/Final.built
 	# Prep the tree
@@ -59,8 +59,6 @@ patch.tar.gz: ../../../crumbs/Final.built
 	# Build the patchball
 	@echo "Building patch.tar.gz, stand by ..."
 	tar cfz patch.tar.gz -C distrib .
-	# ----
-	tar cfz inspection-$(mARCH).tar.gz setup patch.tar.gz review
 
 updateinfo:
 	@echo "Building update information file ..."	
@@ -68,12 +66,14 @@ updateinfo:
 	# ----
 
 $(OUTPUT_FILENAME): patch.tar.gz updateinfo
-	@echo "Making update file ..."
+	@echo "Making update and inspection tarballs ..."
 ifdef KERNEL
 	cp ../update-grub-kernel.pl .
 	tar cfz $(OUTPUT_FILENAME) patch.tar.gz setup information update-grub-kernel.pl $(EXTRA_UPDATE_FILES)
+	tar cfz inspection-$(mARCH).tar.gz patch.tar.gz setup information update-grub-kernel.pl review $(EXTRA_UPDATE_FILES)
 else
 	tar cfz $(OUTPUT_FILENAME) patch.tar.gz setup information $(EXTRA_UPDATE_FILES)
+	tar cfz inspection-$(mARCH).tar.gz patch.tar.gz setup information review $(EXTRA_UPDATE_FILES)
 endif
 
 clean:

@@ -7,6 +7,7 @@ UPDATE_PACKAGES = \
 		  openswan \
 		  smoothd \
 		  snort \
+		  squid \
 		  trafficstats \
 		  kernel-drivers \
 		  coretree

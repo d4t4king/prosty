@@ -24,7 +24,7 @@ else
 
 if ($backupversion =~ /^3.1/)
 {
-	&cleanup('adsl', 'advnet', 'auth', 'backup',
+	&cleanup('adsl', 'advnet', 'apcupsd', 'auth', 'backup',
 		'ddns', 'dhcp', 'dmzholes', 'ethernet', 'ipblock', 'isdn',
 		'modem', 'portfw', 'ppp', 'proxy', 'remote', 'snort',
 		'time', 'vpn', 'xtaccess', 'clamav', 'hosts', 'im', 'outgoing',

@@ -149,7 +149,7 @@ all: clean bin lib klibc
 	(cd tmp; mkdir -p local; cd local; \
 	  tar xfz /build/target/smoothwall-gzip.tar.gz)
 
-	cd tmp; [ -l sbin ] || (mv sbin/* bin; rmdir sbin; ln -s bin sbin)
+	cd tmp; [ -L sbin ] || (mv sbin/* bin; rmdir sbin; ln -s bin sbin)
 
 ifeq ($(BITS_64), yes)
 	(cd tmp; [ -e lib64 ] || ln -s lib lib64)
