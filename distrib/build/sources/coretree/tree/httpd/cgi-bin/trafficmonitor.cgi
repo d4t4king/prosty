@@ -94,14 +94,10 @@ function xmlhttpPost()
 		}
     	}
 
-	document.getElementById('status').style.display = "inline";
-
     	self.xmlHttpReq.send( null );
 }
 
 function updatepage(str){
-	document.getElementById('status').style.display = "none";
-
 	/* determine the interfaces we're supposed to be dealing with, wherever they may be */
 
 	var rows = str.split( '\\n' );
@@ -357,7 +353,6 @@ print qq{
 	</style>
 
 	<div style='width: 100%; text-align: right;' id='dbg'></div>
-	<div style='width: 100%; text-align: right;'><span id='status' style='background-color: #fef1b5; display: none;'>Updating</span>&nbsp;</div>
 	<div id='content' style='width: 100%; overflow: auto; vertical-align: bottom; border-bottom: solid 1px #c0c0c0; overflow-x: hidden;'></div>
 	<script>xmlhttpPost(); fader();</script>
 };
