@@ -40,7 +40,10 @@ function set_build_environment() {
 
   # DISTRIB_PATH is the 'root' of the build tree; it is the same for building
   #   the tool chain and for the final build.
-  export DISTRIB_PATH=`pwd | sed -e 's=\(distrib\)/build.*=\1='`
+  ### The below line allows the system to build on Trvis-CI (sort of).
+  ### But it breaks `make media'.  DSo disabling until a later date.
+  #export DISTRIB_PATH=`pwd | sed -e 's=\(distrib\)/build.*=\1='`
+  export DISTRIB_PATH=`pwd | sed -e 's=/build.*=='`
 
   # Now get the toolchain lib path
   case $BUILD_PHASE in

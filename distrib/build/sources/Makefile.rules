@@ -72,7 +72,8 @@ endif
 
 ifndef INSTALL
 install: compile
-	mkdir -p $(PKG_ROOT)
+	@(echo $PKG_ROOT; \
+	mkdir -p $(PKG_ROOT))
 	+$(MAKE) -C $(COMPILE_DIR) DESTDIR=$(PKG_ROOT) install
 endif
 
