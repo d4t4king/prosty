@@ -28,7 +28,6 @@ echo "Mounting devtmpfs"
 /bin/mkdir -p /dev/pts
 /bin/mount -t devpts -o gid=5,mode=620 devpts /dev/pts
 
-
 # Populating dev
 echo "If you added one or more NICs to an existing system, startup may"
 echo "  hang here for a minute waiting for udev. Please be patient."

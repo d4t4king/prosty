@@ -79,7 +79,16 @@ while [ 1 -eq 1 ]; do
       model=`$UDEVINFO | grep ID_MODEL= | sed -e 's/.*=//'`
       [ -z "$model" ] && model=`cat ${device}/device/model 2>&1 | sed -e 's/ /-/g'`
       [ -z "$model" ] && model="UNK_MODEL"
+
+      # First try ID_SERIAL_SHORT; if not found, 'serial' will remain blank. This should work for
+      #   all plain non-RAID SCSI/SATA/IDE drives
       serial=`$UDEVINFO | grep ID_SERIAL_SHORT | sed -e 's/.*=//'`
+
+      # Now try ID_SCSI; again, if not found, 'serial' will remain blank. This should set a 'serial #'
+      #   for the Fusion MPT driver, if not all SCSI RAID 'drives'.
+      [ -z "$serial" ] && serial=`$UDEVINFO | grep ID_SCSI | sed -e 's/.*=//'`
+
+      # If serial is still blank, neither ID_SERIAL_SHORT nor ID_SCSI are available.
       if [ -z "$serial" ]; then
         # non-virtio disks
         [ -f "${device}/device/serial" ] && serial=`cat ${device}/device/serial 2>&1 | sed -e 's/ /-/g'`
