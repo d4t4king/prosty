@@ -2,9 +2,9 @@
 
 . /etc/rc.d/inc.rc-functions
 
-mkdir -p /earlylog
-echo "*.*		-/earlylog/messages" > /earlylog/syslog.conf
-/usr/sbin/syslogd -m 0 -f /earlylog/syslog.conf
+mkdir -p /dev/earlylog
+echo "*.*		-/dev/earlylog/messages" > /dev/earlylog/syslog.conf
+/usr/sbin/syslogd -m 0 -f /dev/earlylog/syslog.conf
 echolog "e" "s" "" "Started early syslogd"
 
 # Initialize the system clock with the hardware clock ASAP
@@ -117,8 +117,8 @@ mount /var/log
 
 echolog "e" "s" "" "Kill early syslogd"
 killall syslogd
-cat /earlylog/messages >> /var/log/messages
-rm -rf /earlylog
+cat /dev/earlylog/messages >> /var/log/messages
+rm -rf /dev/earlylog
 
 echolog "e" "s" "" "Start syslogd"
 /usr/sbin/syslogd -m 0
