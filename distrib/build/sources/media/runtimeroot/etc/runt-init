@@ -38,6 +38,14 @@ echo "  hang here for a minute waiting for udev. Please be patient."
 # Load any modules explicitly required
 test -e /etc/modules && egrep -v "^$|^#" /etc/modules | while read a; do modprobe $a; done
 
+# Brute-force create harddisk links if udev didn't; this should fix many SCSI/RAID
+#   logical drives.
+if [ -e /dev/sda4 -a ! -e /dev/harddisk4 ]; then
+    for i in "" 1 2 3 4; do
+    ln -s -f /dev/sda$i /dev/harddisk$i
+  done
+fi
+
 # Switch to hard drive and start the system
 /bin/mount /harddisk -o ro
 

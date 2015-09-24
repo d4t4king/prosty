@@ -2,6 +2,11 @@
 
 . /etc/rc.d/inc.rc-functions
 
+mkdir -p /earlylog
+echo "*.*		-/earlylog/messages" > /earlylog/syslog.conf
+/usr/sbin/syslogd -m 0 -f /earlylog/syslog.conf
+echolog "e" "s" "" "Started early syslogd"
+
 # Initialize the system clock with the hardware clock ASAP
 echolog "e" "s" "" "Initialize the clock"
 /sbin/hwclock --hctosys --localtime
@@ -110,6 +115,14 @@ echolog "e" "s" "" "Mount other filesystems"
 mount /boot
 mount /var/log
 
+echolog "e" "s" "" "Kill early syslogd"
+killall syslogd
+cat /earlylog/messages >> /var/log/messages
+rm -rf /earlylog
+
+echolog "e" "s" "" "Start syslogd"
+/usr/sbin/syslogd -m 0
+
 # Deal with potentially changed NICs
 /usr/sbin/compareMACs
 
@@ -194,9 +207,6 @@ chmod g=r /usr/etc/token[123].sum
 
 echolog "e" "s" "" "Generate UPNP UUID"
 /usr/bin/uuidgen >/etc/miniupnpd.uuid
-
-echolog "e" "s" "" "Start syslogd"
-/usr/sbin/syslogd -m 0
 
 echolog "e" "s" "" "Load other filesystems"
 /sbin/modprobe msdos
