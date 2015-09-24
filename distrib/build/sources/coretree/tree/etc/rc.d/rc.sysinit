@@ -4,7 +4,7 @@
 
 mkdir -p /dev/earlylog
 echo "*.*		-/dev/earlylog/messages" > /dev/earlylog/syslog.conf
-/usr/sbin/syslogd -m 0 -f /dev/earlylog/syslog.conf
+/usr/sbin/syslogd -d -m 0 -f /dev/earlylog/syslog.conf >/dev/null 2>&1 &
 echolog "e" "s" "" "Started early syslogd"
 
 # Initialize the system clock with the hardware clock ASAP
@@ -120,8 +120,8 @@ killall syslogd
 cat /dev/earlylog/messages >> /var/log/messages
 rm -rf /dev/earlylog
 
-echolog "e" "s" "" "Start syslogd"
 /usr/sbin/syslogd -m 0
+echolog "e" "s" "" "Started syslogd"
 
 # Deal with potentially changed NICs
 /usr/sbin/compareMACs
