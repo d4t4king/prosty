@@ -61,6 +61,15 @@ echolog "e" "s" "" "Make /dev/shm a tmpfs, mode 1777"
 mount -t tmpfs tmpfs /dev/shm
 chmod 1777 /dev/shm
 
+# If udev didn't create the /dev/harddisk* symlinks, brute-force them. This should
+#   fix a number of SCSI RAID systems.
+if [ -e /dev/sda4 -a ! -e /dev/harddisk4 ]; then
+  echolog "e" "s" "" "Make missing /dev/harddisk* symlinks to /dev/sda*"
+  for i in "" 1 2 3 4; do
+    ln -s -f /dev/sda$i /dev/harddisk$i
+  done
+fi
+
 # This flag ensures that the check for updates and the machine registry happens only
 #   once per boot. The first time RED comes up, they will run and this will be deleted.
 #   Must be done *after* the R/W remount.
