@@ -70,14 +70,14 @@ function _enable(field)
 function _error(field)
 {
 	if ( document.getElementById(field) ){
-		document.getElementById(field).style.backgroundColor = '#FFdddd';
+		document.getElementById(field).style.backgroundColor = 'rgba(255,0,0,.2)';
 	}
 }
 
 function _ok(field)
 {
 	if ( document.getElementById(field) ){
-		document.getElementById(field).style.backgroundColor = 'white';
+		document.getElementById(field).style.backgroundColor = 'rgba(0,127,0,.05)';
 	}
 }
 	

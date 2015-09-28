@@ -223,17 +223,17 @@ sub display_speeds
         <td class='base' style='width:25%'>$tr{'traffic external up'}</td>
         <td style='width:25%'>
 		<input type='text' name='UPLOAD_SPEED' value='$settings->{'UPLOAD_SPEED'}'
-			size='11' style='text-align:right'/>&nbsp;bits/sec</td>
+			size='11' style='text-align:right' id='upload_speed' @{[jsvalidnumber('upload_speed', 0, 10000000000)]} >&nbsp;bits/sec</td>
       </tr>
       <tr>
         <td class='base'>$tr{'traffic internal speed'}</td>
         <td>
 		<input type='text' name='INTERNAL_SPEED' value='$settings->{'INTERNAL_SPEED'}'
-			size='11' style='text-align:right'/>&nbsp;bits/sec</td>
+			size='11' style='text-align:right' id='internal_speed' @{[jsvalidnumber('internal_speed', 0, 10000000000)]} />&nbsp;bits/sec</td>
         <td class='base' >$tr{'traffic external down'}</td>
         <td>
 		<input type='text' name='DOWNLOAD_SPEED' value='$settings->{'DOWNLOAD_SPEED'}'
-			size='11' style='text-align:right'/>&nbsp;bits/sec</td>
+			size='11' style='text-align:right' id='download_speed' @{[jsvalidnumber('download_speed', 0, 10000000000)]} />&nbsp;bits/sec</td>
       </tr>
     </table>
 ";

@@ -38,8 +38,8 @@ fi
   echo "SUBSYSTEM==\"block\",KERNEL==\"[hs]d*|cciss*\",ENV{DEVTYPE}==\"partition\",ENV{ID_SERIAL_SHORT}==\"${serial}\", SYMLINK+=\"harddisk%n\""
   echo "SUBSYSTEM==\"block\",KERNEL==\"vd*\",ENV{DEVTYPE}==\"disk\",ENV{ID_SERIAL}==\"${serial}\", SYMLINK+=\"harddisk\""
   echo "SUBSYSTEM==\"block\",KERNEL==\"vd*\",ENV{DEVTYPE}==\"partition\",ENV{ID_SERIAL}==\"${serial}\", SYMLINK+=\"harddisk%n\""
-  echo "SUBSYSTEM==\"block\",KERNEL==\"sd*|cciss*\",ENV{DEVTYPE}==\"disk\",ENV{ID_SERIAL_SHORT}==\"\",ENV{ID_SCSI}==\"${serial}\", SYMLINK+=\"harddisk\""
-  echo "SUBSYSTEM==\"block\",KERNEL==\"sd*|cciss*\",ENV{DEVTYPE}==\"partition\",ENV{ID_SERIAL_SHORT}==\"\",ENV{ID_SCSI}==\"${serial}\", SYMLINK+=\"harddisk%n\""
+    echo "BUS==\"scsi\",KERNEL==\"sd*\",ENV{DEVTYPE}==\"disk\",ENV{ID_SERIAL_SHORT}==\"\",ENV{ID_SCSI}==\"${serial}\", SYMLINK+=\"harddisk\""
+    echo "BUS==\"scsi\",KERNEL==\"sd*\",ENV{DEVTYPE}==\"partition\",ENV{ID_SERIAL_SHORT}==\"\",ENV{ID_SCSI}==\"${serial}\", SYMLINK+=\"harddisk%n\""
   echo
   
 ) > /etc/udev/rules.d/70-Smoothwall-custom-disk.rules

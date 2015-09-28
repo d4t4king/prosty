@@ -81,8 +81,8 @@ echo "Tweaking udev" >/dev/tty2
     echo "SUBSYSTEM==\"block\",KERNEL==\"[hs]d*|cciss*\",ENV{DEVTYPE}==\"partition\",ENV{ID_SERIAL_SHORT}==\"${hd_id[$hd]}\", SYMLINK+=\"harddisk%n\""
     echo "SUBSYSTEM==\"block\",KERNEL==\"vd*\",ENV{DEVTYPE}==\"disk\",ENV{ID_SERIAL}==\"${hd_id[$hd]}\", SYMLINK+=\"harddisk\""
     echo "SUBSYSTEM==\"block\",KERNEL==\"vd*\",ENV{DEVTYPE}==\"partition\",ENV{ID_SERIAL}==\"${hd_id[$hd]}\", SYMLINK+=\"harddisk%n\""
-    echo "SUBSYSTEM==\"block\",KERNEL==\"sd*|cciss*\",ENV{DEVTYPE}==\"disk\",ENV{ID_SERIAL_SHORT}==\"\",ENV{ID_SCSI}==\"${serial}\", SYMLINK+=\"harddisk\""
-    echo "SUBSYSTEM==\"block\",KERNEL==\"sd*|cciss*\",ENV{DEVTYPE}==\"partition\",ENV{ID_SERIAL_SHORT}==\"\",ENV{ID_SCSI}==\"${serial}\", SYMLINK+=\"harddisk%n\""
+    echo "SUBSYSTEM==\"block\",BUS==\"scsi\",KERNEL==\"sd*\",ENV{DEVTYPE}==\"disk\",ENV{ID_SERIAL_SHORT}==\"\",ENV{ID_SCSI}==\"${hd_id[$hd]}\", SYMLINK+=\"harddisk\""
+    echo "SUBSYSTEM==\"block\",BUS==\"scsi\",KERNEL==\"sd*\",ENV{DEVTYPE}==\"partition\",ENV{ID_SERIAL_SHORT}==\"\",ENV{ID_SCSI}==\"${hd_id[$hd]}\", SYMLINK+=\"harddisk%n\""
     echo
     
   ) > /etc/udev/rules.d/70-Smoothwall-custom-disk.rules

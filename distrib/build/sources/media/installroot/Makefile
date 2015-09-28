@@ -106,7 +106,12 @@ all: clean bin lib klibc
 	  sed -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' \
 	      -e 's/KeRnElTyPe/$(KERNEL_TYPE)/' <../etc/exec-install.rc.src \
 	    >etc/exec-install.rc; \
-	  chmod 755 etc/exec-install.rc; \
+	  sed -e 's/PRODUCT_NAME/$(PRODUCT_NAME)/' \
+	      -e 's/PRODUCT_VERSION/$(PRODUCT_VERSION)/' \
+	      -e 's/PRODUCT_EXTRA/$(PRODUCT_EXTRA)/' \
+	      -e 's/mARCH/$(mARCH)/' <../etc/config-install.rc.src \
+	    >etc/config-install.rc; \
+	  chmod 755 etc/exec-install.rc etc/config-install.rc; \
 	  cp -aR ../../../../toolcrib/make_flash etc/auto_flash; chmod 755 etc/auto_flash; \
 	  cp -aR ../etc/eth-addr-sort etc; chmod 755 etc/eth-addr-sort; \
 	  cp -aR ../etc/udev-trigger.rc etc; chmod 755 etc/udev-trigger.rc; \

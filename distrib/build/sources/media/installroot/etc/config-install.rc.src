@@ -22,7 +22,7 @@ HDs="ide:m-disk|scsi:t-0x00"
 PCI_IDS="/etc/filled.pci.ids"
 
 # Uber title
-BACKTITLE="Smoothwall Express 3.1 Installation"
+BACKTITLE="Smoothwall PRODUCT_NAME PRODUCT_VERSIONPRODUCT_EXTRA (mARCH) -- http://smoothwall.org"
 TITLE="${CLS}                      ${BOUL}$BACKTITLE${NO}"
 
 dlgCmd="--backtitle '$BACKTITLE' --title 'Begin Advanced Installation'"
@@ -37,7 +37,7 @@ dlgCmd="${dlgCmd}  - Reboot & start the firewall\n"
 dlgCmd="${dlgCmd}\nHit <ENTER> to continue...' 0 0"
 rsp=`eval dialog --colors $dlgCmd 2>&1 >/dev/tty`
 
-echo -e "$TITLE"; echo
+echo -e "${CLS}${BACKTITLE}"; echo
 #echo "Preparing lists of CDROM and hard drives and NICs"
 echo "Preparing lists of CDROMs and hard drives"
 OPWD=$PWD
@@ -575,7 +575,7 @@ done
 fi # skipping NIC rename
 
 while [ 1 == 1 ]; do
-  echo -e "$TITLE"
+  echo -e "${CLS}${BACKTITLE}"
   echo
   echo
 
