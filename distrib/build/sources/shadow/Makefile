@@ -13,7 +13,7 @@ BASE_URL = http://downloads.smoothwall.org/buildmirror
 
 INSTALL = yes
 
-CONFIG_OPTS= --with-selinux=no
+CONFIG_OPTS = --with-selinux=no
 
 install: compile
 	@mkdir -p $(PKG_ROOT)

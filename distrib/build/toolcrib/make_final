@@ -134,6 +134,7 @@ fi
       JOBS=$JOBS_UP
       build net-tools
       JOBS=$JOBS_MP
+      build linux-pam
       build inetutils
       touch crumbs/Final.grp1.compiled
     fi
@@ -274,7 +275,6 @@ fi
       build tcpdump
       build dosfstools
       build cracklib
-      build linux-pam
 
 	  # sqlite should probably be built before DBD-SQLite in perl-mods
       build sqlite

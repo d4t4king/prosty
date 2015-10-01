@@ -2,6 +2,11 @@
 
 . /etc/rc.d/inc.rc-functions
 
+mkdir -p /dev/earlylog
+echo "*.*		-/dev/earlylog/messages" > /dev/earlylog/syslog.conf
+/usr/sbin/syslogd -d -m 0 -f /dev/earlylog/syslog.conf >/dev/null 2>&1 &
+echolog "e" "s" "" "Started early syslogd"
+
 # Initialize the system clock with the hardware clock ASAP
 echolog "e" "s" "" "Initialize the clock"
 /sbin/hwclock --hctosys --localtime
@@ -56,6 +61,15 @@ echolog "e" "s" "" "Make /dev/shm a tmpfs, mode 1777"
 mount -t tmpfs tmpfs /dev/shm
 chmod 1777 /dev/shm
 
+# If udev didn't create the /dev/harddisk* symlinks, brute-force them. This should
+#   fix a number of SCSI RAID systems.
+if [ -e /dev/sda4 -a ! -e /dev/harddisk4 ]; then
+  echolog "e" "s" "" "Make missing /dev/harddisk* symlinks to /dev/sda*"
+  for i in "" 1 2 3 4; do
+    ln -s -f /dev/sda$i /dev/harddisk$i
+  done
+fi
+
 # This flag ensures that the check for updates and the machine registry happens only
 #   once per boot. The first time RED comes up, they will run and this will be deleted.
 #   Must be done *after* the R/W remount.
@@ -109,6 +123,14 @@ fi
 echolog "e" "s" "" "Mount other filesystems"
 mount /boot
 mount /var/log
+
+echolog "e" "s" "" "Kill early syslogd"
+killall syslogd
+cat /dev/earlylog/messages >> /var/log/messages
+rm -rf /dev/earlylog
+
+/usr/sbin/syslogd -m 0
+echolog "e" "s" "" "Started syslogd"
 
 # Deal with potentially changed NICs
 /usr/sbin/compareMACs
@@ -194,9 +216,6 @@ chmod g=r /usr/etc/token[123].sum
 
 echolog "e" "s" "" "Generate UPNP UUID"
 /usr/bin/uuidgen >/etc/miniupnpd.uuid
-
-echolog "e" "s" "" "Start syslogd"
-/usr/sbin/syslogd -m 0
 
 echolog "e" "s" "" "Load other filesystems"
 /sbin/modprobe msdos

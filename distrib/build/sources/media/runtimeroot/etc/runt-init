@@ -40,9 +40,14 @@ test -e /etc/modules && egrep -v "^$|^#" /etc/modules | while read a; do modprob
 
 # Brute-force create harddisk links if udev didn't; this should fix many SCSI/RAID
 #   logical drives.
-# Also, SCSI RAID apparently can take some time to become ready, so try for 15 seconds.
+# SCSI RAID apparently can take some time to become ready, so try for 15 seconds.
+# Loop testing for the existence of /dev/harddisk4. If udev eventually creates it but
+#   we don't detect it (because we only look for /dev/sda4), the loop will terminate
+#   anyway. Also, if the symlink already exists, the loop doesn't start. Note that it
+#   is still a problem if the driver creates nodes--other than /dev/sda*--for which
+#    udev doesn't have a rule.
 typeset -i i; i=0
-while true; do
+while [ ! -e "/dev/harddisk4" ]; do
 
   # Feedback after one second
   if [ $i -eq 10 ]; then

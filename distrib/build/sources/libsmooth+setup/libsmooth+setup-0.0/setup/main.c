@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 	newtInit();
 	newtCls();
 
-	newtDrawRootText(0, 0, "                Smoothwall Express 3.1 -- http://smoothwall.org/");
+	newtDrawRootText(0, 0, "Smoothwall " PRODUCT_NAME PRODUCT_EXTRA " (" PRODUCT_ARCH ") -- http://smoothwall.org/");
 	newtPushHelpLine(ctr[TR_HELPLINE]);		
 
 	if (automode == 0)

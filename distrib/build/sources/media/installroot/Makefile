@@ -104,7 +104,11 @@ all: clean bin lib klibc
 	  cp -aR ../etc/upgrade-outgoing.pl etc; chmod 755 etc/upgrade-outgoing.pl; \
 	  cp -aR ../etc/upgrade-outgoing.sh etc; chmod 755 etc/upgrade-outgoing.sh; \
 	  sed -e 's/KeRnElVeRsIoN/$(KERNEL_VER)/' \
-	      -e 's/KeRnElTyPe/$(KERNEL_TYPE)/' <../etc/exec-install.rc.src \
+	      -e 's/KeRnElTyPe/$(KERNEL_TYPE)/' \
+	      -e 's/PRODUCT_NAME/$(PRODUCT_NAME)/' \
+	      -e 's/PRODUCT_VERSION/$(PRODUCT_VERSION)/' \
+	      -e 's/PRODUCT_EXTRA/$(PRODUCT_EXTRA)/' \
+	      -e 's/mARCH/$(mARCH)/' <../etc/exec-install.rc.src \
 	    >etc/exec-install.rc; \
 	  sed -e 's/PRODUCT_NAME/$(PRODUCT_NAME)/' \
 	      -e 's/PRODUCT_VERSION/$(PRODUCT_VERSION)/' \

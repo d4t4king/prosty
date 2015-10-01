@@ -4,7 +4,9 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
-include ../../../Makefile.versions
+include ../../../Makefile
+
+VERSION_DEFINES = -DPRODUCT_NAME="\"$(PRODUCT_NAME) $(PRODUCT_VERSION)\"" -DPRODUCT_EXTRA="\"$(PRODUCT_EXTRA)\"" -DPRODUCT_ARCH="\"$(mARCH)\""
 
 CC=gcc 
 
@@ -12,7 +14,7 @@ LD=gcc
 LDFLAGS=-g -L../libsmooth
 LIBS=-lnewt -lslang -ldl -lsmooth
 
-COMPILE=$(CC) -c $(INCLUDE) $(CFLAGS)
+COMPILE=$(CC) -c $(VERSION_DEFINES) $(INCLUDE) $(CFLAGS)
 
 LINK=$(LD) $(LIBRARY) $(LDFLAGS)
 

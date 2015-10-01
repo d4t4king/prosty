@@ -6,7 +6,7 @@ l6:6:wait:/etc/rc.d/rc.halt reboot
 si::sysinit:/etc/rc.d/rc.sysinit
 
 # Trap CTRL-ALT-DELETE
-ca::ctrlaltdel:/etc/rc.d/rc.halt halt
+ca::ctrlaltdel:/sbin/init 0
 
 # Run gettys in standard runlevels
 S0:2345:off:/sbin/agetty 115200 ttyS0

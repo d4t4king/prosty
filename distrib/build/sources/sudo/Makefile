@@ -11,6 +11,6 @@ VERSION = 1.8.6p4
 
 BASE_URL = http://www.gratisoft.us/sudo/dist
 
-CONFIG_OPTS += --without-pam
+#CONFIG_OPTS += --without-pam
 
 include ../Makefile.rules
