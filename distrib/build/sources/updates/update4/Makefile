@@ -4,6 +4,7 @@ UPDATE_PACKAGES = \
 		  xtables-addons \
 		  ipset \
 		  ipbatch \
+		  libsmooth+setup \
 		  openswan \
 		  smoothd \
 		  snort \
