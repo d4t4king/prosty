@@ -13,7 +13,6 @@ VERSION = 3.5.9
 BASE_URL = http://www.squid-cache.org/Versions/v3/3.5/
 
 CONFIG_OPTS += --disable-arch-native \
-	       --disable-ipv6 \
 	       --enable-delay-pools \
 	       --enable-http-violations \
 	       --enable-icap-client \
