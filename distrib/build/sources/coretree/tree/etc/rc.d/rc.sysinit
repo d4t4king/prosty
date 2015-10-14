@@ -57,6 +57,12 @@ fi
 echolog "e" "s" "" "Remount root read/write"
 mount -n -o remount,rw /
 
+# Adjustments and cleanup
+chmod 1777 /tmp
+find /var/run -name '*.pid' -type f -exec rm -f '{}' \;
+rm -f /var/lock/LCK..ttyS*
+rm -f /var/run/pppd*.tdb
+
 echolog "e" "s" "" "Make /dev/shm a tmpfs, mode 1777"
 mount -t tmpfs tmpfs /dev/shm
 chmod 1777 /dev/shm
@@ -155,11 +161,6 @@ chmod 660 /dev/ttyI* >/dev/null 2>&1
 # But it really should use tty63, just so it's way out of the way.
 chmod 622 /dev/tty13 >/dev/null 2>&1
 chgrp nobody /dev/tty13 >/dev/null 2>&1
-
-chmod 1777 /tmp
-find /var/run -name '*.pid' -type f -exec rm -f '{}' \;
-rm -f /var/lock/LCK..ttyS*
-rm -f /var/run/pppd*.tdb
 
 # Prepare red files
 . /etc/rc.d/inc.clearRED

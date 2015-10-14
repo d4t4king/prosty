@@ -225,6 +225,7 @@ endif
 	@ln -s /var/smoothwall/vpn/ipsec.conf distrib/etc/ipsec.conf
 	@cd distrib; chown -R root:root usr/share/ntop usr/etc/ntop
 	@cd distrib/etc; mkdir -p apcupsd/scripts && chown root:root apcupsd/scripts && chmod 755 apcupsd/scripts
+	@cd distrib/etc; chmod -R g-w,o-w logrotate*
 	@cd distrib-doc; chown -R root:root .
 	@cd distrib/bin; ln -s /usr/bin/gzip gzip
 	
