@@ -389,6 +389,7 @@ fi
       build c_icap_modules
       build squidclamav
       build aide
+      build wireshark
 
       touch crumbs/Final.grp6.compiled
     fi
