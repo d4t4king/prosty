@@ -412,7 +412,8 @@ sub displaytable
 				if ( $colourcolumn != 0 ){
 					$text = "<span class='$colourtranslations->{$cols[$colourcolumn]}'>$text</span>";
 				}
-				print "<td$rowspan class='list' style='$colour$styles[$entry]; padding:.1em .5em'><p style='margin:0'>$text</p></td>\n";
+				print "<td$rowspan class='list' style='$colour$styles[$entry]; padding:.1em .5em'>";
+				print "<p style='margin:0'>$text</p></td>\n";
 				# Single use!
 				$rowspan = "";
 
@@ -424,7 +425,11 @@ sub displaytable
 				if ( $mark ne " " ){
 					$newmark = $mark;
 				}
-				print "<td class='list' style='$colour$styles[$entry]' onclick=\"toggle_mark('R${id}_$cols[0]');\"><input id ='R${id}_$cols[$column]' type='checkbox' name='$newmark$cols[$column]' onclick=\"toggle_mark('R${id}_$cols[0]');\"></td>";
+				print "<td class='list' style='$colour$styles[$entry]'";
+				print " onclick=\"toggle_mark('R${id}_$cols[0]');\">";
+				print "<input id ='R${id}_$cols[$column]' type='checkbox'";
+				print " name='$newmark$cols[$column]'";
+				print " onclick=\"toggle_mark('R${id}_$cols[0]');\"></td>";
 			}
 			$entry++;
 		}
@@ -432,7 +437,10 @@ sub displaytable
 		# do we need to render any comments etc ?
 		foreach my $reference ( @breaks ){
 			if ( defined $cols[$reference] and $cols[$reference] ne "" ){
-				print "</tr><tr class='list'><td style='padding:.1em .5em; $colour$styles[$entry]' class='listcomment' colspan='$colcount'$styles[$entry]><i>$cols[$reference]</i></td>\n";
+				print "</tr><tr class='list'>";
+				print "<td style='padding:.1em .5em; $colour$styles[$entry]'";
+				print " class='listcomment' colspan='$colcount'>";
+				print "<i>$cols[$reference]</i></td>\n";
 			}
 		}
 
@@ -706,7 +714,8 @@ sub dispaliastab
 				if ( $colourcolumn != 0 ){
 					$text = "<span class='$colourtranslations->{$cols[$colourcolumn]}'>$text</span>";
 				}
-				print "<td$rowspan class='list' style='$colour$styles[$entry]; padding:.1em .5em'><p style='margin:0'>$text</p></td>\n";
+				print "<td$rowspan class='list' style='$colour$styles[$entry]; padding:.1em .5em'>";
+				print "<p style='margin:0'>$text</p></td>\n";
 				# Single use!
 				$rowspan = "";
 
@@ -724,7 +733,11 @@ sub dispaliastab
 				} else {
 					$text = 'DISABLED';
 				}
-				print "<td class='list' style='$colour$styles[$entry]' onclick=\"toggle_mark('R${id}_$cols[0]');\"><input id ='R${id}_$cols[$column]' type='checkbox' name='$newmark$cols[$column]' onclick=\"toggle_mark('R${id}_$cols[0]');\"></td>";
+				print "<td class='list' style='$colour$styles[$entry]'";
+				print " onclick=\"toggle_mark('R${id}_$cols[0]');\">";
+				print "<input id ='R${id}_$cols[$column]' type='checkbox'";
+				print " name='$newmark$cols[$column]'";
+				print " onclick=\"toggle_mark('R${id}_$cols[0]');\"></td>";
 			}
 			$entry++;
 		}
@@ -736,7 +749,9 @@ sub dispaliastab
 				if ($cols[$reference] =~ /\+/) {
 					$cols[$reference] =~ s/\+//;
 				}
-				print "</tr><tr class='list'><td style='padding:.1em .5em; $colour$styles[$entry]' class='listcomment' colspan='$colcount'$styles[$entry]><i>$cols[$reference]</i></td>\n";
+				print "</tr><tr class='list'><td style='padding:.1em .5em; $colour$styles[$entry]'";
+				print " class='listcomment' colspan='$colcount']>";
+				print "<i>$cols[$reference]</i></td>\n";
 			}
 		}
 

@@ -429,7 +429,7 @@ foreach $graphname (@graphs)
 		if ($name eq "") 
 		{ 
 			print "<a href='".$ENV{'SCRIPT_NAME'}."?i=".(substr($graphname,0,index($graphname,"-")))."'";
-			print " title='click for detailed graphs for the ".$name." interface'>";
+			print " title='click for detailed graphs for the ".$graphinterface." interface'>";
 			print "<img";
 		}
 		else

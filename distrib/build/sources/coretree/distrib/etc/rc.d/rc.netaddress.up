@@ -94,6 +94,8 @@ if [ "$CONFIG_TYPE" == "2" -o "$CONFIG_TYPE" == "3" -o "$CONFIG_TYPE" == "6" -o 
 			nicsToUp="$nicsToUp $RED_DEV"
 			if [ "$DEFAULT_GATEWAY" != "" ]; then
 				nicsToUp="$nicsToUp $DEFAULT_GATEWAY"
+			else
+				echolog "e" "s" "" "No default gateway found for STATIC RED; re-run setup"
 			fi
 		else
 			# Must be PPPoX; link must be up, but needs no addressing
