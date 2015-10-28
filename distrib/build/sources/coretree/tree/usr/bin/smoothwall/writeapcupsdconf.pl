@@ -203,7 +203,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGONBATTERY} eq 'on') {
 export NOTIFYTYPE="ONBATTERY"
 export SUBJECT="Utility Power Failure! UPS running on batteries."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -224,7 +224,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGOFFBATTERY} eq 'on') {
 export NOTIFYTYPE="OFFBATTERY"
 export SUBJECT="Utility Power Failure! UPS no longer running on batteries."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -245,7 +245,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGCOMMFAILURE} eq 'on') {
 export NOTIFYTYPE="COMMFAILURE"
 export SUBJECT="Communication with UPS lost."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -266,7 +266,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGCOMMOK} eq 'on') {
 export NOTIFYTYPE="COMMOK  "
 export SUBJECT="Communication with UPS restored."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -287,7 +287,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGCHANGEME} eq 'on') {
 export NOTIFYTYPE="CHANGEME"
 export SUBJECT="UPS batteries require replacement."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -308,7 +308,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGANNOY} eq 'on') {
 export NOTIFYTYPE="ANNOY   "
 export SUBJECT="Power problems with UPS"
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -329,7 +329,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGBATTATTACH} eq 'on') {
 export NOTIFYTYPE="BATTATTACH"
 export SUBJECT="UPS Battery has been reconnected."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -350,7 +350,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGBATTDETACH} eq 'on') {
 export NOTIFYTYPE="BATTDETACH"
 export SUBJECT="UPS Battery has been disconnected."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -371,7 +371,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGDOSHUTDOWN} eq 'on') {
 export NOTIFYTYPE="DOSHUTDOWN"
 export SUBJECT="UPS initiating Shutdown Sequence."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -392,7 +392,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGEMERGENCY} eq 'on') {
 export NOTIFYTYPE="EMERGENCY"
 export SUBJECT="Emergency Shutdown. Possible battery failure on UPS."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -413,7 +413,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGENDSELFTEST} eq 'on') {
 export NOTIFYTYPE="ENDSELFTEST"
 export SUBJECT="UPS Self Test ended."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -434,7 +434,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGFAILING} eq 'on') {
 export NOTIFYTYPE="FAILING "
 export SUBJECT="Battery power exhausted on UPS. Doing shutdown."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -455,7 +455,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGKILLPOWER} eq 'on') {
 export NOTIFYTYPE="KILLPOWER"
 export SUBJECT="Apccontrol doing: /sbin/apcupsd --killpower on UPS!"
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -476,7 +476,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGLOADLIMIT} eq 'on') {
 export NOTIFYTYPE="LOADLIMIT"
 export SUBJECT="Remaining battery charge below limit on UPS. Doing shutdown."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -497,7 +497,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGPOWERBACK} eq 'on') {
 export NOTIFYTYPE="MAINSBACK"
 export SUBJECT="Utility Power Restored!"
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -518,7 +518,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGPOWEROUT} eq 'on') {
 export NOTIFYTYPE="POWEROUT"
 export SUBJECT="Utility Power Failure!"
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -539,7 +539,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGREMOTEDOWN} eq 'on') {
 export NOTIFYTYPE="REMOTEDOWN"
 export SUBJECT="Remote Shutdown. Beginning Shutdown Sequence."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -560,7 +560,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGRUNLIMIT} eq 'on') {
 export NOTIFYTYPE="RUNLIMIT"
 export SUBJECT="Remaining battery runtime below limit on UPS. Doing shutdown."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -581,7 +581,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGSTARTSELFTEST} eq 'on') {
 export NOTIFYTYPE="STARTSELFTEST"
 export SUBJECT="UPS Self Test started."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END
@@ -602,7 +602,7 @@ if ($settings{'ENABLEALERTS'} eq 'on' and $settings{MSGTIMEOUT} eq 'on') {
 export NOTIFYTYPE="TIMEOUT "
 export SUBJECT="Battery time limit exceeded on UPS. Doing shutdown."
 export UPSNAME=\$(hostname)
-/etc/apcupsd/scripts/notify.pl
+/usr/bin/smoothwall/upsd-notify.pl
 
 exit 0
 END

@@ -21,6 +21,8 @@ prepare: unpack
 	rm -f linux
 	ln -s linux-$(K_RAW_VERSION) linux
 
+	cd linux; patch -p1 < ../../kernel-patches/nf-conntrack-core.patch
+
 	make -C linux mrproper
 
 	sed -e 's/^CONFIG_LOCALVERSION=.*$$/CONFIG_LOCALVERSION="$(KERNEL_TYPE)"/' ../linux.config$(KERNEL_TYPE)-$(mARCH) > linux/.config

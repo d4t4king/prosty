@@ -57,10 +57,6 @@ int ipbatch(std::vector<std::string> &arg)
       fprintf(output, "%s\n", (*i).c_str());
       fflush(output);
    }
-   fprintf(output, "commit\n");
-   fflush(output);
-   fprintf(output, "end\n");
-   fflush(output);
    
    return pclose(output);
 }
