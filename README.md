@@ -5,6 +5,7 @@ Smoothwall Express 3.1.....plus some.
 ![Travis-CI Build Status Image](https://travis-ci.org/d4t4king/off-the-wall.svg?branch=master)
 
 Newly added:
+* 2015-10-29 - Added sysstat executables.  Will probably (at least) add a drontab interface to show audit data captured by these tools.  May morph into RRD graphs, and/or an extension of the pgraphs mod.
 * Wireshark without the UI:
 	* This is primarily to test a feature that may turn into something more.  I had this idea about capturing packets on both the RED+GREEN interfaces, and them merging them into one pcap file for analysis.  This is easiler facilitated using tshark (the commandline wireshark utility) and related tools (specifically `mergecap`).
 

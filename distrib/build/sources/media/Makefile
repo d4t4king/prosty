@@ -55,7 +55,7 @@ INST_PKGS = glibc libsmooth+setup libgcc freetype libpng libdnet \
 	    $(UDEV) lm_sensors xz pcmciautils qemu sysfsutils db squidGuard \
 	    apcupsd cacert-bundle setkerneltz htop curl iptraf-ng \
 	    kernel-drivers ruby cracklib libgpg-error libgcrypt libksba \
-	    libassuan Linux-PAM aide \
+	    libassuan Linux-PAM aide sysstat \
 	    coretree $(ADV_PKGS) device-ids
 
 # INST_PKGS notes.

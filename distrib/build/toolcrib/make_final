@@ -390,6 +390,7 @@ fi
       build squidclamav
       build aide
       build wireshark
+      build sysstat
 
       touch crumbs/Final.grp6.compiled
     fi
