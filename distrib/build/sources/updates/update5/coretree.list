@@ -1,5 +1,8 @@
 ./etc/cron.weekly/logrotate
+./etc/rc.d/rc.firewall.up
+./etc/rc.d/rc.netaddress.up
 ./etc/rc.d/rc.sysinit
+./httpd/cgi-bin/bandwidthbars.cgi
 ./httpd/cgi-bin/graphs.cgi
 ./usr/bin/smoothwall/writeapcupsdconf.pl
 ./usr/lib/smoothwall/header.pm

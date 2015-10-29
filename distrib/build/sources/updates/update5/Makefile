@@ -2,6 +2,7 @@ UPDATE_PACKAGES = \
 		  linux \
 		  xtables-addons \
 		  kernel-drivers \
+		  ipbatch \
 		  coretree
 
 
