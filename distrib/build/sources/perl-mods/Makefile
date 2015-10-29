@@ -53,6 +53,10 @@ export PERL_MODS = \
 	    local-lib \
 	    Net-SSLeay \
 		DBD-SQLite \
+		MIME-Types \
+		MailTools \
+		Email-Date-Format \
+		MIME-Lite \
 	    IO-Socket-SSL
 
 DOWNLOAD = yes
