@@ -143,17 +143,22 @@ fi
 # IPSEC
 /sbin/iptables -N secin
 /sbin/iptables -A secin -i ipsec0 -j ACCEPT
-/sbin/iptables -A INPUT -j secin
-
 /sbin/iptables -N secout
-/sbin/iptables -A secout -i ipsec0 -j ACCEPT
-/sbin/iptables -A FORWARD -j secout
+/sbin/iptables -A secout -o ipsec0 -j ACCEPT
 
 # block is an INPUT chain.
 /sbin/iptables -N block
 
-# Let em through.
+# Let known packets through.
 /sbin/iptables -A block -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Technically, since Smoothwall Express does not use NOTRACK and INVALID packets have
+#   already been dropped, everything in chain block after this point *must* be NEW. There is
+#   no need to check for state NEW.
+
+# Check IPSEC packets
+/sbin/iptables -A block -j secin
+
 /sbin/iptables -A block -i $GREEN_DEV -j ACCEPT
 if [ "$PURPLE_DEV" != "" ]; then
 	/sbin/iptables -A block -i $PURPLE_DEV -j ACCEPT
@@ -230,6 +235,15 @@ if [ "$PURPLE_DEV" != "" ]; then
 fi
 
 /sbin/iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Technically, since Smoothwall Express does not use NOTRACK and since INVALID packets have
+#   already been dropped, everything in FORWARD after this point *must* be NEW. There is
+#   no need to check for state NEW.
+
+# IPSEC itself determines what passes through the VPN. It should be safe to ACCEPT
+#   all packets to and from ipsec0
+/sbin/iptables -A FORWARD -j secin
+/sbin/iptables -A FORWARD -j secout
 
 # Allow packets that we know about through.
 /sbin/iptables -A FORWARD -m state --state NEW -o ppp0 -j outbound
