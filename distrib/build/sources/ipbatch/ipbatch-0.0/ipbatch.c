@@ -377,6 +377,11 @@ main(int argc, char *argv[])
 
 #ifdef NO_SHARED_LIBS
 	init_extensions();
+#ifdef IP6T
+	init_extensions6();
+else
+	init_extensions4();
+#endif
 #endif
 	if(argc > 1)
 	{
