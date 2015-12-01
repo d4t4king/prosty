@@ -7,7 +7,7 @@
 %baseabouttext = (
 
 'index.cgi'		=> '
-Welcome to <strong>Smoothwall Express</strong> ' . $displayVersion . '<br>
+Welcome to Smoothwall ' . $displayVersion . '<br>
 This is your gateway to configuring and administering your Smoothwall
 firewall.  Further information on your Smoothwall Express is available from <a href=\'http://www.smoothwall.org/\'
  title=\'www.smoothwall.org - external link\'>our website</a>.

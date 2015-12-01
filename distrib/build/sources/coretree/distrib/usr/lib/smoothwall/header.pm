@@ -48,23 +48,6 @@ sub requireConditional
 
 $| = 1; # line buffering
 
-# Work out some various details from the various system files.
-# such as fixes number etc.
-
-my %productdata;
-&readhash( "/var/smoothwall/main/productdata", \%productdata );
-
-$version = "$productdata{'VERSION'}-$productdata{'REVISION'}-$productdata{'ARCH'}";
-$displayVersion = "$productdata{'VERSION'}$productdata{'EXTRA'}-$productdata{'REVISION'}-$productdata{'ARCH'}";
-
-$webuirevision = $productdata{'UI_VERSION'};
-$viewsize = 200;
-
-# some system wide (yuck) global variables.  not pretty, but make things easier.
-
-my @menu;
-my $span = 0;
-
 # some constant defaults.
 
 $swroot = '/var/smoothwall';
@@ -76,6 +59,40 @@ if (defined $ENV{'SCRIPT_NAME'})
 } else {
   $thisscript = "";
 }
+
+# Work out some various details from the various system files.
+# such as fixes number etc.
+
+my %productdata;
+&readhash( "/var/smoothwall/main/productdata", \%productdata );
+
+# This is used for some filenames, I think; it must have this form.
+$version = "$productdata{'VERSION'}-$productdata{'REVISION'}-$productdata{'ARCH'}";
+
+# This is used to display the version in the UI and in smoothinfo.
+if (! -z "${swroot}/patches/installed") {
+  open (INSTALLED,"<${swroot}/patches/installed") || die "Unable to open $!";
+  my @installed = (<INSTALLED>);
+  close (INSTALLED);
+  my $patch = pop (@installed);
+  my @update = split (/\|/, $patch);
+  my $updatenumber = $update[1];
+  $updatenumber =~ s/-i586//;
+  $updatenumber =~ s/-x86_64//;
+  $displayVersion = "$productdata{'PRODUCT'} $productdata{'VERSION'}$productdata{'EXTRA'}";
+  $displayVersion .= "-$productdata{'REVISION'}-$productdata{'ARCH'}-$updatenumber";
+} else {
+  $displayVersion = "$productdata{'PRODUCT'} $productdata{'VERSION'}$productdata{'EXTRA'}";
+  $displayVersion .= "-$productdata{'REVISION'}-$productdata{'ARCH'}";
+}
+
+$webuirevision = $productdata{'UI_VERSION'};
+$viewsize = 200;
+
+# some system wide (yuck) global variables.  not pretty, but make things easier.
+
+my @menu;
+my $span = 0;
 
 use Net::Domain qw(hostname hostfqdn hostdomain);
 my $hostname = hostfqdn();
@@ -663,7 +680,7 @@ sub closepage
         <tr>
 	  <td class='footer' colspan='2' style='width:100%'>
             <div style="width:35%; text-align:left; margin:2px; display:inline-block; float:left">
-              <strong>Smoothwall Express $displayVersion</strong><br/>
+              <strong>Smoothwall $displayVersion</strong><br/>
               Smoothwall&trade; is a trademark of <a href='http://www.smoothwall.net/'>Smoothwall Limited</a>.
             </div>
             <p id='currentTime' style='margin:.1em 0 0 0; width:29%;
