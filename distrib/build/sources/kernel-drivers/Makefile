@@ -20,11 +20,12 @@ I40EVF_VER = 1.3.33
 I40E_VER = 1.3.46
 R8168_VER = 8.039.00
 NCT6775_VER = v1.1
+ASIX_88179_178A_VER = 1.14.2
 
 
 PACKAGES = package-r8168 package-nct6775 package-igb package-igbvf \
 	   package-ixgbe package-ixgbevf package-i40evf package-i40e \
-	   package-e1000e
+	   package-e1000e package-asix-88179_178a
 BROKEN_PKGS = package-e1000
 
 
@@ -39,6 +40,7 @@ download:
 	@$(DL_CMD) http://dfn.dl.sourceforge.net/sourceforge/e1000/i40evf-$(I40EVF_VER).tar.gz
 	@$(DL_CMD) http://dfn.dl.sourceforge.net/sourceforge/e1000/i40e-$(I40E_VER).tar.gz
 	@$(DL_CMD) http://r8168dl.appspot.com/files/r8168-$(R8168_VER).tar.bz2
+	@$(DL_CMD) http://www.asix.com.tw/FrootAttach/driver/AX88179_178A_LINUX_DRIVER_v$(ASIX_88179_178A_VER)_SOURCE.tar.gz
 
 
 # The preparation section: unpack and patch
@@ -55,6 +57,9 @@ prepare: download
 	tar -xvf $(DOWNLOADS_DIR)/e1000e-$(E1000E_VER).tar.gz
 	tar -xvf $(DOWNLOADS_DIR)/i40evf-$(I40EVF_VER).tar.gz
 	tar -xvf $(DOWNLOADS_DIR)/i40e-$(I40E_VER).tar.gz
+	tar -xvf $(DOWNLOADS_DIR)/AX88179_178A_LINUX_DRIVER_v$(ASIX_88179_178A_VER)_SOURCE.tar.gz
+	cd AX88179_178A_LINUX_DRIVER_v$(ASIX_88179_178A_VER)_SOURCE; \
+	  patch -p1 < ../ax88179-makefile.patch
 
 
 # The compile section
@@ -84,6 +89,9 @@ compile-r8168:
 
 compile-nct6775:
 	$(MAKE) $(JOBS) V=1 -C nct6775-$(NCT6775_VER)/ -j $(PARA_JOBS) CFLAGS="$(CFLAGS)" KSRC=$(KERNEL_DIR) K_VERSION=3.4
+
+compile-asix-88179_178a:
+	$(MAKE) $(JOBS) V=1 -C AX88179_178A_LINUX_DRIVER_v$(ASIX_88179_178A_VER)_SOURCE -j $(PARA_JOBS) CFLAGS="$(CFLAGS)" KSRC=$(KERNEL_DIR) K_VERSION=3.4
 
 
 # The package section: install in buildroot
@@ -123,6 +131,10 @@ package-nct6775: compile-nct6775
 	install -D $(DRIVER_DIR)/nct6775-$(NCT6775_VER)/nct6775.ko \
 		$(PKG_ROOT)/lib/modules/$(K_SWE_VERSION)/kernel/drivers/hwmon/nct6775.ko
 
+package-asix-88179_178a: compile-asix-88179_178a
+	install -D $(DRIVER_DIR)/AX88179_178A_LINUX_DRIVER_v$(ASIX_88179_178A_VER)_SOURCE/ax88179_178a.ko \
+		$(PKG_ROOT)/lib/modules/$(K_SWE_VERSION)/kernel/drivers/net/usb/ax88179_178a.ko
+
 
 # The tarball section
 $(TARGET_DIR)/smoothwall-$(PACKAGE).tar.gz: prepare $(PACKAGES)
@@ -145,6 +157,7 @@ clean:
 	@rm -rf i40e-$(I40E_VER)
 	@rm -rf r8168-$(R8168_VER)
 	@rm -rf nct6775-$(NCT6775_VER)
+	@rm -rf AX88179_178A_LINUX_DRIVER_v$(ASIX_88179_178A_VER)_SOURCE
 ifeq ($(BUILD_PHASE), Final)
 	@rm -rf $(PKG_ROOT); mkdir -p $(PKG_ROOT)
 endif
