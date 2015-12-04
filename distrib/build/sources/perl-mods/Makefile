@@ -19,6 +19,7 @@ VERSION = 0.1
 #   are moved to the end of the list.
 export PERL_MODS = \
 	    App-Control \
+	    Archive-Zip \
 	    Authen-NTLM \
 	    Authen-SASL \
 		Bit-Vector \
