@@ -43,7 +43,7 @@ sub message
 	# read from the socket ( to get the response )
 
 	my $line;
-	my $timeout = 30;
+	my $timeout = 60;
 
 	eval {
 	    local $SIG{ALRM} = sub { die "alarm timeout"; };

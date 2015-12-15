@@ -8,7 +8,7 @@
 /usr/bin/killall trafficlogger
 
 # Take down dialup, ISDN or stutterpox
-if [ $RED_TYPE != 'STATIC' -a $RED_TYPE != 'DHCP' ]; then
+if [ "$RED_TYPE" != 'STATIC' -a "$RED_TYPE" != 'DHCP' ]; then
   /usr/bin/smoothcom updown down
   # Add this for good measure, Justin Case.
   /etc/ppp/ip-down

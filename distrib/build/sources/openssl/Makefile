@@ -6,7 +6,7 @@
 
 include ../Makefile.conf
 
-OPENSSL_VER = 1.0.1p
+OPENSSL_VER = 1.0.1q
 
 PACKAGE = openssl
 VERSION = $(OPENSSL_VER)
