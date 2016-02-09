@@ -67,7 +67,10 @@ while [ 1 -eq 1 ]; do
       ID_TYPE=`$UDEVINFO | grep ID_TYPE | sed -e 's/.*=//'`
       # virtio disks don't follow the custom
       if [ -z "$ID_TYPE" ]; then
-        $UDEVINFO | egrep "DEVPATH.*virtio" >/dev/null 2>&1 && ID_TYPE="disk"
+        if $UDEVINFO | egrep "DEVPATH.*virtio" >/dev/null 2>&1; then
+          ID_TYPE="disk"
+          model="VIRTIO"
+        fi
       fi
       DEVNAM=`$UDEVINFO | grep DEVNAM | sed -e 's|.*=/dev/||'`
       set `cat ${device}/size`
@@ -76,7 +79,7 @@ while [ 1 -eq 1 ]; do
       else
         size=0
       fi
-      model=`$UDEVINFO | grep ID_MODEL= | sed -e 's/.*=//'`
+      [ -z "$model" ] && model=`$UDEVINFO | grep ID_MODEL= | sed -e 's/.*=//'`
       [ -z "$model" ] && model=`cat ${device}/device/model 2>&1 | sed -e 's/ /-/g'`
       [ -z "$model" ] && model="UNK_MODEL"
 

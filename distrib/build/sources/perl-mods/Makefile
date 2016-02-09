@@ -58,7 +58,9 @@ export PERL_MODS = \
 		MailTools \
 		Email-Date-Format \
 		MIME-Lite \
-	    IO-Socket-SSL
+	    IO-Socket-SSL \
+	    XML-Parser \
+	    XML-Simple
 
 DOWNLOAD = yes
 download:

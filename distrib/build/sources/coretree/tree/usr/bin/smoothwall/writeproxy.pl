@@ -88,7 +88,7 @@ print FILE <<END;
 maximum_object_size $proxysettings{'MAX_SIZE'} KB
 minimum_object_size $proxysettings{'MIN_SIZE'} KB
 
-cache_dir diskd /var/spool/squid/cache $proxysettings{'CACHE_SIZE'} 16 256
+cache_dir aufs /var/spool/squid/cache $proxysettings{'CACHE_SIZE'} 16 256
 
 request_body_max_size $proxysettings{'MAX_OUTGOING_SIZE'} KB
 #reply_body_max_size $maxincomingsizebytes allow all

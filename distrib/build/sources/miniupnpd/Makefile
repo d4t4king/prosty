@@ -8,7 +8,7 @@ include ../Makefile.conf
 include ../Makefile.versions
 
 PACKAGE = miniupnpd
-VERSION = 1.9.20150721
+VERSION = 1.9.20160113
 
 BASE_URL = http://miniupnp.free.fr/files/
 
@@ -19,7 +19,7 @@ CONFIGURE = yes
 COMPILE = yes
 INSTALL = yes
 
-PRECONFIGURE = CONFIG_OPTIONS="--portinuse --vendorcfg --leasefile --pcp-peer --igd2"
+PRECONFIGURE = CONFIG_OPTIONS="--portinuse --vendorcfg --leasefile --pcp-peer --uda-version=1.1 --igd2"
 
 configure: patch
 	cd $(DIR); $(PRECONFIGURE) make -f Makefile.linux config.h

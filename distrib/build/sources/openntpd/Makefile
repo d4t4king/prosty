@@ -7,17 +7,16 @@
 include ../Makefile.conf
 
 PACKAGE = openntpd
-VERSION = 3.9p1
+VERSION = 5.7p4
 
 BASE_URL = ftp://ftp.openbsd.org/pub/OpenBSD/OpenNTPD/
 
 PATCH_FILE1 = openntpd-username.patch
-PATCH_FILE2 = openntpd-pidfile.patch
 
 INSTALL = yes
 
 install: compile
 	@mkdir -p $(PKG_ROOT)
-	@install -D $(COMPILE_DIR)/ntpd $(PKG_ROOT)$(PKG_DIR)/sbin/ntpd
+	@install -D $(COMPILE_DIR)/src/ntpd $(PKG_ROOT)$(PKG_DIR)/sbin/ntpd
 
 include ../Makefile.rules

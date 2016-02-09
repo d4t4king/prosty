@@ -58,9 +58,7 @@ CBASH=02050a
 VBASH=2.5.a #(/bin/sh should be a symbolic or hard link to bash) 
 
 CBINUTILS=021200
-CBINUTILSM=022600
 VBINUTILS=2.12
-VBINUTILSM=2.26.00
 
 CFLEX=020500
 VFLEX=2.5
@@ -88,9 +86,7 @@ CGCCM=040601
 VGCC=3.0.1
 
 CGLIBC=020205
-#CGLIBCM=021300
 VGLIBC=2.2.5
-#VGLIBCM=2.13.0
 
 CGREP=0205
 VGREP=2.5
@@ -126,6 +122,9 @@ VTAR=1.14
 
 CXZ=050000
 VXZ=5.0.0
+
+CZIP=0300
+VZIP=3.0
 
 # TEXINFO is tested with makeinfo
 CTEXINFO=0408
@@ -165,18 +164,18 @@ fi
 
 # check binutils
 if [ ! -e /usr/bin/ld ]; then
-  echo "  FAIL: /usr/bin/ld not found. Need binutilis $VBINUTILS<=version<=$VBINUTILSM."
+  echo "  FAIL: /usr/bin/ld not found. Need binutilis version>=$VBINUTILS."
   OK=OK+1
 else
   WORK=`ld --version | head -1 | sed -e 's/[^0-9.]*\(.*\)/\1/'`
   OIFS=$IFS; IFS="."; set $WORK
   TBINUTILS=`echo $1 $2 $3|awk '{printf("%2.2d%2.2d%2.2d\n", $1, $2, $3)}'`
   IFS=$OIFS
-  if [[ $TBINUTILS < $CBINUTILS || $TBINUTILS > $CBINUTILSM ]]; then
-    echo "  FAIL: binutils v$WORK FAILED ($CBINUTILS-$CBINUTILSM)"
+  if [[ $TBINUTILS < $CBINUTILS  ]]; then
+    echo "  FAIL: binutils v$WORK FAILED ($CBINUTILS)"
     OK=OK+1
   else
-    echo "    OK: binutils v$WORK seems OK (>=$VBINUTILS, <=$VBINUTILSM)"
+    echo "    OK: binutils v$WORK seems OK (>=$VBINUTILS)"
   fi
 fi
 
@@ -565,6 +564,23 @@ else
     OK=OK+1
   else
     echo "    OK: xz v$WORK seems new enough (>=$VXZ)"
+  fi
+fi
+
+# Check zip
+if [ ! -e /bin/zip -a ! -e /usr/bin/zip ]; then
+  echo "  FAIL: zip not found in /bin or /usr/bin. Need zip version>=$VZIP."
+  OK=OK+1
+else
+  WORK=`zip -? 2>&1| head -2 | tail -1 | sed -e 's/^Zip \([0-9.]*\).*/\1/'`
+  OIFS=$IFS; IFS="."; set $WORK
+  TZIP=`echo $*|awk '{printf("%2.2d%2.2d%2.2d\n", $1, $2, $3)}'`
+  IFS=$OIFS
+  if [[ $TZIP < $CZIP ]]; then
+    echo "  FAIL: zip v$WORK seems too old (<$VZIP)"
+    OK=OK+1
+  else
+    echo "    OK: zip v$WORK seems new enough (>=$VZIP)"
   fi
 fi
 

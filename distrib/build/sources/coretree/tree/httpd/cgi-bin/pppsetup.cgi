@@ -80,10 +80,10 @@ if ($pppsettings{'ACTION'} ne '' &&
 }
 elsif ($pppsettings{'ACTION'} eq $tr{'save'})
 {
-	unless ($pppsettings{'COMPORT'} =~ /^(ttyS0|ttyS1|ttyS2|ttyS3|isdn1|isdn2|pppoe|adsl)$/) {
+	unless ($pppsettings{'COMPORT'} =~ /^(ttyS0|ttyS1|ttyS2|ttyS3|isdn1|isdn2|pppoe|adsl|ttyUSB0|ttyUSB1|ttyUSB2|ttyUSB3|ttyUSB4||ttyUSB5|ttyUSB6|ttyUSB7)$/) {
 		$errormessage = $tr{'invalid input'};
 		goto ERROR; }
-	unless ($pppsettings{'DTERATE'} =~ /^(9600|19200|38400|57600|115200|230400)$/) {
+	unless ($pppsettings{'DTERATE'} =~ /^(9600|19200|38400|57600|115200|230400|460800|1000000|2000000|4000000)$/) {
 		$errormessage = $tr{'invalid input'};
 		goto ERROR; }
 	unless ($pppsettings{'DIALMODE'} =~ /^(T|P)$/) {
@@ -288,6 +288,14 @@ $selected{'COMPORT'}{'isdn1'} = '';
 $selected{'COMPORT'}{'isdn2'} = '';
 $selected{'COMPORT'}{'pppoe'} = '';
 $selected{'COMPORT'}{'adsl'} = '';
+$selected{'COMPORT'}{'ttyUSB0'} = '';
+$selected{'COMPORT'}{'ttyUSB1'} = '';
+$selected{'COMPORT'}{'ttyUSB2'} = '';
+$selected{'COMPORT'}{'ttyUSB3'} = '';
+$selected{'COMPORT'}{'ttyUSB4'} = '';
+$selected{'COMPORT'}{'ttyUSB5'} = '';
+$selected{'COMPORT'}{'ttyUSB6'} = '';
+$selected{'COMPORT'}{'ttyUSB7'} = '';
 $selected{'COMPORT'}{$pppsettings{'COMPORT'}} = 'SELECTED';
 
 $selected{'DTERATE'}{'9600'} = '';
@@ -296,6 +304,10 @@ $selected{'DTERATE'}{'38400'} = '';
 $selected{'DTERATE'}{'57600'} = '';
 $selected{'DTERATE'}{'115200'} = '';
 $selected{'DTERATE'}{'230400'} = '';
+$selected{'DTERATE'}{'460800'} = '';
+$selected{'DTERATE'}{'1000000'} = '';
+$selected{'DTERATE'}{'2000000'} = '';
+$selected{'DTERATE'}{'4000000'} = '';
 $selected{'DTERATE'}{$pppsettings{'DTERATE'}} = 'SELECTED';
 
 $checked{'SPEAKER'}{'off'} = '';
@@ -390,6 +402,14 @@ print <<END
 	<OPTION VALUE='ttyS1' $selected{'COMPORT'}{'ttyS1'}>$tr{'modem on com2'}
 	<OPTION VALUE='ttyS2' $selected{'COMPORT'}{'ttyS2'}>$tr{'modem on com3'}
 	<OPTION VALUE='ttyS3' $selected{'COMPORT'}{'ttyS3'}>$tr{'modem on com4'}
+	<OPTION VALUE='ttyUSB0' $selected{'COMPORT'}{'ttyUSB0'}>$tr{'USB Serial 0'}
+	<OPTION VALUE='ttyUSB1' $selected{'COMPORT'}{'ttyUSB1'}>$tr{'USB Serial 1'}
+	<OPTION VALUE='ttyUSB2' $selected{'COMPORT'}{'ttyUSB2'}>$tr{'USB Serial 2'}
+	<OPTION VALUE='ttyUSB3' $selected{'COMPORT'}{'ttyUSB3'}>$tr{'USB Serial 3'}
+	<OPTION VALUE='ttyUSB4' $selected{'COMPORT'}{'ttyUSB4'}>$tr{'USB Serial 4'}
+	<OPTION VALUE='ttyUSB5' $selected{'COMPORT'}{'ttyUSB5'}>$tr{'USB Serial 5'}
+	<OPTION VALUE='ttyUSB6' $selected{'COMPORT'}{'ttyUSB6'}>$tr{'USB Serial 6'}
+	<OPTION VALUE='ttyUSB7' $selected{'COMPORT'}{'ttyUSB7'}>$tr{'USB Serial 7'}
 END
 ;
 if ($isdnsettings{'ENABLED'} eq 'on')
@@ -427,6 +447,10 @@ print <<END
 	<OPTION VALUE='57600' $selected{'DTERATE'}{'57600'}>57600
 	<OPTION VALUE='115200' $selected{'DTERATE'}{'115200'}>115200
 	<OPTION VALUE='230400' $selected{'DTERATE'}{'230400'}>230400
+	<OPTION VALUE='460800' $selected{'DTERATE'}{'460800'}>460800
+	<OPTION VALUE='1000000' $selected{'DTERATE'}{'1000000'}>1000000
+	<OPTION VALUE='2000000' $selected{'DTERATE'}{'2000000'}>2000000
+	<OPTION VALUE='4000000' $selected{'DTERATE'}{'4000000'}>4000000
 	</SELECT>
 	</TD>
 </TR>

@@ -388,6 +388,8 @@ fi
       build c_icap
       build c_icap_modules
       build squidclamav
+      build usb-modeswitch
+      build zip
       build aide
       build wireshark
       build sysstat

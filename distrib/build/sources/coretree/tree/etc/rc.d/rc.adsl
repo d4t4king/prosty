@@ -19,7 +19,7 @@ if [ "$ENABLED" = "on" ]; then
 		/sbin/modprobe eagle-usb if_name=eagle
 		sleep 5
 		/usr/sbin/eaglectrl -w
-		/sbin/ifconfig eagle up
+		/usr/sbin/ip link set dev eagle up
 	fi
 	if [ "$DEVICE" = "UNICORN" ]; then
 		/sbin/modprobe unicorn_pci_atm

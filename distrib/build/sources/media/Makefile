@@ -71,7 +71,7 @@ INST_PKGS = glibc libsmooth+setup libgcc freetype libpng libdnet \
 DEV_PKGS = kernel-headers patch make autoconf automake bison dejagnu gcc \
 	   gdb tcl m4 neon git screen lynx groff man man-pages \
 	   klibc pkg-config sudo texinfo busybox \
-	   libtool nasm acpica
+	   libtool nasm acpica zip
 
 NOT_DRIVERS = drivers/video
 
