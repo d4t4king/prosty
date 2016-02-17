@@ -20,6 +20,14 @@ this to the COM port that is connected to the modem. Enter your ISP's dial-in
 access modem number into the number box. It should contain only digits, no
 hyphens.</P>
 
+<P><B>USB Cellular modem:</B> A drop-down box sets the modem COM port. Choose one of
+USB Serial 0 through USB Serial 7. Depending on the modem, you will typically
+select USB Serial 2, USB Serial 1 or USB Serial 0. You may have to
+try several times until you find the correct device. You may or may not need
+to use a dial-in number or code. Note that any baud rate you select should
+be ignored because is it not relevant to these devices.
+</P>
+
 <P>If you are connecting by ISDN, PPPoE or USB ADSL, you should choose the
 relevant method as your connection <B>Interface</B>.</P>
 
@@ -29,7 +37,8 @@ suffice and give the highest available download speed from your ISP, but on
 very old computers with old serial controllers, you may need to select a
 slower speed.  If you are using dual channel ISDN on an external ISDN TA,
 you may choose to use the highest setting, although you should be aware that
-this requires a powerful CPU in your Smoothwall.</P>
+this requires a powerful CPU in your Smoothwall. Note that the baud rate is
+usually ignored when using a USB cellular modem.</P>
 
 <P>The <B>Persistent Connection</B> checkbox is used to instruct Smoothwall
 to try to re-dial the line if the link fails for some reason. Use this with
