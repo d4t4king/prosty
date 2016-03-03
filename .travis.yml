@@ -1,0 +1,17 @@
+language: c
+
+compiler:
+  - gcc
+addons:
+  apt:
+    packages:
+      - inotify-tools
+      - bash
+before_install:
+  - sudo rm /bin/sh
+  - sudo ln -snf /bin/bash /bin/sh
+  - sudo bash distrib/build/toolcrib/host_debian_inst
+script: 
+  - cd distrib/build
+  - make predownload
+  - make build

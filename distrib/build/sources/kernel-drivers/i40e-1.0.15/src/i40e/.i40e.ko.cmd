@@ -1,0 +1,1 @@
+cmd_/build/sources/kernel-drivers/i40e-1.0.15/src/i40e/i40e.ko := ld -r -m elf_x86_64 -T /build/sources/linux/linux-3.4.104/scripts/module-common.lds --build-id  -o /build/sources/kernel-drivers/i40e-1.0.15/src/i40e/i40e.ko /build/sources/kernel-drivers/i40e-1.0.15/src/i40e/i40e.o /build/sources/kernel-drivers/i40e-1.0.15/src/i40e/i40e.mod.o

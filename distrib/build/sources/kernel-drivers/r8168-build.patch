@@ -1,0 +1,19 @@
+--- r8168-8.039.00/src/Makefile-ORIG	2015-05-03 19:51:17.000000000 -0400
++++ r8168-8.039.00/src/Makefile	2015-05-03 19:54:07.000000000 -0400
+@@ -62,12 +62,12 @@
+ 		EXTRA_CFLAGS += -DENABLE_EEE
+ 	endif
+ else
+-	BASEDIR := /lib/modules/$(shell uname -r)
+-	KERNELDIR ?= $(BASEDIR)/build
++	BASEDIR := ../../../../lib/modules/$(KERNEL_VER)
++	KERNELDIR ?= ../../../linux/linux
+ 	PWD :=$(shell pwd)
+-	DRIVERDIR := $(shell find $(BASEDIR)/kernel/drivers/net -name realtek -type d)
++	DRIVERDIR := $(DEST_DIR)
+ 	ifeq ($(DRIVERDIR),)
+-		DRIVERDIR := $(BASEDIR)/kernel/drivers/net
++		DRIVERDIR := $(DEST_DIR)/kernel/drivers/net
+ 	endif
+ 	RTKDIR := $(subst $(BASEDIR)/,,$(DRIVERDIR))
+ 
