@@ -324,7 +324,6 @@ fi
       build dhcpcd
       build eciadsl-synch_bin
       build eciadsl-usermode
-      #build cnxadsl
 
 	  build curl
       touch crumbs/Final.grp5.compiled
@@ -348,10 +347,13 @@ fi
       build noip
       build ez-ipupdate
 
-      build imspector
+	  # imspector was the brainchild of Lawrence Manning, aka aslak -- the progenitor of Smoothwall.
+	  # it has since fallen into disrepair and questionable utility.
+      #build imspector
 
       build clamav
-      build p3scan
+	  # p3scan is questionable.
+      #build p3scan
 
       build tcl
       build git
@@ -359,8 +361,13 @@ fi
       build gdb
       build lynx
       build rsync
+	  # FIX ME!!!
+	  # I think samba is built with the intent to use it in VMs -- fest3er's brainchild.
+	  # Unless there is a valid reaon to keep this, it will likely be removed.
       build samba
 
+	  # FIX ME!!!
+	  # SIP proxy is questionable.  Fix/use or delete.
       build siproxd
 
       build miniupnpd
@@ -375,7 +382,7 @@ fi
       build smartmontools
       build squidguard
       build subversion
-      build qemu
+      #build qemu
       #build setuptools
       #build mako
       build ntop

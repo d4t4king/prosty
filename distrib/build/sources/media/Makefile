@@ -48,11 +48,11 @@ INST_PKGS = glibc libsmooth+setup libgcc freetype libpng libdnet \
 	    iproute2 gd expat ethtool listtables inotify-tools bridge-utils \
 	    beep2 pcre trafficstats iftop setuids ppp isdn4k-utils rp-pppoe \
 	    ibod dhcpcd eciadsl-synch_bin eciadsl-usermode dhcp snort \
-	    oinkmaster openswan wireless_tools imspector diffutils clamav \
-	    p3scan siproxd which miniupnpd ez-ipupdate noip cdrtools \
+	    oinkmaster openswan wireless_tools diffutils clamav \
+	    siproxd which miniupnpd ez-ipupdate noip cdrtools \
 	    smartmontools at dosfstools e2fsprogs grub linux-atm \
 	    mtools nano reiserfsprogs parted xtables-addons cpio dialog \
-	    $(UDEV) lm_sensors xz pcmciautils qemu sysfsutils db squidGuard \
+	    $(UDEV) lm_sensors xz pcmciautils sysfsutils db squidGuard \
 	    apcupsd cacert-bundle setkerneltz htop curl iptraf-ng \
 	    kernel-drivers ruby cracklib libgpg-error libgcrypt libksba \
 	    libassuan Linux-PAM aide sysstat \

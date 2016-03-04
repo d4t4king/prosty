@@ -4,14 +4,14 @@
 #
 # This code is distributed under the terms of the GPL v2.
 
-PRODUCT_NAME = Express
-PRODUCT_VERSION = 3.1
-UI_VERSION = 3.1
+PRODUCT_NAME = Prosty
+PRODUCT_VERSION = 0.1
+UI_VERSION = 0.1
 
-PRODUCT_EXTRA = -SP3-otw-0.0.7
+PRODUCT_EXTRA = -alpha
 
 BASENAME = $(PRODUCT_NAME)-$(PRODUCT_VERSION)
-REVISION = otw-0.0.7
+REVISION = prosty-0.1
 
 
 # - NAME, VERSION and UI_VERSION: meaning should be fairly obvious
